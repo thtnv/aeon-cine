@@ -287,116 +287,121 @@ export default function Home() {
       {/* Ambient Spotlight Glow in Background */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[500px] bg-amber-500/[0.05] blur-[150px] rounded-full pointer-events-none -z-10"></div>
 
-      {/* Hero Banner Slider */}
-      <div className="relative w-full h-[620px] sm:h-[680px] lg:h-[750px] overflow-hidden bg-[var(--bg-void)]">
-        {heroMovies.map((hero: any, index) => (
-          <div
-            key={hero.id || index}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              index === currentHeroIndex ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
-            }`}
-          >
-            {/* Multi-layered Theatrical Vignette Gradients */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-void)] via-[var(--bg-void)]/60 to-transparent z-10"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-void)] via-[var(--bg-void)]/85 to-transparent z-10"></div>
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_transparent_30%,_var(--bg-void)_100%)] opacity-70 z-10"></div>
+      {/* Hero Banner Slider (Tỷ lệ cân đối tinh tế chuẩn rạp chiếu, không bị tràn màn hình) */}
+      <div className="relative w-full h-[460px] sm:h-[510px] lg:h-[560px] overflow-hidden bg-[var(--bg-void)]">
+        {heroMovies.map((hero: any, index) => {
+          const isActive = index === currentHeroIndex;
+          return (
+            <div
+              key={hero.id || index}
+              className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+                isActive
+                  ? 'opacity-100 z-10 visible scale-100 pointer-events-auto'
+                  : 'opacity-0 z-0 invisible pointer-events-none scale-[1.02]'
+              }`}
+            >
+              {/* Multi-layered Theatrical Vignette Gradients */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-void)] via-[var(--bg-void)]/60 to-transparent z-10"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-void)] via-[var(--bg-void)]/85 to-transparent z-10"></div>
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_transparent_30%,_var(--bg-void)_100%)] opacity-70 z-10"></div>
 
-            <img 
-              src={hero.posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920&q=80'} 
-              alt={hero.title} 
-              className="w-full h-full object-cover object-center opacity-50 dark:opacity-60 scale-105 transition-transform duration-10000 ease-out" 
-            />
+              <img 
+                src={hero.posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920&q=80'} 
+                alt={hero.title} 
+                className="w-full h-full object-cover object-center opacity-50 dark:opacity-60 transition-transform duration-10000 ease-out" 
+              />
 
-            <div className="absolute inset-0 z-20 container mx-auto px-4 lg:px-8 flex flex-col justify-center items-start pt-10">
-              <div className="max-w-3xl animate-[fadeIn_0.6s_ease-out]">
-                
-                {/* Premiere Tag with Live Indicator */}
-                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full cinema-glass-subtle border border-amber-500/30 mb-5 shadow-lg shadow-amber-500/10 dark:shadow-black/40">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                  </span>
-                  <span className="text-[11px] font-mono tracking-widest text-amber-600 dark:text-amber-300 font-bold uppercase">
-                    SIÊU PHẨM KHỞI CHIẾU ĐỘC QUYỀN
-                  </span>
-                </div>
+              <div className="absolute inset-0 z-20 container mx-auto px-4 lg:px-8 flex flex-col justify-center items-start pt-4 sm:pt-6">
+                <div className="max-w-2xl animate-[fadeIn_0.5s_ease-out]">
+                  
+                  {/* Premiere Tag with Live Indicator */}
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full cinema-glass-subtle border border-amber-500/30 mb-3.5 shadow-md shadow-amber-500/10 dark:shadow-black/40">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                    </span>
+                    <span className="text-[10px] sm:text-[11px] font-mono tracking-widest text-amber-600 dark:text-amber-300 font-bold uppercase">
+                      SIÊU PHẨM KHỞI CHIẾU ĐỘC QUYỀN
+                    </span>
+                  </div>
 
-                {/* Film Title in High-End Display Typography */}
-                <h1 className="font-display font-extrabold text-3xl sm:text-5xl lg:text-6xl text-[var(--text-main)] mb-5 uppercase tracking-normal sm:tracking-tight drop-shadow-sm dark:drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)] leading-[1.2] sm:leading-[1.15] text-balance">
-                  {hero.title}
-                </h1>
+                  {/* Film Title in High-End Display Typography */}
+                  <h1 className="font-display font-extrabold text-2xl sm:text-4xl lg:text-[44px] text-[var(--text-main)] mb-3.5 uppercase tracking-normal sm:tracking-tight drop-shadow-sm dark:drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)] leading-[1.15] text-balance">
+                    {hero.title}
+                  </h1>
 
-                {/* Film Specs & Badges Row */}
-                <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600 dark:text-gray-300 mb-8 font-medium">
-                  {/* Rating Badge */}
-                  <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30">
-                    ★ {(hero as any).rating || '9.2'} / 10
-                  </span>
+                  {/* Film Specs & Badges Row */}
+                  <div className="flex flex-wrap items-center gap-2.5 text-xs sm:text-sm text-slate-600 dark:text-gray-300 mb-5 font-medium">
+                    {/* Rating Badge */}
+                    <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold px-2 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30">
+                      ★ {(hero as any).rating || '9.2'} / 10
+                    </span>
 
-                  {/* Age Rating Badge */}
-                  <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-200/90 dark:bg-white/10 text-slate-800 dark:text-white border border-slate-300 dark:border-white/15">
-                    {hero.ageRating || 'T16'}
-                  </span>
+                    {/* Age Rating Badge */}
+                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-lg bg-slate-200/90 dark:bg-white/10 text-slate-800 dark:text-white border border-slate-300 dark:border-white/15">
+                      {hero.ageRating || 'T16'}
+                    </span>
 
-                  <span className="text-slate-400 dark:text-gray-500">•</span>
-                  <span className="text-slate-800 dark:text-gray-200 font-semibold">{hero.genre}</span>
+                    <span className="text-slate-400 dark:text-gray-500">•</span>
+                    <span className="text-slate-800 dark:text-gray-200 font-semibold">{hero.genre}</span>
 
-                  {hero.duration ? (
-                    <>
-                      <span className="text-slate-400 dark:text-gray-500">•</span>
-                      <span className="inline-flex items-center gap-1 font-mono text-xs text-slate-600 dark:text-gray-300">
-                        <Clock size={13} className="text-amber-500 dark:text-amber-400" />
-                        {hero.duration} phút
-                      </span>
-                    </>
-                  ) : null}
+                    {hero.duration ? (
+                      <>
+                        <span className="text-slate-400 dark:text-gray-500">•</span>
+                        <span className="inline-flex items-center gap-1 font-mono text-xs text-slate-600 dark:text-gray-300">
+                          <Clock size={13} className="text-amber-500 dark:text-amber-400" />
+                          {hero.duration} phút
+                        </span>
+                      </>
+                    ) : null}
 
-                  <span className="text-slate-400 dark:text-gray-500">•</span>
-                  <span className="text-[11px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                    IMAX Laser 4K
-                  </span>
-                </div>
+                    <span className="text-slate-400 dark:text-gray-500">•</span>
+                    <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      IMAX Laser 4K
+                    </span>
+                  </div>
 
-                {/* Call to Action Buttons */}
-                <div className="flex flex-wrap items-center gap-4">
-                  <button 
-                    onClick={() => {
-                      const target = `/booking/${hero.id}`;
-                      if (localStorage.getItem('token')) {
-                        navigate(target);
-                      } else {
-                        navigate(`/login?redirect=${encodeURIComponent(target)}`);
-                      }
-                    }}
-                    className="cinema-btn-primary py-4 px-8 text-sm flex items-center gap-2.5 group cursor-pointer shadow-xl shadow-amber-500/25"
-                  >
-                    <Ticket className="w-4 h-4 transition-transform group-hover:rotate-12" />
-                    <span>MUA VÉ NGAY</span>
-                  </button>
+                  {/* Call to Action Buttons */}
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button 
+                      onClick={() => {
+                        const target = `/booking/${hero.id}`;
+                        if (localStorage.getItem('token')) {
+                          navigate(target);
+                        } else {
+                          navigate(`/login?redirect=${encodeURIComponent(target)}`);
+                        }
+                      }}
+                      className="cinema-btn-primary py-2.5 sm:py-3 px-6 text-xs sm:text-sm flex items-center gap-2 group cursor-pointer shadow-lg shadow-amber-500/20"
+                    >
+                      <Ticket className="w-4 h-4 transition-transform group-hover:rotate-12" />
+                      <span>MUA VÉ NGAY</span>
+                    </button>
 
-                  <button 
-                    onClick={() => openTrailer(hero.trailerUrl, hero.title)}
-                    className="cinema-btn-glass py-4 px-7 text-sm flex items-center gap-2 group cursor-pointer"
-                  >
-                    <PlayCircle className="w-4 h-4 text-amber-500 dark:text-amber-400 transition-transform group-hover:scale-110" />
-                    <span>XEM TRAILER</span>
-                  </button>
+                    <button 
+                      onClick={() => openTrailer(hero.trailerUrl, hero.title)}
+                      className="cinema-btn-glass py-2.5 sm:py-3 px-5 text-xs sm:text-sm flex items-center gap-2 group cursor-pointer"
+                    >
+                      <PlayCircle className="w-4 h-4 text-amber-500 dark:text-amber-400 transition-transform group-hover:scale-110" />
+                      <span>XEM TRAILER</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* Theatrical Slider Progress Bar & Thumbnails */}
-        <div className="absolute bottom-10 right-4 lg:right-12 z-30 flex items-center gap-3">
+        <div className="absolute bottom-6 right-4 lg:right-12 z-30 flex items-center gap-2.5">
           {heroMovies.map((m, idx) => (
             <button
               key={idx}
               onClick={() => setCurrentHeroIndex(idx)}
               className={`h-2 rounded-full transition-all duration-500 cursor-pointer ${
                 idx === currentHeroIndex 
-                  ? 'w-10 bg-gradient-to-r from-amber-400 to-orange-500 shadow-[0_0_12px_rgba(245,158,11,0.8)]' 
-                  : 'w-2.5 bg-slate-400/40 dark:bg-white/20 hover:bg-slate-500/60 dark:hover:bg-white/40'
+                  ? 'w-8 bg-gradient-to-r from-amber-400 to-orange-500 shadow-[0_0_12px_rgba(245,158,11,0.8)]' 
+                  : 'w-2 bg-slate-400/40 dark:bg-white/20 hover:bg-slate-500/60 dark:hover:bg-white/40'
               }`}
               title={m.title}
               aria-label={`Slide ${idx + 1}`}
@@ -406,8 +411,8 @@ export default function Home() {
       </div>
 
       {/* QUICK BOOKING CONCIERGE BAR */}
-      <div className="container mx-auto px-4 lg:px-8 -mt-16 sm:-mt-20 relative z-30 mb-20">
-        <div className="cinema-glass rounded-3xl p-5 sm:p-7 shadow-2xl shadow-black/90 border border-white/10 relative overflow-hidden">
+      <div className="container mx-auto px-4 lg:px-8 -mt-12 sm:-mt-14 relative z-30 mb-16">
+        <div className="cinema-glass rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl shadow-black/90 border border-white/10 relative overflow-hidden">
           
           {/* Subtle Accent Glow */}
           <div className="absolute -top-24 left-1/3 w-96 h-32 bg-amber-500/10 blur-3xl pointer-events-none"></div>

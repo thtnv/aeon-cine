@@ -38,3 +38,12 @@ Thumbs.db
 # Scratch & temporary
 scratch/
 */scratch/
+
+# Personal Project Documents & Local Scripts (Not pushed to Git)
+*.mdj
+*.docx
+*.doc
+*.sql
+update_modau.py
+schema_tieng_viet.prisma
+DANH_MUC_BANG_DU_LIEU_TIENG_VIET.md

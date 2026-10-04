@@ -208,19 +208,19 @@ function AppContent() {
       {/* Navbar - Modern Cinema Glassmorphism */}
       {!isPortal && (
         <header className="fixed top-0 w-full z-50 cinema-glass transition-all duration-300">
-          <div className="container mx-auto px-4 lg:px-8 h-[74px] flex items-center justify-between gap-4">
+          <div className="container mx-auto px-4 lg:px-8 h-[64px] flex items-center justify-between gap-4">
             
             {/* Brand Logo */}
-            <Link to="/" className="flex items-center gap-3 group shrink-0">
-              <div className="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:shadow-amber-500/40 group-hover:scale-105 transition-all duration-300 border border-white/20">
-                <Film className="text-white w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
-                <div className="absolute -inset-1 rounded-2xl bg-amber-400/20 blur-sm -z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <Link to="/" className="flex items-center gap-2.5 group shrink-0">
+              <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:shadow-amber-500/40 group-hover:scale-105 transition-all duration-300 border border-white/20">
+                <Film className="text-white w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:rotate-12" />
+                <div className="absolute -inset-1 rounded-xl bg-amber-400/20 blur-sm -z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </div>
               <div className="flex flex-col">
-                <span className="font-display font-extrabold text-xl tracking-tight text-white leading-none flex items-center gap-1.5">
+                <span className="font-display font-extrabold text-lg sm:text-xl tracking-tight text-white leading-none flex items-center gap-1">
                   AEON <span className="text-gradient-amber">CINE</span>
                 </span>
-                <span className="text-[10px] font-mono tracking-widest text-gray-400 uppercase mt-1">
+                <span className="text-[9px] sm:text-[10px] font-mono tracking-widest text-gray-400 uppercase mt-0.5">
                   PREMIUM CINEMA
                 </span>
               </div>
@@ -579,7 +579,7 @@ function AppContent() {
       )}
 
       {/* Main Content */}
-      <main className={`flex-1 ${!isPortal ? 'mt-[74px]' : ''}`}>
+      <main className={`flex-1 ${!isPortal ? 'mt-[64px]' : ''}`}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/movies" element={<MoviesList />} />

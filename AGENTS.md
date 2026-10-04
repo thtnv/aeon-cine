@@ -131,8 +131,16 @@
 
 ---
 
-## 7. QUY TẮC QUẢN LÝ MÃ NGUỒN & ĐỒNG BỘ CLOUD (GIT & CLOUD SYNCHRONIZATION)
+## 7. QUY TẮC QUẢN LÝ MÃ NGUỒN & ĐỒNG BỘ CLOUD (GIT FLOW & CLOUD SYNCHRONIZATION)
 > **BẮT BUỘC TUÂN THỦ CHO MỌI THAY ĐỔI CODE**:
-1. **Tự động Commit & Push lên Git / Cloud**: Mỗi khi hoàn thành bất kỳ thay đổi, sửa lỗi, cập nhật giao diện hay tính năng mới nào trong codebase, PHẢI LUÔN chạy kiểm tra `npm run build` (0 lỗi TypeScript) và thực hiện `git add`, `git commit` kèm mô tả chi tiết, sau đó `git push` lên GitHub / Cloud.
-2. **Bảo vệ tuyệt đối thông tin bảo mật**: Tuyệt đối KHÔNG commit file `.env` chứa mật khẩu database, Stripe key hoặc Gemini key lên kho mã nguồn. Luôn duy trì file mẫu `.env.example` và đưa `.env` vào `.gitignore`.
-3. **Đồng bộ liên tục & nhất quán**: Đảm bảo trạng thái code trên GitHub repository luôn là bản mới nhất và ổn định nhất, sẵn sàng cho việc triển khai (deploy) lên dịch vụ Cloud (Vercel, Render, Railway, v.v.).
+1. **Quy trình Git Flow 2 tầng (Nhánh riêng ➔ Merge Main)**:
+   - Mỗi khi có bất kỳ thay đổi, sửa lỗi hoặc tính năng mới, LUÔN tạo nhánh làm việc riêng (VD: `git checkout -b update/...` hoặc `feature/...`).
+   - Kiểm tra `npm run build` (0 lỗi TypeScript).
+   - Commit và push lên nhánh riêng: `git push origin <branch-name>`.
+   - Chuyển về nhánh chính `main`, merge nhánh vừa làm vào `main`: `git checkout main && git merge <branch-name>`.
+   - Push nhánh `main` lên GitHub: `git push origin main`.
+2. **Loại trừ tuyệt đối tài liệu đồ án cá nhân & Secrets**:
+   - Tuyệt đối KHÔNG đưa file `.env` lên GitHub. Luôn duy trì file mẫu `.env.example`.
+   - Tuyệt đối KHÔNG đưa các file tài liệu cá nhân đồ án (`.mdj`, `.docx`, `.doc`, `.sql`, script phụ `update_modau.py`, `schema_tieng_viet.prisma`, `DANH_MUC_BANG_DU_LIEU_TIENG_VIET.md`) lên GitHub. Các file này chỉ lưu tại local và nằm trong `.gitignore`.
+3. **Đồng bộ liên tục & tự động kích hoạt Cloud Deploy**:
+   - Khi nhánh `main` được push, các nền tảng Cloud (Vercel Frontend & Render Backend) sẽ tự động trigger bản build mới nhất ngay lập tức.
