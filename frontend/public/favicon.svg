@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="orangeGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="50%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#orangeGrad)"/>
+  <!-- Film Frame -->
+  <rect x="14" y="14" width="36" height="36" rx="6" fill="#0f1115" fill-opacity="0.25" stroke="#ffffff" stroke-width="3.5"/>
+  <!-- Film side strips -->
+  <line x1="22" y1="14" x2="22" y2="50" stroke="#ffffff" stroke-width="3"/>
+  <line x1="42" y1="14" x2="42" y2="50" stroke="#ffffff" stroke-width="3"/>
+  <line x1="14" y1="24" x2="22" y2="24" stroke="#ffffff" stroke-width="2.5"/>
+  <line x1="14" y1="40" x2="22" y2="40" stroke="#ffffff" stroke-width="2.5"/>
+  <line x1="42" y1="24" x2="50" y2="24" stroke="#ffffff" stroke-width="2.5"/>
+  <line x1="42" y1="40" x2="50" y2="40" stroke="#ffffff" stroke-width="2.5"/>
+  <!-- Play Icon in center -->
+  <polygon points="30,24 39,32 30,40" fill="#ffffff"/>
+</svg>

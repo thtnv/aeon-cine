@@ -1,0 +1,635 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, [data-theme="dark"], .dark *, [data-theme="dark"] *));
+
+:root {
+  --font-display: 'Montserrat', 'Plus Jakarta Sans', sans-serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: dark;
+
+  /* Cinema Design Tokens - Dark */
+  --bg-void: #07090d;
+  --bg-surface: #0e1118;
+  --bg-card: #141822;
+  --bg-elevated: #1b212f;
+  --text-main: #e2e8f0;
+  --text-muted: #94a3b8;
+  --accent-gold: #fbbf24;
+  --accent-amber: #f59e0b;
+  --accent-orange: #ea580c;
+  --accent-red: #e11d48;
+}
+
+html.light,
+[data-theme='light'] {
+  color-scheme: light;
+  --bg-void: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --bg-elevated: #f1f5f9;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--bg-void);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Typography Utility Classes */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Gradients with Taste */
+.text-gradient-gold {
+  background: linear-gradient(135deg, #ffffff 0%, #fbbf24 60%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-amber {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ea580c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-silver {
+  background: linear-gradient(180deg, #ffffff 0%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Cinema Glass & Cards */
+.cinema-glass {
+  background: rgba(14, 17, 24, 0.75);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cinema-glass-subtle {
+  background: rgba(20, 24, 34, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cinema-card-interactive {
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, box-shadow;
+}
+
+.cinema-card-interactive:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.8), 0 0 30px -8px rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+/* Cinema Buttons with authentic physics */
+.cinema-btn-primary {
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: 9999px;
+  box-shadow: 0 10px 24px -6px rgba(234, 88, 12, 0.45);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cinema-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px -8px rgba(234, 88, 12, 0.65), 0 0 24px rgba(245, 158, 11, 0.35);
+}
+
+.cinema-btn-primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.cinema-btn-glass {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 9999px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cinema-btn-glass:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.cinema-btn-glass:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Spotlight & Glow Elements */
+.spotlight-radial {
+  background: radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.14) 0%, rgba(245, 158, 11, 0.03) 40%, transparent 75%);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-float {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+/* Global Modern Scrollbars for Dark Theme */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.25) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.25);
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(249, 115, 22, 0.6);
+}
+
+/* Sleek Sidebar Custom Scrollbar */
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  scroll-behavior: smooth;
+}
+
+.sidebar-scroll:hover {
+  scrollbar-color: rgba(249, 115, 22, 0.5) transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 4px 0;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: #f97316 !important;
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.6);
+}
+
+/* ==========================================================================
+   LIGHT MODE DESIGN SYSTEM OVERRIDES (AEON CINE)
+   ========================================================================== */
+html.light,
+[data-theme='light'] {
+  color-scheme: light;
+}
+
+html.light body,
+[data-theme='light'] body {
+  background-color: var(--bg-void);
+  color: var(--text-main);
+}
+
+/* Cinema Glass & Cards in Light Mode */
+html.light .cinema-glass,
+[data-theme='light'] .cinema-glass {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 10px -2px rgba(0, 0, 0, 0.02) !important;
+}
+
+html.light .cinema-glass-subtle,
+[data-theme='light'] .cinema-glass-subtle {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(226, 232, 240, 0.85) !important;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.03) !important;
+}
+
+html.light .cinema-card,
+[data-theme='light'] .cinema-card {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .cinema-card-interactive:hover,
+[data-theme='light'] .cinema-card-interactive:hover {
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.12), 0 0 25px -5px rgba(245, 158, 11, 0.2) !important;
+  border-color: rgba(245, 158, 11, 0.45) !important;
+}
+
+/* Glass CTA Button in Light Mode */
+html.light .cinema-btn-glass,
+[data-theme='light'] .cinema-btn-glass {
+  background: rgba(241, 245, 249, 0.95) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(203, 213, 225, 0.9) !important;
+  color: #1e293b !important;
+}
+
+html.light .cinema-btn-glass:hover,
+[data-theme='light'] .cinema-btn-glass:hover {
+  background: #e2e8f0 !important;
+  border-color: #f59e0b !important;
+  color: #b45309 !important;
+}
+
+/* Background overrides */
+html.light .bg-\[\#07090d\],
+html.light .bg-\[\#050608\],
+html.light .bg-\[\#0f1115\],
+html.light .bg-\[\#0d1117\],
+html.light .bg-\[\#0a0d14\],
+html.light .bg-\[\#0b0f17\],
+html.light .bg-\[\#0d1017\] {
+  background-color: #f8fafc !important;
+}
+
+/* Background gradient overrides for Light Mode */
+html.light .from-\[\#07090d\],
+html.light .from-\[\#050608\],
+html.light .from-\[\#0f1115\],
+html.light .from-\[\#0d1117\],
+html.light .from-\[\#14171f\] {
+  --tw-gradient-from: #f8fafc var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgba(248, 250, 252, 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+html.light .via-\[\#07090d\]\/60,
+html.light .via-\[\#07090d\]\/70,
+html.light .via-\[\#07090d\]\/80 {
+  --tw-gradient-via: rgba(248, 250, 252, 0.85) var(--tw-gradient-via-position) !important;
+}
+
+html.light .to-\[\#0f1115\] {
+  --tw-gradient-to: #ffffff var(--tw-gradient-to-position) !important;
+}
+
+html.light .bg-\[\#0f1115\]\/90,
+html.light .bg-\[\#1a1d24\]\/90 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+html.light .cinema-glass {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-color: rgba(226, 232, 240, 0.85) !important;
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .cinema-glass-subtle {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-color: rgba(226, 232, 240, 0.75) !important;
+}
+
+html.light .bg-\[\#0e1118\],
+html.light .bg-\[\#0e1118\]\/80,
+html.light .bg-\[\#0f121a\],
+html.light .bg-\[\#111827\],
+html.light .bg-\[\#1a1d24\],
+html.light .bg-\[\#161922\],
+html.light .bg-\[\#181a20\],
+html.light .bg-\[\#1a1e29\],
+html.light .bg-\[\#141822\],
+html.light .bg-\[\#1b212f\],
+html.light .bg-\[\#1a2333\],
+html.light .bg-\[\#14171f\],
+html.light .bg-gray-900,
+html.light .bg-slate-900 {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-gray-900\/80,
+html.light .bg-gray-900\/70,
+html.light .bg-gray-900\/60,
+html.light .bg-gray-900\/50,
+html.light .bg-gray-900\/40,
+html.light .bg-\[\#1a1d24\]\/60 {
+  background-color: #f1f5f9 !important;
+}
+
+html.light tbody tr:hover {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .bg-gray-800,
+html.light .bg-slate-800 {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .bg-gray-800\/80,
+html.light .bg-gray-800\/60,
+html.light .bg-gray-800\/50,
+html.light .bg-gray-800\/40,
+html.light .bg-gray-800\/90,
+html.light .bg-slate-800\/80,
+html.light .bg-slate-800\/50,
+html.light .bg-\[\#0e131f\] {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .bg-gray-700,
+html.light .bg-slate-700 {
+  background-color: #cbd5e1 !important;
+}
+
+html.light .hover\:bg-gray-800\/80:hover,
+html.light .hover\:bg-gray-800:hover,
+html.light .hover\:bg-gray-700:hover,
+html.light .hover\:bg-gray-900\/80:hover,
+html.light .hover\:bg-gray-900:hover,
+html.light .hover\:bg-slate-800:hover,
+html.light .hover\:bg-slate-700:hover {
+  background-color: #f1f5f9 !important;
+}
+
+/* Translucent dark utility overlays in light mode */
+html.light .bg-black\/20,
+html.light .bg-black\/30,
+html.light .bg-black\/40,
+html.light .bg-black\/50,
+html.light .bg-black\/60 {
+  background-color: rgba(241, 245, 249, 0.85) !important;
+}
+
+html.light .bg-white\/\[0\.02\],
+html.light .bg-white\/\[0\.03\],
+html.light .bg-white\/\[0\.04\],
+html.light .bg-white\/\[0\.05\],
+html.light .bg-white\/\[0\.08\],
+html.light .bg-white\/5,
+html.light .bg-white\/10 {
+  background-color: rgba(241, 245, 249, 0.85) !important;
+}
+
+html.light .hover\:bg-white\/\[0\.04\]:hover,
+html.light .hover\:bg-white\/\[0\.05\]:hover,
+html.light .hover\:bg-white\/\[0\.08\]:hover,
+html.light .hover\:bg-white\/\[0\.09\]:hover,
+html.light .hover\:bg-white\/10:hover {
+  background-color: rgba(226, 232, 240, 0.95) !important;
+}
+
+/* Border overrides */
+html.light .border-white\/\[0\.05\],
+html.light .border-white\/\[0\.06\],
+html.light .border-white\/\[0\.07\],
+html.light .border-white\/\[0\.08\],
+html.light .border-white\/\[0\.1\],
+html.light .border-white\/\[0\.12\],
+html.light .border-white\/\[0\.15\],
+html.light .border-white\/\[0\.2\],
+html.light .border-white\/5,
+html.light .border-white\/10,
+html.light .border-white\/15,
+html.light .border-white\/20,
+html.light .border-white\/30,
+html.light .border-gray-800,
+html.light .border-gray-800\/80,
+html.light .border-gray-800\/60,
+html.light .border-gray-800\/50,
+html.light .border-gray-700,
+html.light .border-gray-700\/80,
+html.light .border-slate-800,
+html.light .border-slate-700 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .divide-white\/5 > :not([hidden]) ~ :not([hidden]),
+html.light .divide-white\/10 > :not([hidden]) ~ :not([hidden]),
+html.light .divide-gray-800 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #e2e8f0 !important;
+}
+
+/* Text overrides */
+html.light .text-white {
+  color: #0f172a !important;
+}
+
+html.light .text-white\/90,
+html.light .text-white\/80 {
+  color: #1e293b !important;
+}
+
+html.light .text-white\/70,
+html.light .text-white\/60 {
+  color: #475569 !important;
+}
+
+html.light .text-white\/40,
+html.light .text-white\/30 {
+  color: #64748b !important;
+}
+
+html.light .text-gray-200,
+html.light .text-gray-300,
+html.light .text-slate-200,
+html.light .text-slate-300,
+html.light .text-\[\#e2e8f0\] {
+  color: #334155 !important;
+}
+
+html.light .text-gray-400,
+html.light .text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light .text-gray-500,
+html.light .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* High contrast accent badges & text in Light Mode */
+html.light .text-amber-300 {
+  color: #b45309 !important;
+}
+
+html.light .text-amber-400 {
+  color: #d97706 !important;
+}
+
+html.light .text-rose-300 {
+  color: #e11d48 !important;
+}
+
+html.light .text-emerald-400 {
+  color: #059669 !important;
+}
+
+/* Fix drop shadows that cause dark smudges on text in light mode */
+html.light .drop-shadow-\[0_4px_24px_rgba\(0\,0\,0\,0\.9\)\] {
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08)) !important;
+}
+
+/* Text gradients in Light Mode with high contrast */
+html.light .text-gradient-gold {
+  background: linear-gradient(135deg, #b45309 0%, #d97706 60%, #ea580c 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+html.light .text-gradient-amber {
+  background: linear-gradient(135deg, #b45309 0%, #ea580c 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+html.light .text-gradient-silver {
+  background: linear-gradient(180deg, #1e293b 0%, #64748b 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* Spotlight & Glow Elements in light mode */
+html.light .spotlight-radial {
+  background: radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0.02) 40%, transparent 75%) !important;
+}
+
+/* Inputs & Form controls in Light Mode */
+html.light input:not([type="checkbox"]):not([type="radio"]),
+html.light select,
+html.light textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Preserve White text on colored badges, primary buttons & gradients */
+html.light .bg-orange-500,
+html.light .bg-orange-500 *,
+html.light .bg-orange-600,
+html.light .bg-orange-600 *,
+html.light .bg-amber-500,
+html.light .bg-amber-500 *,
+html.light .bg-amber-600,
+html.light .bg-amber-600 *,
+html.light .bg-red-500,
+html.light .bg-red-500 *,
+html.light .bg-red-600,
+html.light .bg-red-600 *,
+html.light .bg-red-700,
+html.light .bg-red-700 *,
+html.light .bg-emerald-500,
+html.light .bg-emerald-500 *,
+html.light .bg-emerald-600,
+html.light .bg-emerald-600 *,
+html.light .bg-green-500,
+html.light .bg-green-500 *,
+html.light .bg-blue-500,
+html.light .bg-blue-500 *,
+html.light .bg-rose-500,
+html.light .bg-rose-500 *,
+html.light .text-always-white,
+html.light .text-always-white *,
+html.light .badge-age-rating,
+html.light .badge-age-rating *,
+html.light .cinema-btn-primary,
+html.light .cinema-btn-primary *,
+html.light button.bg-orange-500,
+html.light button.bg-orange-500 span,
+html.light button.bg-orange-500 svg,
+html.light .btn-primary,
+html.light .bg-gradient-to-tr,
+html.light .bg-gradient-to-tr *,
+html.light .bg-gradient-to-r,
+html.light .bg-gradient-to-r *,
+html.light .bg-gradient-to-br,
+html.light .bg-gradient-to-br *,
+html.light .hover\:bg-gradient-to-r:hover,
+html.light .hover\:bg-gradient-to-r:hover *,
+html.light .group:hover .group-hover\:text-white {
+  color: #ffffff !important;
+}
+
+/* Modal backdrops in light mode */
+html.light .bg-black\/90,
+html.light .bg-black\/80,
+html.light .bg-black\/75,
+html.light .bg-black\/60 {
+  background-color: rgba(15, 23, 42, 0.6) !important;
+}
+
+/* Light mode card shadows */
+html.light .shadow-xl,
+html.light .shadow-2xl {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -2px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Light scrollbar */
+html.light ::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.35);
+}
+
+html.light .sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.3);
+}
+
+
