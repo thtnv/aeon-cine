@@ -787,7 +787,7 @@ export default function UserProfile() {
             <div className="space-y-3.5 mb-6 text-xs">
               
               <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 flex gap-3 items-start">
-                <span className="w-7 h-7 rounded-lg bg-zinc-800 text-gray-300 font-mono font-bold flex items-center justify-center shrink-0 border border-white/10">
+                <span className="milestone-badge-01 w-7 h-7 rounded-lg font-mono font-black text-xs flex items-center justify-center shrink-0">
                   01
                 </span>
                 <div>

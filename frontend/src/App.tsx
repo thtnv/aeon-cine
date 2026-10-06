@@ -241,25 +241,25 @@ function AppContent() {
             
             {/* Brand Logo */}
             <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group shrink-0">
-              <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:shadow-amber-500/40 group-hover:scale-105 transition-all duration-300 border border-white/20">
-                <Film className="text-white w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform duration-300 group-hover:rotate-12" />
+              <div className="relative w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:shadow-amber-500/40 group-hover:scale-105 transition-all duration-300 border border-white/20">
+                <Film className="text-white w-4 h-4 transition-transform duration-300 group-hover:rotate-12" />
                 <div className="absolute -inset-1 rounded-xl bg-amber-400/20 blur-sm -z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </div>
               <div className="flex flex-col">
                 <span className="font-display font-extrabold text-sm sm:text-base lg:text-lg tracking-tight text-white leading-none flex items-center gap-1">
                   AEON <span className="text-gradient-amber">CINE</span>
                 </span>
-                <span className="text-[7px] sm:text-[8px] lg:text-[9px] font-mono tracking-widest text-gray-400 uppercase mt-0.5">
+                <span className="hidden xl:block text-[8px] lg:text-[9px] font-mono tracking-widest text-gray-400 uppercase mt-0.5">
                   PREMIUM CINEMA
                 </span>
               </div>
             </Link>
 
             {/* Navigation Menu with Taste - Remains dropdown on header even when web is shrunk */}
-            <nav className="flex items-center gap-0.5 sm:gap-1 xl:gap-1.5 text-[11px] sm:text-xs xl:text-[13px] font-semibold tracking-wide shrink-0">
+            <nav className="flex items-center gap-0.5 md:gap-1 xl:gap-1.5 text-[11px] md:text-xs xl:text-[13px] font-semibold tracking-wide shrink-0">
               <Link 
                 to="/" 
-                className={`px-1.5 sm:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
+                className={`px-1.5 md:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
                   location.pathname === '/' 
                     ? 'text-white bg-white/[0.08] shadow-sm shadow-black/40' 
                     : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
@@ -273,7 +273,7 @@ function AppContent() {
                 <div 
                   role="button"
                   tabIndex={0}
-                  className={`px-1.5 sm:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${
+                  className={`px-1.5 md:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-0.5 sm:gap-1 cursor-default select-none ${
                     location.pathname.startsWith('/movies') || location.pathname.startsWith('/phim')
                       ? 'text-white bg-white/[0.08]' 
                       : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
@@ -305,7 +305,7 @@ function AppContent() {
               {/* Menu Lịch Chiếu */}
               <Link 
                 to="/showtimes" 
-                className={`px-1.5 sm:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
+                className={`px-1.5 md:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
                   location.pathname === '/showtimes' 
                     ? 'text-white bg-white/[0.08]' 
                     : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
@@ -319,7 +319,7 @@ function AppContent() {
                 <div 
                   role="button"
                   tabIndex={0}
-                  className={`px-1.5 sm:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${
+                  className={`px-1.5 md:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-0.5 sm:gap-1 cursor-default select-none ${
                     location.pathname.startsWith('/cinemas') || location.pathname === '/group-booking' || location.pathname === '/rules'
                       ? 'text-white bg-white/[0.08]' 
                       : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
@@ -370,7 +370,7 @@ function AppContent() {
                 <div 
                   role="button"
                   tabIndex={0}
-                  className={`px-1.5 sm:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${
+                  className={`px-1.5 md:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-0.5 sm:gap-1 cursor-default select-none ${
                     location.pathname === '/promotions' || location.pathname === '/membership'
                       ? 'text-white bg-white/[0.08]' 
                       : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
@@ -401,7 +401,7 @@ function AppContent() {
               {/* Menu Blog */}
               <Link 
                 to="/blog" 
-                className={`px-1.5 sm:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
+                className={`px-1.5 md:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
                   location.pathname === '/blog' 
                     ? 'text-white bg-white/[0.08]' 
                     : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
@@ -412,12 +412,12 @@ function AppContent() {
             </nav>
 
             {/* Right Action Bar - Guaranteed Single Straight Line */}
-            <div className="flex items-center gap-1.5 xl:gap-2.5 shrink-0">
+            <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-2.5 shrink-0">
               
               {/* Quick Search Button */}
               <button
                 onClick={() => setShowSearchModal(true)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.09] text-gray-300 hover:text-white border border-white/10 text-xs font-medium transition-all duration-200 group shrink-0"
+                className="flex items-center gap-1.5 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.09] text-gray-300 hover:text-white border border-white/10 text-xs font-medium transition-all duration-200 group shrink-0"
                 title="Tìm kiếm phim (Ctrl + K)"
               >
                 <Search className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
@@ -426,85 +426,72 @@ function AppContent() {
               </button>
 
               {/* Theme Toggle */}
-              <div className="shrink-0">
+              <div className="shrink-0 scale-90 sm:scale-100">
                 <ThemeToggle />
               </div>
 
               {/* Auth Status / Action Buttons */}
-              <div className="hidden sm:flex items-center gap-1.5 xl:gap-2 shrink-0">
+              <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-2 shrink-0">
                 {isLoggedIn ? (
-                  <div className="flex items-center gap-1.5 xl:gap-2">
+                  <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-2">
                     {((currentUser?.role || '').toUpperCase() === 'ADMIN') && (
                       <Link 
                         to="/admin" 
-                        className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 hover:text-white hover:border-amber-400 text-[11px] font-display font-bold uppercase tracking-wider transition-all shadow-sm shrink-0"
+                        className="flex items-center gap-1 px-2 py-1 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 hover:text-white hover:border-amber-400 text-[11px] font-display font-bold uppercase tracking-wider transition-all shadow-sm shrink-0"
                         title="Vào bảng điều khiển Quản trị viên"
                       >
                         <ShieldCheck size={12} className="text-amber-400" />
-                        <span>Quản Trị</span>
+                        <span className="hidden md:inline">Quản Trị</span>
                       </Link>
                     )}
                     {((currentUser?.role || '').toUpperCase() === 'ACCOUNTANT') && (
                       <Link 
                         to="/accountant" 
-                        className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 text-emerald-300 hover:text-white hover:border-emerald-400 text-[11px] font-display font-bold uppercase tracking-wider transition-all shadow-sm shrink-0"
+                        className="flex items-center gap-1 px-2 py-1 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 text-emerald-300 hover:text-white hover:border-emerald-400 text-[11px] font-display font-bold uppercase tracking-wider transition-all shadow-sm shrink-0"
                         title="Vào Cổng Kế Toán & Quản Lý Doanh Thu"
                       >
                         <DollarSign size={12} className="text-emerald-400" />
-                        <span>Kế Toán</span>
+                        <span className="hidden md:inline">Kế Toán</span>
                       </Link>
                     )}
                     <Link 
                       to="/profile" 
-                      className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all group shrink-0"
+                      className="flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all group shrink-0"
                     >
                       <UserAvatar 
                         name={currentUser?.name || 'Khách'} 
                         avatarUrl={currentUser?.avatar}
                         size="sm" 
                       />
-                      <span className="text-xs font-semibold text-gray-200 group-hover:text-amber-300 transition-colors max-w-[85px] xl:max-w-[120px] truncate">
+                      <span className="hidden md:inline text-xs font-semibold text-gray-200 group-hover:text-amber-300 transition-colors max-w-[70px] lg:max-w-[100px] xl:max-w-[130px] truncate">
                         {currentUser?.name || 'Tài khoản'}
                       </span>
                     </Link>
                     <button 
                       onClick={handleLogout} 
-                      className="text-gray-400 hover:text-red-400 p-1.5 rounded-xl hover:bg-red-500/10 transition-colors shrink-0" 
+                      className="text-gray-400 hover:text-red-400 p-1 sm:p-1.5 rounded-xl hover:bg-red-500/10 transition-colors shrink-0" 
                       title="Đăng xuất"
                     >
                       <LogOut className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1 sm:gap-1.5">
                     <Link 
                       to="/login" 
-                      className="text-xs font-semibold text-gray-300 hover:text-white px-2.5 py-1.5 rounded-xl hover:bg-white/[0.05] transition-all shrink-0"
+                      className="text-xs font-semibold text-gray-300 hover:text-white px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-xl hover:bg-white/[0.05] transition-all shrink-0"
                     >
                       Đăng nhập
                     </Link>
                     <Link 
                       to="/register" 
-                      className="cinema-btn-primary text-xs px-3.5 py-1.5 font-bold transition-all shrink-0"
+                      className="cinema-btn-primary text-xs px-2.5 sm:px-3.5 py-1 sm:py-1.5 font-bold transition-all shrink-0"
                     >
                       Đăng ký
                     </Link>
                   </div>
                 )}
               </div>
-
-              {/* Mobile Menu Hamburger (Chỉ hiển thị trên màn hình siêu nhỏ di động) */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="sm:hidden p-2 rounded-xl bg-white/[0.05] border border-white/10 text-gray-300 hover:text-white shrink-0"
-                aria-label="Toggle menu"
-              >
-                <div className="w-4 h-3.5 flex flex-col justify-between">
-                  <span className={`h-0.5 w-full bg-current transition-transform duration-300 ${mobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
-                  <span className={`h-0.5 w-full bg-current transition-opacity duration-300 ${mobileMenuOpen ? 'opacity-0' : ''}`}></span>
-                  <span className={`h-0.5 w-full bg-current transition-transform duration-300 ${mobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
-                </div>
-              </button>
             </div>
           </div>
 
