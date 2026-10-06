@@ -637,4 +637,45 @@ html.light .sidebar-scroll::-webkit-scrollbar-thumb {
   background: rgba(100, 116, 139, 0.3);
 }
 
+/* Khung Điểm Tích Lũy Trong Popup Profile - Luôn sáng rực rỡ ở cả Light Mode & Dark Mode */
+.points-box-dark {
+  background: #080c16 !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 0 15px rgba(245, 158, 11, 0.2) !important;
+}
+.points-box-dark .points-title {
+  color: #fef08a !important; /* Vàng chanh siêu sáng */
+  font-weight: 800 !important;
+}
+.points-box-dark .points-value {
+  color: #fbbf24 !important; /* Vàng kim sáng bừng */
+  font-weight: 900 !important;
+  text-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+}
+.points-box-dark .points-unit {
+  color: #ffffff !important; /* Trắng sáng tinh khiết */
+  font-weight: 800 !important;
+}
+.points-box-dark .points-sub {
+  color: #fde047 !important; /* Vàng sáng rực */
+  font-weight: 800 !important;
+}
+.points-box-dark .points-badge {
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%) !important;
+  color: #ffffff !important; /* Chữ trắng sáng tinh khiết */
+  border-color: #fde047 !important;
+}
+
+/* Dòng cảnh báo bản quyền phòng chiếu - Rõ nét tuyệt đối, không bị mờ ở mọi chế độ */
+.rules-copyright-desc {
+  color: #020617 !important; /* Đen tuyền sắc nét 100% ở Light Mode */
+  font-weight: 700 !important;
+}
+html.dark .rules-copyright-desc,
+[data-theme='dark'] .rules-copyright-desc {
+  color: #f8fafc !important; /* Trắng sáng 100% ở Dark Mode */
+  font-weight: 600 !important;
+}
+
+
 

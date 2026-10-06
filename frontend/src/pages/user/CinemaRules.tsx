@@ -154,38 +154,40 @@ export default function CinemaRules() {
         </div>
 
         {/* SECTION 3: COPYRIGHT & SECURITY */}
-        <div className="rounded-3xl cinema-glass p-8 sm:p-10 border border-white/10 mb-12 shadow-xl">
+        <div className="rounded-3xl cinema-glass p-8 sm:p-10 border border-slate-200 dark:border-white/10 mb-12 shadow-xl bg-white/80 dark:bg-white/[0.03]">
           <div className="flex items-center gap-3 mb-6">
-            <span className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center font-black">
+            <span className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-500 dark:text-amber-400 flex items-center justify-center font-black">
               03
             </span>
-            <h2 className="text-xl sm:text-2xl font-display font-extrabold text-white uppercase">
+            <h2 className="text-xl sm:text-2xl font-display font-extrabold text-slate-900 dark:text-white uppercase">
               BẢO MẬT BẢN QUYỀN & AN NINH PHÒNG CHIẾU
             </h2>
           </div>
 
-          <div className="space-y-4 text-xs text-gray-300 leading-relaxed">
-            <div className="flex items-start gap-3.5 p-5 rounded-2xl bg-[#1a0e12] border-2 border-red-500/60 text-gray-200 shadow-xl">
-              <span className="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center shrink-0 border border-red-500/40 mt-0.5">
-                <VideoOff size={22} className="text-red-400" />
+          <div className="space-y-4 text-xs leading-relaxed">
+            <div className="flex items-start gap-4 p-5 rounded-2xl bg-rose-50 dark:bg-[#1a0e12] border-2 border-red-500 shadow-md">
+              <span className="w-11 h-11 rounded-xl bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 border border-red-300 dark:border-red-500/40 mt-0.5">
+                <VideoOff size={22} className="text-red-600 dark:text-red-400" />
               </span>
               <div>
-                <strong className="block text-red-400 mb-1.5 uppercase font-display font-black text-sm tracking-wide">
+                <strong className="block text-red-700 dark:text-red-400 mb-1.5 uppercase font-display font-black text-sm tracking-wide">
                   NGHIÊM CẤM QUAY PHIM & PHÁT SÓNG TRỰC TIẾP (LIVESTREAM)
                 </strong>
-                <p className="text-gray-200 leading-relaxed font-medium">
+                <p className="rules-copyright-desc font-semibold leading-relaxed text-xs">
                   Mọi hành vi quay phim, chụp ảnh, ghi âm hoặc truyền phát trực tiếp nội dung tác phẩm điện ảnh trong phòng chiếu là hành vi vi phạm nghiêm trọng Luật Sở hữu trí tuệ Việt Nam. Hệ thống camera an ninh hồng ngoại trong phòng chiếu sẽ giám sát 24/7. Mọi cá nhân vi phạm sẽ bị mời ra khỏi rạp, lập biên bản và bàn giao cơ quan Công an xử lý hình sự.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3.5 p-5 rounded-2xl bg-slate-900/90 border border-white/10 text-gray-200 shadow-md">
-              <span className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30 mt-0.5">
-                <ShieldAlert size={20} className="text-amber-400" />
+            <div className="flex items-start gap-4 p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-white/10 shadow-sm">
+              <span className="w-11 h-11 rounded-xl bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-300 dark:border-amber-500/30 mt-0.5">
+                <ShieldAlert size={22} className="text-amber-600 dark:text-amber-400" />
               </span>
               <div>
-                <strong className="block text-amber-400 mb-1 font-display font-bold text-sm uppercase">An toàn & Phòng chống cháy nổ</strong>
-                <p className="text-gray-300 leading-relaxed font-medium">
+                <strong className="block text-slate-900 dark:text-amber-400 mb-1 font-display font-bold text-sm uppercase">
+                  An toàn & Phòng chống cháy nổ
+                </strong>
+                <p className="text-slate-700 dark:text-gray-300 leading-relaxed font-medium text-xs">
                   Nghiêm cấm mang theo hung khí, vật sắc nhọn, chất dễ cháy nổ, pháo hoa hoặc các chất cấm vào rạp. Khách hàng vui lòng tuân thủ chỉ dẫn an toàn và lối thoát hiểm của rạp khi có sự cố.
                 </p>
               </div>

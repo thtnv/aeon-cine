@@ -757,21 +757,28 @@ export default function UserProfile() {
               </div>
             </div>
 
-            {/* Khung Điểm Tích Lũy Nền Tối Sâu Nổi Bật Sắc Nét */}
-            <div className="p-5 rounded-2xl bg-[#0b0e14] border-2 border-amber-500/50 mb-5 flex items-center justify-between shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-28 h-28 bg-amber-500/10 rounded-full blur-xl pointer-events-none"></div>
+            {/* Khung Điểm Tích Lũy Nền Tối Sâu Nổi Bật Sắc Nét với Toàn Bộ Chữ Siêu Sáng */}
+            <div className="points-box-dark p-5 rounded-2xl mb-5 flex items-center justify-between shadow-2xl relative overflow-hidden border-2">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/20 rounded-full blur-2xl pointer-events-none"></div>
               <div>
-                <span className="text-[11px] font-mono text-gray-300 font-bold uppercase tracking-wider flex items-center gap-1.5 mb-1">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                  Điểm Tích Lũy Của Bạn
+                <span className="points-title text-xs font-mono font-extrabold uppercase tracking-wider flex items-center gap-2 mb-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)] animate-pulse"></span>
+                  ĐIỂM TÍCH LŨY CỦA BẠN
                 </span>
-                <p className="text-3xl font-black text-amber-400 font-mono tracking-tight drop-shadow">
-                  {user?.rewardPoints || 0} <span className="text-xs text-gray-300 font-bold font-sans">điểm Stars</span>
-                </p>
+                <div className="flex items-baseline gap-2">
+                  <span className="points-value text-4xl font-black font-mono tracking-tight drop-shadow-[0_2px_10px_rgba(245,158,11,0.5)]">
+                    {user?.rewardPoints || 0}
+                  </span>
+                  <span className="points-unit text-sm font-extrabold uppercase tracking-wide">
+                    điểm Stars
+                  </span>
+                </div>
               </div>
               <div className="text-right">
-                <span className="text-[11px] font-mono text-gray-400 uppercase font-semibold block mb-1">Quy Đổi Trừ Tiền Mặt</span>
-                <span className="inline-block px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 font-mono text-base font-black text-white shadow-sm">
+                <span className="points-sub text-xs font-mono uppercase font-bold block mb-1.5 tracking-wider">
+                  QUY ĐỔI TRỪ TIỀN MẶT
+                </span>
+                <span className="points-badge inline-block px-4 py-2 rounded-xl font-mono text-base font-black shadow-lg shadow-amber-500/30 border">
                   = {((user?.rewardPoints || 0) * 1000).toLocaleString()} VNĐ
                 </span>
               </div>
