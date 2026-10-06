@@ -20,7 +20,7 @@ import PaymentCancel from './pages/user/PaymentCancel';
 import MembershipGuide from './pages/user/MembershipGuide';
 import GroupBooking from './pages/user/GroupBooking';
 import CinemaRules from './pages/user/CinemaRules';
-import { Film, Search, LogOut, X, Smartphone, ShieldCheck, Ticket, ChevronDown, DollarSign } from 'lucide-react';
+import { Film, Search, LogOut, X, Smartphone, ShieldCheck, Ticket, ChevronDown, DollarSign, Menu } from 'lucide-react';
 import { API_URL } from './config/api';
 import { ThemeProvider } from './context/ThemeContext';
 import ThemeToggle from './components/ThemeToggle';
@@ -255,8 +255,8 @@ function AppContent() {
               </div>
             </Link>
 
-            {/* Navigation Menu with Taste - Remains dropdown on header even when web is shrunk */}
-            <nav className="flex items-center gap-0.5 md:gap-1 xl:gap-1.5 text-[11px] md:text-xs xl:text-[13px] font-semibold tracking-wide shrink-0">
+            {/* Navigation Menu with Taste - Single Line Guaranteed on Desktop */}
+            <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-xs xl:text-[13px] font-semibold tracking-wide shrink-0">
               <Link 
                 to="/" 
                 className={`px-1.5 md:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
@@ -492,166 +492,213 @@ function AppContent() {
                   </div>
                 )}
               </div>
+
+              {/* Tab Menu Hamburger Button bên phải khi thu nhỏ màn hình */}
+              <button
+                onClick={() => setMobileMenuOpen(true)}
+                className="lg:hidden p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-gray-200 hover:text-amber-400 transition-all flex items-center justify-center shrink-0"
+                aria-label="Mở menu điều hướng"
+                title="Menu điều hướng"
+              >
+                <Menu size={20} />
+              </button>
             </div>
           </div>
 
-          {/* Mobile Drawer Menu */}
+          {/* Right Slide-over Drawer Menu khi thu nhỏ màn hình */}
           {mobileMenuOpen && (
-            <div className="sm:hidden cinema-glass border-t border-white/10 px-4 py-6 flex flex-col gap-4 animate-[fadeIn_0.2s_ease-out]">
-              <div className="flex flex-col gap-1 text-sm font-semibold">
-                <Link 
-                  to="/" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-2.5 rounded-xl hover:bg-white/10 text-gray-200"
-                >
-                  Trang Chủ
-                </Link>
-                {/* Menu Phim Mobile */}
-                <div className="flex flex-col rounded-xl bg-white/[0.03] p-2 border border-white/[0.05]">
-                  <div className="px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-500/90 font-mono">
-                    Phim Điện Ảnh
-                  </div>
-                  <div className="flex flex-col gap-0.5">
-                    <Link 
-                      to="/movies?tab=NOW_SHOWING" 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="px-3 py-2 rounded-lg hover:bg-white/10 text-gray-200 text-xs flex items-center justify-between"
-                    >
-                      <span>Phim Đang Chiếu</span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                    </Link>
-                    <Link 
-                      to="/movies?tab=COMING_SOON" 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="px-3 py-2 rounded-lg hover:bg-white/10 text-gray-200 text-xs flex items-center justify-between"
-                    >
-                      <span>Phim Sắp Chiếu</span>
-                      <span className="text-[10px] font-mono text-amber-400 font-bold">HOT</span>
-                    </Link>
-                  </div>
-                </div>
+            <div className="fixed inset-0 z-[100] lg:hidden animate-[fadeIn_0.2s_ease-out]">
+              {/* Backdrop mờ */}
+              <div 
+                className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
+                onClick={() => setMobileMenuOpen(false)}
+              ></div>
 
-                <Link 
-                  to="/showtimes" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-2.5 rounded-xl hover:bg-white/10 text-gray-200"
-                >
-                  Lịch Chiếu
-                </Link>
-
-                {/* Menu Cụm Rạp & Dịch Vụ Mobile (Gọn gàng, không bị xổ 15 rạp tràn lan) */}
-                <div className="flex flex-col rounded-xl bg-white/[0.03] p-2 border border-white/[0.05]">
-                  <div className="px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-500/90 font-mono">
-                    Cụm Rạp & Dịch Vụ
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <Link 
-                      to="/cinemas" 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="px-3 py-2 rounded-lg hover:bg-white/10 text-gray-200 text-xs font-semibold flex items-center justify-between"
-                    >
-                      <span>Hệ Thống Cụm Rạp Toàn Quốc</span>
-                      <span className="text-[10px] font-mono text-amber-400">Xem tất cả →</span>
+              {/* Drawer Container trượt ra từ bên phải */}
+              <div className="fixed top-0 right-0 h-full w-[310px] sm:w-[350px] bg-[#0c1017] border-l border-white/10 p-6 shadow-2xl flex flex-col justify-between overflow-y-auto z-10 animate-[slideInRight_0.25s_cubic-bezier(0.16,1,0.3,1)]">
+                <div>
+                  {/* Drawer Header */}
+                  <div className="flex items-center justify-between pb-5 border-b border-white/10 mb-4">
+                    <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 flex items-center justify-center shadow-md shadow-amber-500/20">
+                        <Film className="text-white w-4 h-4" />
+                      </div>
+                      <span className="font-display font-extrabold text-base tracking-tight text-white leading-none">
+                        AEON <span className="text-gradient-amber">CINE</span>
+                      </span>
                     </Link>
-                    <Link 
-                      to="/cinemas?section=prices" 
+                    <button
                       onClick={() => setMobileMenuOpen(false)}
-                      className="px-3 py-2 rounded-lg hover:bg-white/10 text-amber-300 text-xs font-semibold flex items-center justify-between"
+                      className="p-1.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                      title="Đóng menu"
                     >
-                      <span>Bảng Giá Vé Toàn Quốc</span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">GIÁ VÉ</span>
-                    </Link>
-                    <Link 
-                      to="/group-booking" 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="px-3 py-2 rounded-lg hover:bg-white/10 text-emerald-400 text-xs font-semibold flex items-center justify-between"
-                    >
-                      <span>Đặt Vé Đoàn & Thuê Rạp</span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">B2B</span>
-                    </Link>
-                    <Link 
-                      to="/rules" 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="px-3 py-2 rounded-lg hover:bg-white/10 text-gray-200 text-xs font-semibold"
-                    >
-                      <span>Nội Quy & Quy Định Rạp</span>
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Menu Hội Viên Mobile */}
-                <div className="flex flex-col rounded-xl bg-white/[0.03] p-2 border border-white/[0.05]">
-                  <div className="px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-500/90 font-mono">
-                    Hội Viên & Ưu Đãi
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <Link 
-                      to="/membership" 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="px-3 py-2 rounded-lg hover:bg-white/10 text-amber-300 text-xs font-semibold flex items-center justify-between"
-                    >
-                      <span>Đặc Quyền Hội Viên Stars</span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">VIP</span>
-                    </Link>
-                    <Link 
-                      to="/promotions" 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="px-3 py-2 rounded-lg hover:bg-white/10 text-gray-200 text-xs font-semibold"
-                    >
-                      <span>Khuyến Mãi & Sự Kiện</span>
-                    </Link>
-                  </div>
-                </div>
-
-                <Link 
-                  to="/blog" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-2.5 rounded-xl hover:bg-white/10 text-gray-200"
-                >
-                  Góc Điện Ảnh
-                </Link>
-              </div>
-
-              <div className="flex items-center justify-between px-1 py-1">
-                <span className="text-xs text-gray-400 font-medium">Chế độ hiển thị</span>
-                <ThemeToggle showLabel={true} />
-              </div>
-
-              <div className="h-px bg-white/10 my-1"></div>
-
-              <div className="flex items-center justify-between gap-3">
-                {isLoggedIn ? (
-                  <div className="flex items-center justify-between w-full">
-                    <Link 
-                      to="/profile" 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-2 text-sm font-semibold text-white"
-                    >
-                      <UserAvatar name={currentUser?.name || 'Khách'} avatarUrl={currentUser?.avatar} size="sm" />
-                      <span>{currentUser?.name || 'Tài khoản'}</span>
-                    </Link>
-                    <button onClick={handleLogout} className="text-red-400 text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-500/10">
-                      Đăng xuất
+                      <X size={20} />
                     </button>
                   </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-3 w-full">
+
+                  {/* Danh sách Menu bên phải */}
+                  <div className="flex flex-col gap-1 text-sm font-semibold">
                     <Link 
-                      to="/login" 
+                      to="/" 
                       onClick={() => setMobileMenuOpen(false)}
-                      className="cinema-btn-glass text-center py-2.5 text-xs font-bold"
+                      className="px-3.5 py-2.5 rounded-xl hover:bg-white/10 text-gray-200 transition-colors"
                     >
-                      Đăng nhập
+                      Trang Chủ
                     </Link>
+
+                    {/* Menu Phim Mobile */}
+                    <div className="flex flex-col rounded-xl bg-white/[0.03] p-2 border border-white/[0.05]">
+                      <div className="px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-500/90 font-mono">
+                        Phim Điện Ảnh
+                      </div>
+                      <div className="flex flex-col gap-0.5">
+                        <Link 
+                          to="/movies?tab=NOW_SHOWING" 
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="px-3 py-2 rounded-lg hover:bg-white/10 text-gray-200 text-xs flex items-center justify-between"
+                        >
+                          <span>Phim Đang Chiếu</span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        </Link>
+                        <Link 
+                          to="/movies?tab=COMING_SOON" 
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="px-3 py-2 rounded-lg hover:bg-white/10 text-gray-200 text-xs flex items-center justify-between"
+                        >
+                          <span>Phim Sắp Chiếu</span>
+                          <span className="text-[10px] font-mono text-amber-400 font-bold">HOT</span>
+                        </Link>
+                      </div>
+                    </div>
+
                     <Link 
-                      to="/register" 
+                      to="/showtimes" 
                       onClick={() => setMobileMenuOpen(false)}
-                      className="cinema-btn-primary text-center py-2.5 text-xs font-bold"
+                      className="px-3.5 py-2.5 rounded-xl hover:bg-white/10 text-gray-200 transition-colors"
                     >
-                      Đăng ký
+                      Lịch Chiếu
+                    </Link>
+
+                    {/* Menu Cụm Rạp & Dịch Vụ Mobile */}
+                    <div className="flex flex-col rounded-xl bg-white/[0.03] p-2 border border-white/[0.05]">
+                      <div className="px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-500/90 font-mono">
+                        Cụm Rạp & Dịch Vụ
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <Link 
+                          to="/cinemas" 
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="px-3 py-2 rounded-lg hover:bg-white/10 text-gray-200 text-xs font-semibold flex items-center justify-between"
+                        >
+                          <span>Hệ Thống Cụm Rạp Toàn Quốc</span>
+                          <span className="text-[10px] font-mono text-amber-400">Xem tất cả →</span>
+                        </Link>
+                        <Link 
+                          to="/cinemas?section=prices" 
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="px-3 py-2 rounded-lg hover:bg-white/10 text-amber-300 text-xs font-semibold flex items-center justify-between"
+                        >
+                          <span>Bảng Giá Vé Toàn Quốc</span>
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">GIÁ VÉ</span>
+                        </Link>
+                        <Link 
+                          to="/group-booking" 
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="px-3 py-2 rounded-lg hover:bg-white/10 text-emerald-400 text-xs font-semibold flex items-center justify-between"
+                        >
+                          <span>Đặt Vé Đoàn & Thuê Rạp</span>
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">B2B</span>
+                        </Link>
+                        <Link 
+                          to="/rules" 
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="px-3 py-2 rounded-lg hover:bg-white/10 text-gray-200 text-xs font-semibold"
+                        >
+                          <span>Nội Quy & Quy Định Rạp</span>
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Menu Hội Viên Mobile */}
+                    <div className="flex flex-col rounded-xl bg-white/[0.03] p-2 border border-white/[0.05]">
+                      <div className="px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-500/90 font-mono">
+                        Hội Viên & Ưu Đãi
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <Link 
+                          to="/membership" 
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="px-3 py-2 rounded-lg hover:bg-white/10 text-amber-300 text-xs font-semibold flex items-center justify-between"
+                        >
+                          <span>Đặc Quyền Hội Viên Stars</span>
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">VIP</span>
+                        </Link>
+                        <Link 
+                          to="/promotions" 
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="px-3 py-2 rounded-lg hover:bg-white/10 text-gray-200 text-xs font-semibold"
+                        >
+                          <span>Khuyến Mãi & Sự Kiện</span>
+                        </Link>
+                      </div>
+                    </div>
+
+                    <Link 
+                      to="/blog" 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="px-3.5 py-2.5 rounded-xl hover:bg-white/10 text-gray-200 transition-colors"
+                    >
+                      Góc Điện Ảnh
                     </Link>
                   </div>
-                )}
+                </div>
+
+                {/* Drawer Footer */}
+                <div className="pt-4 border-t border-white/10 flex flex-col gap-3">
+                  <div className="flex items-center justify-between px-1">
+                    <span className="text-xs text-gray-400 font-medium">Chế độ hiển thị</span>
+                    <ThemeToggle showLabel={true} />
+                  </div>
+
+                  {isLoggedIn ? (
+                    <div className="flex items-center justify-between w-full pt-2">
+                      <Link 
+                        to="/profile" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-2 text-sm font-semibold text-white"
+                      >
+                        <UserAvatar name={currentUser?.name || 'Khách'} avatarUrl={currentUser?.avatar} size="sm" />
+                        <span className="max-w-[130px] truncate">{currentUser?.name || 'Tài khoản'}</span>
+                      </Link>
+                      <button 
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          handleLogout();
+                        }} 
+                        className="text-red-400 text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 transition-colors"
+                      >
+                        Đăng xuất
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2.5 w-full pt-2">
+                      <Link 
+                        to="/login" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="cinema-btn-glass text-center py-2.5 text-xs font-bold"
+                      >
+                        Đăng nhập
+                      </Link>
+                      <Link 
+                        to="/register" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="cinema-btn-primary text-center py-2.5 text-xs font-bold"
+                      >
+                        Đăng ký
+                      </Link>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
