@@ -703,6 +703,21 @@ html.dark .rules-copyright-desc,
   }
 }
 
+/* ========================================================
+   AEON CINE - INTERNAL PORTAL 80% ZOOM SYSTEM
+   Áp dụng thu nhỏ 80% chuẩn cho các trang quản trị nội bộ (Admin, Kế toán, Soát vé)
+   Đảm bảo full màn hình (100vw x 100vh), mật độ hiển thị cao, dễ quan sát
+   ======================================================== */
+.portal-zoom-80 {
+  zoom: 0.8;
+  width: 125vw !important;
+  height: 125vh !important;
+  min-height: 125vh !important;
+  max-height: 125vh !important;
+  overflow: hidden;
+}
+
+
 
 
 

@@ -58,8 +58,9 @@ export default function StaffScanner() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <div className="bg-[#1a1e29] border border-gray-800 rounded-2xl p-6 sm:p-10 shadow-2xl">
+    <div className="portal-zoom-80 min-h-[125vh] w-[125vw] bg-slate-900 dark:bg-[#0a0d14] flex flex-col justify-center items-center p-6 overflow-y-auto">
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <div className="bg-[#1a1e29] border border-gray-800 rounded-2xl p-6 sm:p-10 shadow-2xl">
         <h1 className="text-2xl font-black text-white mb-2 text-center">HỆ THỐNG SOÁT VÉ TẠI RẠP (STAFF SCANNER)</h1>
         <p className="text-gray-400 text-sm text-center mb-8">Nhập mã vé hoặc dữ liệu mã QR từ vé của khách hàng để check-in vào phòng chiếu.</p>
 
@@ -106,5 +107,6 @@ export default function StaffScanner() {
         )}
       </div>
     </div>
+  </div>
   );
 }

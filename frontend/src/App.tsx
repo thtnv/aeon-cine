@@ -126,6 +126,32 @@ function UserBookingRoute({ children }: { children: React.ReactElement }) {
   return children;
 }
 
+// BẢO VỆ CỔNG B2C & NGUYÊN TẮC PHÂN QUYỀN (SEGREGATION OF DUTIES):
+// Các tài khoản công vụ nội bộ (ADMIN, ACCOUNTANT, STAFF) không được phép truy cập vào luồng B2C cá nhân.
+// Khi back hoặc truy cập trang chủ / đặt vé, hệ thống tự động redirect về đúng cổng nghiệp vụ tương ứng.
+// Nếu muốn vào trang B2C, nhân sự bắt buộc phải bấm "Đăng xuất" (Logout).
+function B2CRoute({ children }: { children: React.ReactElement }) {
+  const token = localStorage.getItem('token');
+  const userStr = localStorage.getItem('user');
+
+  if (token && userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      const role = (user.role || '').toUpperCase();
+      if (role === 'ADMIN') {
+        return <Navigate to="/admin" replace />;
+      }
+      if (role === 'ACCOUNTANT') {
+        return <Navigate to="/accountant" replace />;
+      }
+      if (role === 'STAFF') {
+        return <Navigate to="/admin/scanner" replace />;
+      }
+    } catch (e) { }
+  }
+
+  return children;
+}
 
 function AppContent() {
   const location = useLocation();
@@ -192,6 +218,27 @@ function AppContent() {
     };
   }, [location.pathname]);
 
+  // BẢO VỆ PHÂN QUYỀN TOÀN DIỆN (SEGREGATION OF DUTIES):
+  // Khi người dùng đang giữ phiên đăng nhập ADMIN/ACCOUNTANT/STAFF, nếu back lại trang chủ hoặc cố tình truy cập B2C,
+  // hệ thống tự động khóa và chuyển hướng ngay về đúng cổng làm việc nội bộ.
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    if (token && userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        const role = (user.role || '').toUpperCase();
+        if (role === 'ADMIN' || role === 'ACCOUNTANT' || role === 'STAFF') {
+          const portal = role === 'ADMIN' ? '/admin' : role === 'ACCOUNTANT' ? '/accountant' : '/admin/scanner';
+          const isInternalPath = location.pathname.startsWith('/admin') || location.pathname.startsWith('/accountant');
+          if (!isInternalPath) {
+            navigate(portal, { replace: true });
+          }
+        }
+      } catch (e) { }
+    }
+  }, [location.pathname, navigate]);
+
   useEffect(() => {
     fetch(`${API_URL}/api/movies`)
       .then(res => res.json())
@@ -244,7 +291,7 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg-void)] text-[var(--text-main)] font-sans selection:bg-amber-500/25 selection:text-amber-200 transition-colors duration-200">
+    <div className={`min-h-screen flex flex-col ${isPortal ? 'h-screen overflow-hidden' : ''} bg-[var(--bg-void)] text-[var(--text-main)] font-sans selection:bg-amber-500/25 selection:text-amber-200 transition-colors duration-200`}>
 
       {/* Navbar - Modern Cinema Glassmorphism */}
       {!isPortal && (
@@ -802,31 +849,31 @@ function AppContent() {
       )}
 
       {/* Main Content */}
-      <main className={`flex-1 ${!isPortal ? 'mt-[60px]' : ''}`}>
+      <main className={`flex-1 ${isPortal ? 'h-full overflow-hidden' : 'mt-[60px]'}`}>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/movies" element={<MoviesList />} />
-          <Route path="/phim-dang-chieu" element={<MoviesList />} />
-          <Route path="/phim-sap-chieu" element={<MoviesList />} />
-          <Route path="/showtimes" element={<Showtimes />} />
-          <Route path="/cinemas" element={<Cinemas />} />
-          <Route path="/membership" element={<MembershipGuide />} />
-          <Route path="/group-booking" element={<GroupBooking />} />
-          <Route path="/cinemas/sale" element={<GroupBooking />} />
-          <Route path="/rules" element={<CinemaRules />} />
-          <Route path="/cgv-rules" element={<CinemaRules />} />
-          <Route path="/promotions" element={<Promotions />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<UserPrivateRoute><UserProfile /></UserPrivateRoute>} />
+          <Route path="/" element={<B2CRoute><Home /></B2CRoute>} />
+          <Route path="/movies" element={<B2CRoute><MoviesList /></B2CRoute>} />
+          <Route path="/phim-dang-chieu" element={<B2CRoute><MoviesList /></B2CRoute>} />
+          <Route path="/phim-sap-chieu" element={<B2CRoute><MoviesList /></B2CRoute>} />
+          <Route path="/showtimes" element={<B2CRoute><Showtimes /></B2CRoute>} />
+          <Route path="/cinemas" element={<B2CRoute><Cinemas /></B2CRoute>} />
+          <Route path="/membership" element={<B2CRoute><MembershipGuide /></B2CRoute>} />
+          <Route path="/group-booking" element={<B2CRoute><GroupBooking /></B2CRoute>} />
+          <Route path="/cinemas/sale" element={<B2CRoute><GroupBooking /></B2CRoute>} />
+          <Route path="/rules" element={<B2CRoute><CinemaRules /></B2CRoute>} />
+          <Route path="/cgv-rules" element={<B2CRoute><CinemaRules /></B2CRoute>} />
+          <Route path="/promotions" element={<B2CRoute><Promotions /></B2CRoute>} />
+          <Route path="/blog" element={<B2CRoute><Blog /></B2CRoute>} />
+          <Route path="/login" element={<B2CRoute><Login /></B2CRoute>} />
+          <Route path="/register" element={<B2CRoute><Register /></B2CRoute>} />
+          <Route path="/profile" element={<B2CRoute><UserPrivateRoute><UserProfile /></UserPrivateRoute></B2CRoute>} />
           <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           <Route path="/accountant" element={<AccountantRoute><AccountantDashboard /></AccountantRoute>} />
           <Route path="/admin/scanner" element={<StaffRoute><StaffScanner /></StaffRoute>} />
-          <Route path="/movie/:id" element={<MovieDetails />} />
-          <Route path="/booking/:movieId" element={<UserBookingRoute><SeatSelection /></UserBookingRoute>} />
-          <Route path="/payment/success" element={<PaymentSuccess />} />
-          <Route path="/payment/cancel" element={<PaymentCancel />} />
+          <Route path="/movie/:id" element={<B2CRoute><MovieDetails /></B2CRoute>} />
+          <Route path="/booking/:movieId" element={<B2CRoute><UserBookingRoute><SeatSelection /></UserBookingRoute></B2CRoute>} />
+          <Route path="/payment/success" element={<B2CRoute><PaymentSuccess /></B2CRoute>} />
+          <Route path="/payment/cancel" element={<B2CRoute><PaymentCancel /></B2CRoute>} />
         </Routes>
       </main>
 

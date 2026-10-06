@@ -32,6 +32,29 @@ export default function Login() {
   const [forgotLoading, setForgotLoading] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
 
+  // Nếu đã đăng nhập, tự động chuyển hướng đúng cổng (ADMIN, ACCOUNTANT, STAFF, USER)
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    if (token && userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        const role = (user.role || '').toUpperCase();
+        if (role === 'ADMIN') {
+          navigate('/admin', { replace: true });
+        } else if (role === 'ACCOUNTANT') {
+          navigate('/accountant', { replace: true });
+        } else if (role === 'STAFF') {
+          navigate('/admin/scanner', { replace: true });
+        } else if (redirectUrl) {
+          navigate(redirectUrl, { replace: true });
+        } else {
+          navigate('/', { replace: true });
+        }
+      } catch (e) {}
+    }
+  }, [navigate, redirectUrl]);
+
   // Countdown timer cho nút gửi lại OTP
   useEffect(() => {
     let timer: any;
@@ -120,13 +143,15 @@ export default function Login() {
         
         const role = (data.user?.role || '').toUpperCase();
         if (role === 'ADMIN') {
-          navigate('/admin');
+          navigate('/admin', { replace: true });
         } else if (role === 'ACCOUNTANT') {
-          navigate('/accountant');
+          navigate('/accountant', { replace: true });
+        } else if (role === 'STAFF') {
+          navigate('/admin/scanner', { replace: true });
         } else if (redirectUrl) {
-          navigate(redirectUrl);
+          navigate(redirectUrl, { replace: true });
         } else {
-          navigate('/');
+          navigate('/', { replace: true });
         }
       } else {
         setError(data.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');

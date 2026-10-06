@@ -215,7 +215,7 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="flex h-screen bg-slate-100 dark:bg-[#0a0d14] text-slate-900 dark:text-white font-sans overflow-hidden selection:bg-orange-500 selection:text-white">
+    <div className="portal-zoom-80 flex h-[125vh] w-[125vw] bg-slate-100 dark:bg-[#0a0d14] text-slate-900 dark:text-white font-sans overflow-hidden selection:bg-orange-500 selection:text-white">
       {/* Sidebar */}
       <div className={`${isSidebarCollapsed ? 'w-20' : 'w-64'} bg-white dark:bg-[#111827] border-r border-slate-200 dark:border-gray-800 flex flex-col shrink-0 transition-all duration-300 ease-in-out select-none`}>
         {/* Sidebar Header */}

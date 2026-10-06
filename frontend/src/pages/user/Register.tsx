@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Film, User, Mail, Phone, Lock, Eye, EyeOff, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react';
 import { API_URL } from '../../config/api';
@@ -20,6 +20,29 @@ export default function Register() {
 
   const searchParams = new URLSearchParams(location.search);
   const redirectUrl = searchParams.get('redirect');
+
+  // Nếu đã đăng nhập, tự động chuyển hướng đúng cổng (ADMIN, ACCOUNTANT, STAFF, USER)
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    if (token && userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        const role = (user.role || '').toUpperCase();
+        if (role === 'ADMIN') {
+          navigate('/admin', { replace: true });
+        } else if (role === 'ACCOUNTANT') {
+          navigate('/accountant', { replace: true });
+        } else if (role === 'STAFF') {
+          navigate('/admin/scanner', { replace: true });
+        } else if (redirectUrl) {
+          navigate(redirectUrl, { replace: true });
+        } else {
+          navigate('/', { replace: true });
+        }
+      } catch (e) {}
+    }
+  }, [navigate, redirectUrl]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
