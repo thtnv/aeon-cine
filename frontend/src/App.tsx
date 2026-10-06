@@ -267,8 +267,8 @@ function AppContent() {
               </div>
             </Link>
 
-            {/* Navigation Menu with Taste - Absolutely Dead-Centered on Desktop */}
-            <nav className="hidden xl:flex items-center gap-1 text-xs font-semibold tracking-wide absolute left-1/2 -translate-x-1/2 z-10 whitespace-nowrap pointer-events-auto">
+            {/* Navigation Menu with Taste - Shifted to the left to accommodate search bar */}
+            <nav className="hidden xl:flex items-center gap-1 text-xs font-semibold tracking-wide absolute left-[44%] -translate-x-1/2 z-10 whitespace-nowrap pointer-events-auto">
               <Link
                 to="/"
                 className={`px-2 py-1.5 rounded-xl transition-all duration-200 ${location.pathname === '/'
@@ -423,11 +423,13 @@ function AppContent() {
               {/* Quick Search Button */}
               <button
                 onClick={() => setShowSearchModal(true)}
-                className="p-1.5 sm:p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.09] text-gray-300 hover:text-white border border-white/10 transition-all duration-200 group shrink-0"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.09] text-gray-300 hover:text-white border border-white/10 text-xs font-medium transition-all duration-200 group shrink-0"
                 title="Tìm kiếm phim (Ctrl + K)"
                 aria-label="Tìm kiếm phim"
               >
-                <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 group-hover:scale-110 transition-transform" />
+                <Search className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
+                <span className="text-gray-400 group-hover:text-gray-300 text-xs">Tìm phim...</span>
+                <span className="hidden 2xl:inline-block text-[9px] font-mono px-1 py-0.5 rounded bg-white/10 text-gray-400">⌘K</span>
               </button>
 
               {/* Theme Toggle */}
