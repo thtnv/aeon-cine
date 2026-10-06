@@ -249,7 +249,7 @@ function AppContent() {
       {/* Navbar - Modern Cinema Glassmorphism */}
       {!isPortal && (
         <header className="fixed top-0 w-full z-50 cinema-glass transition-all duration-300">
-          <div className="relative w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 h-[60px] flex items-center justify-between flex-nowrap whitespace-nowrap">
+          <div className="relative w-full max-w-[1536px] mx-auto px-4 sm:px-6 xl:px-4 2xl:px-8 h-[60px] flex items-center justify-between flex-nowrap whitespace-nowrap">
 
             {/* Brand Logo */}
             <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group shrink-0 z-10">
@@ -267,11 +267,11 @@ function AppContent() {
               </div>
             </Link>
 
-            {/* Navigation Menu with Taste - Shifted to the left to accommodate search bar */}
-            <nav className="hidden xl:flex items-center gap-1 text-xs font-semibold tracking-wide absolute left-[44%] -translate-x-1/2 z-10 whitespace-nowrap pointer-events-auto">
+            {/* Navigation Menu - Căn chính giữa Header tuyệt đối (50% dead-center) */}
+            <nav className="hidden xl:flex items-center gap-0.5 2xl:gap-1.5 text-xs font-semibold tracking-wide absolute left-1/2 -translate-x-1/2 z-10 whitespace-nowrap pointer-events-auto">
               <Link
                 to="/"
-                className={`px-2 py-1.5 rounded-xl transition-all duration-200 ${location.pathname === '/'
+                className={`px-1.5 2xl:px-2 py-1.5 rounded-xl transition-all duration-200 ${location.pathname === '/'
                     ? 'text-white bg-white/[0.08] shadow-sm shadow-black/40'
                     : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
                   }`}
@@ -284,7 +284,7 @@ function AppContent() {
                 <div
                   role="button"
                   tabIndex={0}
-                  className={`px-2 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${location.pathname.startsWith('/movies') || location.pathname.startsWith('/phim')
+                  className={`px-1.5 2xl:px-2 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-0.5 2xl:gap-1 cursor-default select-none ${location.pathname.startsWith('/movies') || location.pathname.startsWith('/phim')
                       ? 'text-white bg-white/[0.08]'
                       : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
                     }`}
@@ -315,7 +315,7 @@ function AppContent() {
               {/* Menu Lịch Chiếu */}
               <Link
                 to="/showtimes"
-                className={`px-2 py-1.5 rounded-xl transition-all duration-200 ${location.pathname === '/showtimes'
+                className={`px-1.5 2xl:px-2 py-1.5 rounded-xl transition-all duration-200 ${location.pathname === '/showtimes'
                     ? 'text-white bg-white/[0.08]'
                     : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
                   }`}
@@ -328,7 +328,7 @@ function AppContent() {
                 <div
                   role="button"
                   tabIndex={0}
-                  className={`px-2 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${location.pathname.startsWith('/cinemas') || location.pathname === '/group-booking' || location.pathname === '/rules'
+                  className={`px-1.5 2xl:px-2 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-0.5 2xl:gap-1 cursor-default select-none ${location.pathname.startsWith('/cinemas') || location.pathname === '/group-booking' || location.pathname === '/rules'
                       ? 'text-white bg-white/[0.08]'
                       : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
                     }`}
@@ -378,7 +378,7 @@ function AppContent() {
                 <div
                   role="button"
                   tabIndex={0}
-                  className={`px-2 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${location.pathname === '/promotions' || location.pathname === '/membership'
+                  className={`px-1.5 2xl:px-2 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-0.5 2xl:gap-1 cursor-default select-none ${location.pathname === '/promotions' || location.pathname === '/membership'
                       ? 'text-white bg-white/[0.08]'
                       : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
                     }`}
@@ -408,7 +408,7 @@ function AppContent() {
               {/* Menu Blog */}
               <Link
                 to="/blog"
-                className={`px-2 py-1.5 rounded-xl transition-all duration-200 ${location.pathname === '/blog'
+                className={`px-1.5 2xl:px-2 py-1.5 rounded-xl transition-all duration-200 ${location.pathname === '/blog'
                     ? 'text-white bg-white/[0.08]'
                     : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
                   }`}
@@ -418,12 +418,12 @@ function AppContent() {
             </nav>
 
             {/* Right Action Bar - Anchored to the Right Edge */}
-            <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-2 shrink-0 justify-end z-10 ml-auto">
+            <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-1.5 2xl:gap-2 shrink-0 justify-end z-10 ml-auto">
 
               {/* Quick Search Button */}
               <button
                 onClick={() => setShowSearchModal(true)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.09] text-gray-300 hover:text-white border border-white/10 text-xs font-medium transition-all duration-200 group shrink-0"
+                className="flex items-center gap-1.5 px-2 2xl:px-2.5 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.09] text-gray-300 hover:text-white border border-white/10 text-xs font-medium transition-all duration-200 group shrink-0"
                 title="Tìm kiếm phim (Ctrl + K)"
                 aria-label="Tìm kiếm phim"
               >
@@ -486,13 +486,13 @@ function AppContent() {
                   <div className="flex items-center gap-1 sm:gap-1.5">
                     <Link
                       to="/login"
-                      className="text-xs font-semibold text-gray-300 hover:text-white px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-xl hover:bg-white/[0.05] transition-all shrink-0"
+                      className="text-xs font-semibold text-gray-300 hover:text-white px-1.5 2xl:px-2.5 py-1 sm:py-1.5 rounded-xl hover:bg-white/[0.05] transition-all shrink-0"
                     >
                       Đăng nhập
                     </Link>
                     <Link
                       to="/register"
-                      className="cinema-btn-primary text-xs px-2.5 sm:px-3.5 py-1 sm:py-1.5 font-bold transition-all shrink-0"
+                      className="cinema-btn-primary text-xs px-2.5 2xl:px-3.5 py-1 sm:py-1.5 font-bold transition-all shrink-0"
                     >
                       Đăng ký
                     </Link>
