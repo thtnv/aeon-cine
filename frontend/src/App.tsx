@@ -121,7 +121,7 @@ function UserBookingRoute({ children }: { children: React.ReactElement }) {
         return <Navigate to={portal} replace />;
       }
     }
-  } catch (e) {}
+  } catch (e) { }
 
   return children;
 }
@@ -154,7 +154,7 @@ function AppContent() {
     if (token) {
       const cached = localStorage.getItem('user');
       if (cached) {
-        try { setCurrentUser(JSON.parse(cached)); } catch {}
+        try { setCurrentUser(JSON.parse(cached)); } catch { }
       }
       fetch(`${API_URL}/api/users/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -165,14 +165,14 @@ function AppContent() {
             const cachedUserStr = localStorage.getItem('user');
             let prevRole = 'USER';
             if (cachedUserStr) {
-              try { prevRole = JSON.parse(cachedUserStr).role; } catch {}
+              try { prevRole = JSON.parse(cachedUserStr).role; } catch { }
             }
             const merged = { ...data, role: data.role || prevRole };
             setCurrentUser(merged);
             localStorage.setItem('user', JSON.stringify(merged));
           }
         })
-        .catch(() => {});
+        .catch(() => { });
     } else {
       setCurrentUser(null);
     }
@@ -198,14 +198,14 @@ function AppContent() {
       .then(data => {
         if (Array.isArray(data)) setAllMovies(data);
       })
-      .catch(() => {});
+      .catch(() => { });
 
     fetch(`${API_URL}/api/cinemas`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setCinemas(data);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const handleSearchChange = (q: string) => {
@@ -249,9 +249,9 @@ function AppContent() {
       {/* Navbar - Modern Cinema Glassmorphism */}
       {!isPortal && (
         <header className="fixed top-0 w-full z-50 cinema-glass transition-all duration-300">
-          <div className="relative w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-[60px] flex items-center justify-between flex-nowrap whitespace-nowrap">
-            
-            {/* Brand Logo - Left Aligned */}
+          <div className="relative w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 h-[60px] flex items-center justify-between flex-nowrap whitespace-nowrap">
+
+            {/* Brand Logo */}
             <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group shrink-0 z-10">
               <div className="relative w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:shadow-amber-500/40 group-hover:scale-105 transition-all duration-300 border border-white/20">
                 <Film className="text-white w-4 h-4 transition-transform duration-300 group-hover:rotate-12" />
@@ -261,50 +261,48 @@ function AppContent() {
                 <span className="font-display font-extrabold text-sm sm:text-base lg:text-lg tracking-tight text-white leading-none flex items-center gap-1">
                   AEON <span className="text-gradient-amber">CINE</span>
                 </span>
-                <span className="hidden 2xl:block text-[8px] lg:text-[9px] font-mono tracking-widest text-gray-400 uppercase mt-0.5">
+                <span className="hidden xl:block text-[8px] lg:text-[9px] font-mono tracking-widest text-gray-400 uppercase mt-0.5">
                   PREMIUM CINEMA
                 </span>
               </div>
             </Link>
 
-            {/* Navigation Menu - Absolute Dead Center on Desktop */}
-            <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 text-xs xl:text-[13px] font-semibold tracking-wide absolute left-1/2 -translate-x-1/2 z-10 whitespace-nowrap">
-              <Link 
-                to="/" 
-                className={`px-1.5 md:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
-                  location.pathname === '/' 
-                    ? 'text-white bg-white/[0.08] shadow-sm shadow-black/40' 
+            {/* Navigation Menu with Taste - Absolutely Dead-Centered on Desktop */}
+            <nav className="hidden xl:flex items-center gap-1 text-xs font-semibold tracking-wide absolute left-1/2 -translate-x-1/2 z-10 whitespace-nowrap pointer-events-auto">
+              <Link
+                to="/"
+                className={`px-2 py-1.5 rounded-xl transition-all duration-200 ${location.pathname === '/'
+                    ? 'text-white bg-white/[0.08] shadow-sm shadow-black/40'
                     : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
-                }`}
+                  }`}
               >
                 Trang Chủ
               </Link>
 
               {/* Menu Phim Dropdown */}
               <div className="relative group">
-                <div 
+                <div
                   role="button"
                   tabIndex={0}
-                  className={`px-1.5 md:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-0.5 sm:gap-1 cursor-default select-none ${
-                    location.pathname.startsWith('/movies') || location.pathname.startsWith('/phim')
-                      ? 'text-white bg-white/[0.08]' 
+                  className={`px-2 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${location.pathname.startsWith('/movies') || location.pathname.startsWith('/phim')
+                      ? 'text-white bg-white/[0.08]'
                       : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
-                  }`}
+                    }`}
                 >
                   <span>Phim Điện Ảnh</span>
                   <ChevronDown size={12} className="text-gray-400 group-hover:text-amber-400 group-hover:rotate-180 transition-transform duration-300" />
                 </div>
                 <div className="absolute top-full left-0 hidden group-hover:block pt-2 z-[100] animate-[fadeIn_0.15s_ease-out]">
                   <div className="bg-white dark:bg-[#0e121a] rounded-2xl p-2.5 min-w-[210px] flex flex-col gap-1 shadow-2xl shadow-black/30 dark:shadow-black/90 border border-slate-200 dark:border-white/10">
-                    <Link 
-                      to="/movies?tab=NOW_SHOWING" 
+                    <Link
+                      to="/movies?tab=NOW_SHOWING"
                       className="px-3 py-2 rounded-xl text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] text-xs font-semibold transition-all flex items-center justify-between"
                     >
                       <span>Phim Đang Chiếu</span>
                       <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                     </Link>
-                    <Link 
-                      to="/movies?tab=COMING_SOON" 
+                    <Link
+                      to="/movies?tab=COMING_SOON"
                       className="px-3 py-2 rounded-xl text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] text-xs font-semibold transition-all flex items-center justify-between"
                     >
                       <span>Phim Sắp Chiếu</span>
@@ -315,27 +313,25 @@ function AppContent() {
               </div>
 
               {/* Menu Lịch Chiếu */}
-              <Link 
-                to="/showtimes" 
-                className={`px-1.5 md:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
-                  location.pathname === '/showtimes' 
-                    ? 'text-white bg-white/[0.08]' 
+              <Link
+                to="/showtimes"
+                className={`px-2 py-1.5 rounded-xl transition-all duration-200 ${location.pathname === '/showtimes'
+                    ? 'text-white bg-white/[0.08]'
                     : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
-                }`}
+                  }`}
               >
                 Lịch Chiếu
               </Link>
 
               {/* Menu Cụm Rạp & Dịch Vụ Dropdown */}
               <div className="relative group">
-                <div 
+                <div
                   role="button"
                   tabIndex={0}
-                  className={`px-1.5 md:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-0.5 sm:gap-1 cursor-default select-none ${
-                    location.pathname.startsWith('/cinemas') || location.pathname === '/group-booking' || location.pathname === '/rules'
-                      ? 'text-white bg-white/[0.08]' 
+                  className={`px-2 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${location.pathname.startsWith('/cinemas') || location.pathname === '/group-booking' || location.pathname === '/rules'
+                      ? 'text-white bg-white/[0.08]'
                       : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
-                  }`}
+                    }`}
                 >
                   <span>Cụm Rạp & Dịch Vụ</span>
                   <ChevronDown size={12} className="text-gray-400 group-hover:text-amber-400 group-hover:rotate-180 transition-transform duration-300" />
@@ -344,31 +340,31 @@ function AppContent() {
                   <div className="bg-white dark:bg-[#0e121a] rounded-2xl p-2.5 min-w-[250px] flex flex-col gap-1 shadow-2xl shadow-black/30 dark:shadow-black/90 border border-slate-200 dark:border-white/10">
                     <div className="px-3 py-1 text-[10px] uppercase font-mono font-bold text-slate-400 dark:text-gray-500 tracking-wider">Hệ thống rạp toàn quốc</div>
                     {cinemas.slice(0, 5).map(c => (
-                      <Link 
-                        key={c.id} 
-                        to={`/cinemas?id=${c.id}`} 
+                      <Link
+                        key={c.id}
+                        to={`/cinemas?id=${c.id}`}
                         className="px-3 py-1.5 rounded-xl text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] text-xs font-medium transition-all truncate"
                       >
                         {c.name}
                       </Link>
                     ))}
                     <div className="h-px bg-slate-200 dark:bg-white/10 my-1"></div>
-                    <Link 
-                      to="/cinemas?section=prices" 
+                    <Link
+                      to="/cinemas?section=prices"
                       className="px-3 py-1.5 rounded-xl text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] text-xs font-semibold transition-all flex items-center justify-between"
                     >
                       <span>Bảng Giá Vé Toàn Quốc</span>
                       <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-300">GIÁ VÉ</span>
                     </Link>
-                    <Link 
-                      to="/group-booking" 
+                    <Link
+                      to="/group-booking"
                       className="px-3 py-1.5 rounded-xl text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] text-xs font-semibold transition-all flex items-center justify-between"
                     >
                       <span>Đặt Vé Đoàn & Thuê Rạp</span>
                       <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">B2B</span>
                     </Link>
-                    <Link 
-                      to="/rules" 
+                    <Link
+                      to="/rules"
                       className="px-3 py-1.5 rounded-xl text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] text-xs font-semibold transition-all flex items-center justify-between"
                     >
                       <span>Nội Quy & Quy Định Rạp</span>
@@ -379,29 +375,28 @@ function AppContent() {
 
               {/* Menu Hội Viên & Ưu Đãi Dropdown */}
               <div className="relative group">
-                <div 
+                <div
                   role="button"
                   tabIndex={0}
-                  className={`px-1.5 md:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-0.5 sm:gap-1 cursor-default select-none ${
-                    location.pathname === '/promotions' || location.pathname === '/membership'
-                      ? 'text-white bg-white/[0.08]' 
+                  className={`px-2 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${location.pathname === '/promotions' || location.pathname === '/membership'
+                      ? 'text-white bg-white/[0.08]'
                       : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
-                  }`}
+                    }`}
                 >
                   <span>Hội Viên & Ưu Đãi</span>
                   <ChevronDown size={12} className="text-gray-400 group-hover:text-amber-400 group-hover:rotate-180 transition-transform duration-300" />
                 </div>
                 <div className="absolute top-full left-0 hidden group-hover:block pt-2 z-[100] animate-[fadeIn_0.15s_ease-out]">
                   <div className="bg-white dark:bg-[#0e121a] rounded-2xl p-2.5 min-w-[210px] flex flex-col gap-1 shadow-2xl shadow-black/30 dark:shadow-black/90 border border-slate-200 dark:border-white/10">
-                    <Link 
-                      to="/membership" 
+                    <Link
+                      to="/membership"
                       className="px-3 py-2 rounded-xl text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] text-xs font-semibold transition-all flex items-center justify-between"
                     >
                       <span>Đặc Quyền Hội Viên</span>
                       <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400">VIP</span>
                     </Link>
-                    <Link 
-                      to="/promotions" 
+                    <Link
+                      to="/promotions"
                       className="px-3 py-2 rounded-xl text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] text-xs font-semibold transition-all flex items-center justify-between"
                     >
                       <span>Khuyến Mãi & Sự Kiện</span>
@@ -411,30 +406,28 @@ function AppContent() {
               </div>
 
               {/* Menu Blog */}
-              <Link 
-                to="/blog" 
-                className={`px-1.5 md:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
-                  location.pathname === '/blog' 
-                    ? 'text-white bg-white/[0.08]' 
+              <Link
+                to="/blog"
+                className={`px-2 py-1.5 rounded-xl transition-all duration-200 ${location.pathname === '/blog'
+                    ? 'text-white bg-white/[0.08]'
                     : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
-                }`}
+                  }`}
               >
                 Góc Điện Ảnh
               </Link>
             </nav>
 
-            {/* Right Action Bar - Right Aligned, Never Overflowing */}
-            <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-2 shrink-0 z-10 justify-end">
-              
+            {/* Right Action Bar - Anchored to the Right Edge */}
+            <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-2 shrink-0 justify-end z-10 ml-auto">
+
               {/* Quick Search Button */}
               <button
                 onClick={() => setShowSearchModal(true)}
-                className="flex items-center gap-1.5 p-1.5 sm:px-2 sm:py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.09] text-gray-300 hover:text-white border border-white/10 text-xs font-medium transition-all duration-200 group shrink-0"
+                className="p-1.5 sm:p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.09] text-gray-300 hover:text-white border border-white/10 transition-all duration-200 group shrink-0"
                 title="Tìm kiếm phim (Ctrl + K)"
+                aria-label="Tìm kiếm phim"
               >
-                <Search className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
-                <span className="hidden 2xl:inline text-gray-400 group-hover:text-gray-300">Tìm phim...</span>
-                <span className="hidden 2xl:inline-block text-[9px] font-mono px-1 py-0.5 rounded bg-white/10 text-gray-400">⌘K</span>
+                <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 group-hover:scale-110 transition-transform" />
               </button>
 
               {/* Theme Toggle */}
@@ -447,8 +440,8 @@ function AppContent() {
                 {isLoggedIn ? (
                   <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-2 shrink-0 whitespace-nowrap">
                     {((currentUser?.role || '').toUpperCase() === 'ADMIN') && (
-                      <Link 
-                        to="/admin" 
+                      <Link
+                        to="/admin"
                         className="flex items-center gap-1 px-2 py-1 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 hover:text-white hover:border-amber-400 text-[11px] font-display font-bold uppercase tracking-wider transition-all shadow-sm shrink-0 whitespace-nowrap"
                         title="Vào bảng điều khiển Quản trị viên"
                       >
@@ -457,8 +450,8 @@ function AppContent() {
                       </Link>
                     )}
                     {((currentUser?.role || '').toUpperCase() === 'ACCOUNTANT') && (
-                      <Link 
-                        to="/accountant" 
+                      <Link
+                        to="/accountant"
                         className="flex items-center gap-1 px-2 py-1 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 text-emerald-300 hover:text-white hover:border-emerald-400 text-[11px] font-display font-bold uppercase tracking-wider transition-all shadow-sm shrink-0 whitespace-nowrap"
                         title="Vào Cổng Kế Toán & Quản Lý Doanh Thu"
                       >
@@ -466,22 +459,22 @@ function AppContent() {
                         <span className="hidden xl:inline">Kế Toán</span>
                       </Link>
                     )}
-                    <Link 
-                      to="/profile" 
+                    <Link
+                      to="/profile"
                       className="flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all group shrink-0 whitespace-nowrap"
                     >
-                      <UserAvatar 
-                        name={currentUser?.name || 'Khách'} 
+                      <UserAvatar
+                        name={currentUser?.name || 'Khách'}
                         avatarUrl={currentUser?.avatar}
-                        size="sm" 
+                        size="sm"
                       />
                       <span className="hidden xl:inline text-xs font-semibold text-gray-200 group-hover:text-amber-300 transition-colors max-w-[80px] 2xl:max-w-[130px] truncate">
                         {currentUser?.name || 'Tài khoản'}
                       </span>
                     </Link>
-                    <button 
-                      onClick={handleLogout} 
-                      className="text-gray-400 hover:text-red-400 p-1 sm:p-1.5 rounded-xl hover:bg-red-500/10 transition-colors shrink-0" 
+                    <button
+                      onClick={handleLogout}
+                      className="text-gray-400 hover:text-red-400 p-1 sm:p-1.5 rounded-xl hover:bg-red-500/10 transition-colors shrink-0"
                       title="Đăng xuất"
                     >
                       <LogOut className="w-3.5 h-3.5" />
@@ -489,14 +482,14 @@ function AppContent() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-1 sm:gap-1.5">
-                    <Link 
-                      to="/login" 
+                    <Link
+                      to="/login"
                       className="text-xs font-semibold text-gray-300 hover:text-white px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-xl hover:bg-white/[0.05] transition-all shrink-0"
                     >
                       Đăng nhập
                     </Link>
-                    <Link 
-                      to="/register" 
+                    <Link
+                      to="/register"
                       className="cinema-btn-primary text-xs px-2.5 sm:px-3.5 py-1 sm:py-1.5 font-bold transition-all shrink-0"
                     >
                       Đăng ký
@@ -508,7 +501,7 @@ function AppContent() {
               {/* Tab Menu Hamburger Button bên phải khi thu nhỏ màn hình */}
               <button
                 onClick={() => setMobileMenuOpen(true)}
-                className="lg:hidden p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-gray-200 hover:text-amber-400 transition-all flex items-center justify-center shrink-0"
+                className="xl:hidden p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-gray-200 hover:text-amber-400 transition-all flex items-center justify-center shrink-0"
                 aria-label="Mở menu điều hướng"
                 title="Menu điều hướng"
               >
@@ -521,9 +514,9 @@ function AppContent() {
 
       {/* Right Slide-over Drawer Menu khi thu nhỏ màn hình - Đặt ngoài <header> để full 100% toàn màn hình */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[1000] lg:hidden animate-[fadeIn_0.2s_ease-out]">
+        <div className="fixed inset-0 z-[1000] xl:hidden animate-[fadeIn_0.2s_ease-out]">
           {/* Backdrop mờ phủ kín toàn màn hình */}
-          <div 
+          <div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={() => setMobileMenuOpen(false)}
           ></div>
@@ -553,14 +546,13 @@ function AppContent() {
               {/* Danh sách Menu dạng thẳng, hỗ trợ dropdown/tắt chuẩn Header */}
               <div className="flex flex-col gap-1 text-sm font-semibold">
                 {/* 1. Trang Chủ */}
-                <Link 
-                  to="/" 
+                <Link
+                  to="/"
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 ${
-                    location.pathname === '/' 
-                      ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10 font-bold' 
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 ${location.pathname === '/'
+                      ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10 font-bold'
                       : 'text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06]'
-                  }`}
+                    }`}
                 >
                   <span>Trang Chủ</span>
                 </Link>
@@ -570,35 +562,33 @@ function AppContent() {
                   <button
                     type="button"
                     onClick={() => toggleMobileMenu('movies')}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 ${
-                      mobileExpanded.movies
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 ${mobileExpanded.movies
                         ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10'
                         : location.pathname.startsWith('/movies') || location.pathname.startsWith('/phim')
                           ? 'text-amber-600 dark:text-amber-400 bg-amber-500/5 font-bold'
                           : 'text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06]'
-                    }`}
+                      }`}
                   >
                     <span>Phim Điện Ảnh</span>
-                    <ChevronDown 
-                      size={16} 
-                      className={`transition-transform duration-300 ${
-                        mobileExpanded.movies ? 'rotate-180 text-amber-500' : 'text-slate-400 dark:text-gray-400'
-                      }`} 
+                    <ChevronDown
+                      size={16}
+                      className={`transition-transform duration-300 ${mobileExpanded.movies ? 'rotate-180 text-amber-500' : 'text-slate-400 dark:text-gray-400'
+                        }`}
                     />
                   </button>
 
                   {mobileExpanded.movies && (
                     <div className="mt-1 ml-4 pl-3.5 border-l-2 border-amber-500/40 flex flex-col gap-1 py-1 animate-[fadeIn_0.15s_ease-out]">
-                      <Link 
-                        to="/movies?tab=NOW_SHOWING" 
+                      <Link
+                        to="/movies?tab=NOW_SHOWING"
                         onClick={() => setMobileMenuOpen(false)}
                         className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors flex items-center justify-between"
                       >
                         <span>Phim Đang Chiếu</span>
                         <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                       </Link>
-                      <Link 
-                        to="/movies?tab=COMING_SOON" 
+                      <Link
+                        to="/movies?tab=COMING_SOON"
                         onClick={() => setMobileMenuOpen(false)}
                         className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors flex items-center justify-between"
                       >
@@ -610,14 +600,13 @@ function AppContent() {
                 </div>
 
                 {/* 3. Lịch Chiếu */}
-                <Link 
-                  to="/showtimes" 
+                <Link
+                  to="/showtimes"
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 ${
-                    location.pathname === '/showtimes' 
-                      ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10 font-bold' 
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 ${location.pathname === '/showtimes'
+                      ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10 font-bold'
                       : 'text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06]'
-                  }`}
+                    }`}
                 >
                   <span>Lịch Chiếu</span>
                 </Link>
@@ -627,51 +616,49 @@ function AppContent() {
                   <button
                     type="button"
                     onClick={() => toggleMobileMenu('cinemas')}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 ${
-                      mobileExpanded.cinemas
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 ${mobileExpanded.cinemas
                         ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10'
                         : location.pathname.startsWith('/cinemas') || location.pathname === '/group-booking' || location.pathname === '/rules'
                           ? 'text-amber-600 dark:text-amber-400 bg-amber-500/5 font-bold'
                           : 'text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06]'
-                    }`}
+                      }`}
                   >
                     <span>Cụm Rạp & Dịch Vụ</span>
-                    <ChevronDown 
-                      size={16} 
-                      className={`transition-transform duration-300 ${
-                        mobileExpanded.cinemas ? 'rotate-180 text-amber-500' : 'text-slate-400 dark:text-gray-400'
-                      }`} 
+                    <ChevronDown
+                      size={16}
+                      className={`transition-transform duration-300 ${mobileExpanded.cinemas ? 'rotate-180 text-amber-500' : 'text-slate-400 dark:text-gray-400'
+                        }`}
                     />
                   </button>
 
                   {mobileExpanded.cinemas && (
                     <div className="mt-1 ml-4 pl-3.5 border-l-2 border-amber-500/40 flex flex-col gap-1 py-1 animate-[fadeIn_0.15s_ease-out]">
-                      <Link 
-                        to="/cinemas" 
+                      <Link
+                        to="/cinemas"
                         onClick={() => setMobileMenuOpen(false)}
                         className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors flex items-center justify-between"
                       >
                         <span>Hệ Thống Cụm Rạp Toàn Quốc</span>
                         <span className="text-[10px] font-mono text-amber-600 dark:text-amber-400">Xem tất cả →</span>
                       </Link>
-                      <Link 
-                        to="/cinemas?section=prices" 
+                      <Link
+                        to="/cinemas?section=prices"
                         onClick={() => setMobileMenuOpen(false)}
                         className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors flex items-center justify-between"
                       >
                         <span>Bảng Giá Vé Toàn Quốc</span>
                         <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-300 font-bold border border-amber-500/30">GIÁ VÉ</span>
                       </Link>
-                      <Link 
-                        to="/group-booking" 
+                      <Link
+                        to="/group-booking"
                         onClick={() => setMobileMenuOpen(false)}
                         className="px-3 py-2 rounded-lg text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors flex items-center justify-between"
                       >
                         <span>Đặt Vé Đoàn & Thuê Rạp</span>
                         <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/30">B2B</span>
                       </Link>
-                      <Link 
-                        to="/rules" 
+                      <Link
+                        to="/rules"
                         onClick={() => setMobileMenuOpen(false)}
                         className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors flex items-center justify-between"
                       >
@@ -686,35 +673,33 @@ function AppContent() {
                   <button
                     type="button"
                     onClick={() => toggleMobileMenu('membership')}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 ${
-                      mobileExpanded.membership
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 ${mobileExpanded.membership
                         ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10'
                         : location.pathname === '/promotions' || location.pathname === '/membership'
                           ? 'text-amber-600 dark:text-amber-400 bg-amber-500/5 font-bold'
                           : 'text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06]'
-                    }`}
+                      }`}
                   >
                     <span>Hội Viên & Ưu Đãi</span>
-                    <ChevronDown 
-                      size={16} 
-                      className={`transition-transform duration-300 ${
-                        mobileExpanded.membership ? 'rotate-180 text-amber-500' : 'text-slate-400 dark:text-gray-400'
-                      }`} 
+                    <ChevronDown
+                      size={16}
+                      className={`transition-transform duration-300 ${mobileExpanded.membership ? 'rotate-180 text-amber-500' : 'text-slate-400 dark:text-gray-400'
+                        }`}
                     />
                   </button>
 
                   {mobileExpanded.membership && (
                     <div className="mt-1 ml-4 pl-3.5 border-l-2 border-amber-500/40 flex flex-col gap-1 py-1 animate-[fadeIn_0.15s_ease-out]">
-                      <Link 
-                        to="/membership" 
+                      <Link
+                        to="/membership"
                         onClick={() => setMobileMenuOpen(false)}
                         className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors flex items-center justify-between"
                       >
                         <span>Đặc Quyền Hội Viên Stars</span>
                         <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-300 font-bold border border-amber-500/30">VIP</span>
                       </Link>
-                      <Link 
-                        to="/promotions" 
+                      <Link
+                        to="/promotions"
                         onClick={() => setMobileMenuOpen(false)}
                         className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors flex items-center justify-between"
                       >
@@ -725,22 +710,21 @@ function AppContent() {
                 </div>
 
                 {/* 6. Góc Điện Ảnh */}
-                <Link 
-                  to="/blog" 
+                <Link
+                  to="/blog"
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 ${
-                    location.pathname === '/blog' 
-                      ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10 font-bold' 
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 ${location.pathname === '/blog'
+                      ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10 font-bold'
                       : 'text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06]'
-                  }`}
+                    }`}
                 >
                   <span>Góc Điện Ảnh</span>
                 </Link>
 
                 {/* Quản Trị / Kế Toán nếu đăng nhập vai trò nội bộ */}
                 {((currentUser?.role || '').toUpperCase() === 'ADMIN') && (
-                  <Link 
-                    to="/admin" 
+                  <Link
+                    to="/admin"
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-amber-600 dark:text-amber-300 bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 transition-all mt-1"
                   >
@@ -752,8 +736,8 @@ function AppContent() {
                   </Link>
                 )}
                 {((currentUser?.role || '').toUpperCase() === 'ACCOUNTANT') && (
-                  <Link 
-                    to="/accountant" 
+                  <Link
+                    to="/accountant"
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-emerald-600 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 transition-all mt-1"
                   >
@@ -776,19 +760,19 @@ function AppContent() {
 
               {isLoggedIn ? (
                 <div className="flex items-center justify-between w-full pt-2">
-                  <Link 
-                    to="/profile" 
+                  <Link
+                    to="/profile"
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white"
                   >
                     <UserAvatar name={currentUser?.name || 'Khách'} avatarUrl={currentUser?.avatar} size="sm" />
                     <span className="max-w-[130px] truncate">{currentUser?.name || 'Tài khoản'}</span>
                   </Link>
-                  <button 
+                  <button
                     onClick={() => {
                       setMobileMenuOpen(false);
                       handleLogout();
-                    }} 
+                    }}
                     className="text-red-500 dark:text-red-400 text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
                   >
                     Đăng xuất
@@ -796,15 +780,15 @@ function AppContent() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2.5 w-full pt-2">
-                  <Link 
-                    to="/login" 
+                  <Link
+                    to="/login"
                     onClick={() => setMobileMenuOpen(false)}
                     className="text-center py-2.5 text-xs font-bold rounded-xl border border-slate-300 dark:border-white/15 bg-slate-100 dark:bg-white/[0.08] text-slate-800 dark:text-white hover:bg-slate-200 dark:hover:bg-white/15 transition-all"
                   >
                     Đăng nhập
                   </Link>
-                  <Link 
-                    to="/register" 
+                  <Link
+                    to="/register"
                     onClick={() => setMobileMenuOpen(false)}
                     className="cinema-btn-primary text-center py-2.5 text-xs font-bold"
                   >
@@ -920,7 +904,7 @@ function AppContent() {
                               navigate(portal);
                               return;
                             }
-                          } catch (e) {}
+                          } catch (e) { }
                         }
                         const target = `/booking/${m.id}`;
                         navigate(localStorage.getItem('token') ? target : `/login?redirect=${encodeURIComponent(target)}`);
@@ -952,7 +936,7 @@ function AppContent() {
 
           <div className="container mx-auto px-4 lg:px-8 relative z-10">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-16">
-              
+
               {/* Brand Column */}
               <div className="lg:col-span-2">
                 <Link to="/" className="flex items-center gap-3 mb-5 group">
