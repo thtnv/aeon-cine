@@ -165,19 +165,29 @@ export default function CinemaRules() {
           </div>
 
           <div className="space-y-4 text-xs text-gray-300 leading-relaxed">
-            <div className="flex items-start gap-3 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-200">
-              <VideoOff size={20} className="shrink-0 mt-0.5 text-red-400" />
+            <div className="flex items-start gap-3.5 p-5 rounded-2xl bg-[#1a0e12] border-2 border-red-500/60 text-gray-200 shadow-xl">
+              <span className="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center shrink-0 border border-red-500/40 mt-0.5">
+                <VideoOff size={22} className="text-red-400" />
+              </span>
               <div>
-                <strong className="block text-white mb-1 uppercase font-display">Nghiêm cấm quay phim & phát sóng trực tiếp (Livestream)</strong>
-                Mọi hành vi quay phim, chụp ảnh, ghi âm hoặc truyền phát trực tiếp nội dung tác phẩm điện ảnh trong phòng chiếu là hành vi vi phạm nghiêm trọng Luật Sở hữu trí tuệ Việt Nam. Hệ thống camera an ninh hồng ngoại trong phòng chiếu sẽ giám sát 24/7. Mọi cá nhân vi phạm sẽ bị mời ra khỏi rạp, lập biên bản và bàn giao cơ quan Công an xử lý hình sự.
+                <strong className="block text-red-400 mb-1.5 uppercase font-display font-black text-sm tracking-wide">
+                  NGHIÊM CẤM QUAY PHIM & PHÁT SÓNG TRỰC TIẾP (LIVESTREAM)
+                </strong>
+                <p className="text-gray-200 leading-relaxed font-medium">
+                  Mọi hành vi quay phim, chụp ảnh, ghi âm hoặc truyền phát trực tiếp nội dung tác phẩm điện ảnh trong phòng chiếu là hành vi vi phạm nghiêm trọng Luật Sở hữu trí tuệ Việt Nam. Hệ thống camera an ninh hồng ngoại trong phòng chiếu sẽ giám sát 24/7. Mọi cá nhân vi phạm sẽ bị mời ra khỏi rạp, lập biên bản và bàn giao cơ quan Công an xử lý hình sự.
+                </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3 p-4 rounded-2xl bg-white/[0.03] border border-white/5">
-              <ShieldAlert size={18} className="shrink-0 mt-0.5 text-amber-400" />
+            <div className="flex items-start gap-3.5 p-5 rounded-2xl bg-slate-900/90 border border-white/10 text-gray-200 shadow-md">
+              <span className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30 mt-0.5">
+                <ShieldAlert size={20} className="text-amber-400" />
+              </span>
               <div>
-                <strong className="block text-white mb-0.5">An toàn & Phòng chống cháy nổ</strong>
-                Nghiêm cấm mang theo hung khí, vật sắc nhọn, chất dễ cháy nổ, pháo hoa hoặc các chất cấm vào rạp. Khách hàng vui lòng tuân thủ chỉ dẫn an toàn và lối thoát hiểm của rạp khi có sự cố.
+                <strong className="block text-amber-400 mb-1 font-display font-bold text-sm uppercase">An toàn & Phòng chống cháy nổ</strong>
+                <p className="text-gray-300 leading-relaxed font-medium">
+                  Nghiêm cấm mang theo hung khí, vật sắc nhọn, chất dễ cháy nổ, pháo hoa hoặc các chất cấm vào rạp. Khách hàng vui lòng tuân thủ chỉ dẫn an toàn và lối thoát hiểm của rạp khi có sự cố.
+                </p>
               </div>
             </div>
           </div>

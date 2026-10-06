@@ -757,18 +757,23 @@ export default function UserProfile() {
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-orange-500/10 to-transparent border border-amber-500/30 mb-5 flex items-center justify-between">
+            {/* Khung Điểm Tích Lũy Nền Tối Sâu Nổi Bật Sắc Nét */}
+            <div className="p-5 rounded-2xl bg-[#0b0e14] border-2 border-amber-500/50 mb-5 flex items-center justify-between shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-28 h-28 bg-amber-500/10 rounded-full blur-xl pointer-events-none"></div>
               <div>
-                <span className="text-[11px] font-mono text-gray-400 uppercase">Điểm Tích Lũy Của Bạn</span>
-                <p className="text-2xl font-black text-orange-400 font-mono">
-                  {user?.rewardPoints || 0} <span className="text-xs text-gray-300 font-normal">điểm</span>
+                <span className="text-[11px] font-mono text-gray-300 font-bold uppercase tracking-wider flex items-center gap-1.5 mb-1">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                  Điểm Tích Lũy Của Bạn
+                </span>
+                <p className="text-3xl font-black text-amber-400 font-mono tracking-tight drop-shadow">
+                  {user?.rewardPoints || 0} <span className="text-xs text-gray-300 font-bold font-sans">điểm Stars</span>
                 </p>
               </div>
               <div className="text-right">
-                <span className="text-[11px] font-mono text-gray-400 uppercase">Quy Đổi Trừ Tiền Mặt</span>
-                <p className="text-base font-bold text-white font-mono">
-                  = {((user?.rewardPoints || 0) * 1000).toLocaleString()} đ
-                </p>
+                <span className="text-[11px] font-mono text-gray-400 uppercase font-semibold block mb-1">Quy Đổi Trừ Tiền Mặt</span>
+                <span className="inline-block px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 font-mono text-base font-black text-white shadow-sm">
+                  = {((user?.rewardPoints || 0) * 1000).toLocaleString()} VNĐ
+                </span>
               </div>
             </div>
 

@@ -237,29 +237,29 @@ function AppContent() {
       {/* Navbar - Modern Cinema Glassmorphism */}
       {!isPortal && (
         <header className="fixed top-0 w-full z-50 cinema-glass transition-all duration-300">
-          <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 h-[60px] flex items-center justify-between gap-1.5 xl:gap-3 flex-nowrap whitespace-nowrap overflow-x-hidden">
+          <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 h-[60px] flex items-center justify-between gap-1 sm:gap-2 xl:gap-3 flex-nowrap whitespace-nowrap overflow-visible">
             
             {/* Brand Logo */}
-            <Link to="/" className="flex items-center gap-2 group shrink-0">
+            <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group shrink-0">
               <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:shadow-amber-500/40 group-hover:scale-105 transition-all duration-300 border border-white/20">
                 <Film className="text-white w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform duration-300 group-hover:rotate-12" />
                 <div className="absolute -inset-1 rounded-xl bg-amber-400/20 blur-sm -z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </div>
               <div className="flex flex-col">
-                <span className="font-display font-extrabold text-base sm:text-lg tracking-tight text-white leading-none flex items-center gap-1">
+                <span className="font-display font-extrabold text-sm sm:text-base lg:text-lg tracking-tight text-white leading-none flex items-center gap-1">
                   AEON <span className="text-gradient-amber">CINE</span>
                 </span>
-                <span className="text-[8px] sm:text-[9px] font-mono tracking-widest text-gray-400 uppercase mt-0.5">
+                <span className="text-[7px] sm:text-[8px] lg:text-[9px] font-mono tracking-widest text-gray-400 uppercase mt-0.5">
                   PREMIUM CINEMA
                 </span>
               </div>
             </Link>
 
-            {/* Navigation Menu with Taste - Single Line Guaranteed */}
-            <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 text-xs xl:text-[13px] font-semibold tracking-wide shrink-0">
+            {/* Navigation Menu with Taste - Remains dropdown on header even when web is shrunk */}
+            <nav className="flex items-center gap-0.5 sm:gap-1 xl:gap-1.5 text-[11px] sm:text-xs xl:text-[13px] font-semibold tracking-wide shrink-0">
               <Link 
                 to="/" 
-                className={`px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
+                className={`px-1.5 sm:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
                   location.pathname === '/' 
                     ? 'text-white bg-white/[0.08] shadow-sm shadow-black/40' 
                     : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
@@ -268,12 +268,12 @@ function AppContent() {
                 Trang Chủ
               </Link>
 
-              {/* Menu Phim */}
+              {/* Menu Phim Dropdown */}
               <div className="relative group">
                 <div 
                   role="button"
                   tabIndex={0}
-                  className={`px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${
+                  className={`px-1.5 sm:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${
                     location.pathname.startsWith('/movies') || location.pathname.startsWith('/phim')
                       ? 'text-white bg-white/[0.08]' 
                       : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
@@ -282,21 +282,21 @@ function AppContent() {
                   <span>Phim Điện Ảnh</span>
                   <ChevronDown size={12} className="text-gray-400 group-hover:text-amber-400 group-hover:rotate-180 transition-transform duration-300" />
                 </div>
-                <div className="absolute top-full left-0 hidden group-hover:block pt-2 z-50 animate-[fadeIn_0.15s_ease-out]">
-                  <div className="cinema-glass rounded-2xl p-2 min-w-[210px] flex flex-col gap-1 shadow-2xl shadow-black/90 border border-slate-200 dark:border-white/10">
+                <div className="absolute top-full left-0 hidden group-hover:block pt-2 z-[100] animate-[fadeIn_0.15s_ease-out]">
+                  <div className="bg-white dark:bg-[#0e121a] rounded-2xl p-2.5 min-w-[210px] flex flex-col gap-1 shadow-2xl shadow-black/30 dark:shadow-black/90 border border-slate-200 dark:border-white/10">
                     <Link 
                       to="/movies?tab=NOW_SHOWING" 
-                      className="px-3 py-2 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all flex items-center justify-between"
+                      className="px-3 py-2 rounded-xl text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] text-xs font-semibold transition-all flex items-center justify-between"
                     >
                       <span>Phim Đang Chiếu</span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                     </Link>
                     <Link 
                       to="/movies?tab=COMING_SOON" 
-                      className="px-3 py-2 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all flex items-center justify-between"
+                      className="px-3 py-2 rounded-xl text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] text-xs font-semibold transition-all flex items-center justify-between"
                     >
                       <span>Phim Sắp Chiếu</span>
-                      <span className="text-[10px] font-mono text-amber-500 dark:text-amber-400 font-bold">HOT</span>
+                      <span className="text-[10px] font-mono text-amber-600 dark:text-amber-400 font-bold px-1.5 py-0.5 rounded bg-amber-500/10">HOT</span>
                     </Link>
                   </div>
                 </div>
@@ -305,7 +305,7 @@ function AppContent() {
               {/* Menu Lịch Chiếu */}
               <Link 
                 to="/showtimes" 
-                className={`px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
+                className={`px-1.5 sm:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
                   location.pathname === '/showtimes' 
                     ? 'text-white bg-white/[0.08]' 
                     : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
@@ -314,12 +314,12 @@ function AppContent() {
                 Lịch Chiếu
               </Link>
 
-              {/* Menu Cụm Rạp & Dịch Vụ */}
+              {/* Menu Cụm Rạp & Dịch Vụ Dropdown */}
               <div className="relative group">
                 <div 
                   role="button"
                   tabIndex={0}
-                  className={`px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${
+                  className={`px-1.5 sm:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${
                     location.pathname.startsWith('/cinemas') || location.pathname === '/group-booking' || location.pathname === '/rules'
                       ? 'text-white bg-white/[0.08]' 
                       : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
@@ -328,36 +328,36 @@ function AppContent() {
                   <span>Cụm Rạp & Dịch Vụ</span>
                   <ChevronDown size={12} className="text-gray-400 group-hover:text-amber-400 group-hover:rotate-180 transition-transform duration-300" />
                 </div>
-                <div className="absolute top-full left-0 hidden group-hover:block pt-2 z-50 animate-[fadeIn_0.15s_ease-out]">
-                  <div className="cinema-glass rounded-2xl p-2 min-w-[240px] flex flex-col gap-1 shadow-2xl shadow-black/90 border border-slate-200 dark:border-white/10">
-                    <div className="px-3 py-1 text-[10px] uppercase font-mono font-bold text-slate-500 dark:text-gray-500 tracking-wider">Hệ thống rạp toàn quốc</div>
+                <div className="absolute top-full left-0 hidden group-hover:block pt-2 z-[100] animate-[fadeIn_0.15s_ease-out]">
+                  <div className="bg-white dark:bg-[#0e121a] rounded-2xl p-2.5 min-w-[250px] flex flex-col gap-1 shadow-2xl shadow-black/30 dark:shadow-black/90 border border-slate-200 dark:border-white/10">
+                    <div className="px-3 py-1 text-[10px] uppercase font-mono font-bold text-slate-400 dark:text-gray-500 tracking-wider">Hệ thống rạp toàn quốc</div>
                     {cinemas.slice(0, 5).map(c => (
                       <Link 
                         key={c.id} 
                         to={`/cinemas?id=${c.id}`} 
-                        className="px-3 py-1.5 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all truncate"
+                        className="px-3 py-1.5 rounded-xl text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] text-xs font-medium transition-all truncate"
                       >
                         {c.name}
                       </Link>
                     ))}
-                    <div className="h-px bg-slate-200 dark:bg-white/5 my-1"></div>
+                    <div className="h-px bg-slate-200 dark:bg-white/10 my-1"></div>
                     <Link 
                       to="/cinemas?section=prices" 
-                      className="px-3 py-1.5 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all flex items-center justify-between"
+                      className="px-3 py-1.5 rounded-xl text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] text-xs font-semibold transition-all flex items-center justify-between"
                     >
                       <span>Bảng Giá Vé Toàn Quốc</span>
-                      <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-300">GIÁ VÉ</span>
+                      <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-300">GIÁ VÉ</span>
                     </Link>
                     <Link 
                       to="/group-booking" 
-                      className="px-3 py-1.5 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all flex items-center justify-between"
+                      className="px-3 py-1.5 rounded-xl text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] text-xs font-semibold transition-all flex items-center justify-between"
                     >
                       <span>Đặt Vé Đoàn & Thuê Rạp</span>
-                      <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400">B2B</span>
+                      <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">B2B</span>
                     </Link>
                     <Link 
                       to="/rules" 
-                      className="px-3 py-1.5 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all flex items-center justify-between"
+                      className="px-3 py-1.5 rounded-xl text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] text-xs font-semibold transition-all flex items-center justify-between"
                     >
                       <span>Nội Quy & Quy Định Rạp</span>
                     </Link>
@@ -365,12 +365,12 @@ function AppContent() {
                 </div>
               </div>
 
-              {/* Menu Hội Viên & Ưu Đãi */}
+              {/* Menu Hội Viên & Ưu Đãi Dropdown */}
               <div className="relative group">
                 <div 
                   role="button"
                   tabIndex={0}
-                  className={`px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${
+                  className={`px-1.5 sm:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${
                     location.pathname === '/promotions' || location.pathname === '/membership'
                       ? 'text-white bg-white/[0.08]' 
                       : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
@@ -379,18 +379,18 @@ function AppContent() {
                   <span>Hội Viên & Ưu Đãi</span>
                   <ChevronDown size={12} className="text-gray-400 group-hover:text-amber-400 group-hover:rotate-180 transition-transform duration-300" />
                 </div>
-                <div className="absolute top-full left-0 hidden group-hover:block pt-2 z-50 animate-[fadeIn_0.15s_ease-out]">
-                  <div className="cinema-glass rounded-2xl p-2 min-w-[210px] flex flex-col gap-1 shadow-2xl shadow-black/90 border border-slate-200 dark:border-white/10">
+                <div className="absolute top-full left-0 hidden group-hover:block pt-2 z-[100] animate-[fadeIn_0.15s_ease-out]">
+                  <div className="bg-white dark:bg-[#0e121a] rounded-2xl p-2.5 min-w-[210px] flex flex-col gap-1 shadow-2xl shadow-black/30 dark:shadow-black/90 border border-slate-200 dark:border-white/10">
                     <Link 
                       to="/membership" 
-                      className="px-3 py-2 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all flex items-center justify-between"
+                      className="px-3 py-2 rounded-xl text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] text-xs font-semibold transition-all flex items-center justify-between"
                     >
                       <span>Đặc Quyền Hội Viên</span>
-                      <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400">VIP</span>
+                      <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400">VIP</span>
                     </Link>
                     <Link 
                       to="/promotions" 
-                      className="px-3 py-2 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all flex items-center justify-between"
+                      className="px-3 py-2 rounded-xl text-slate-800 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] text-xs font-semibold transition-all flex items-center justify-between"
                     >
                       <span>Khuyến Mãi & Sự Kiện</span>
                     </Link>
@@ -401,7 +401,7 @@ function AppContent() {
               {/* Menu Blog */}
               <Link 
                 to="/blog" 
-                className={`px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
+                className={`px-1.5 sm:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
                   location.pathname === '/blog' 
                     ? 'text-white bg-white/[0.08]' 
                     : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
@@ -493,10 +493,10 @@ function AppContent() {
                 )}
               </div>
 
-              {/* Mobile Menu Hamburger */}
+              {/* Mobile Menu Hamburger (Chỉ hiển thị trên màn hình siêu nhỏ di động) */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2 rounded-xl bg-white/[0.05] border border-white/10 text-gray-300 hover:text-white shrink-0"
+                className="sm:hidden p-2 rounded-xl bg-white/[0.05] border border-white/10 text-gray-300 hover:text-white shrink-0"
                 aria-label="Toggle menu"
               >
                 <div className="w-4 h-3.5 flex flex-col justify-between">
@@ -510,7 +510,7 @@ function AppContent() {
 
           {/* Mobile Drawer Menu */}
           {mobileMenuOpen && (
-            <div className="lg:hidden cinema-glass border-t border-white/10 px-4 py-6 flex flex-col gap-4 animate-[fadeIn_0.2s_ease-out]">
+            <div className="sm:hidden cinema-glass border-t border-white/10 px-4 py-6 flex flex-col gap-4 animate-[fadeIn_0.2s_ease-out]">
               <div className="flex flex-col gap-1 text-sm font-semibold">
                 <Link 
                   to="/" 
@@ -519,7 +519,7 @@ function AppContent() {
                 >
                   Trang Chủ
                 </Link>
-                {/* Menu Phim Mobile (chỉ click các mục nhỏ) */}
+                {/* Menu Phim Mobile */}
                 <div className="flex flex-col rounded-xl bg-white/[0.03] p-2 border border-white/[0.05]">
                   <div className="px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-500/90 font-mono">
                     Phim Điện Ảnh
@@ -552,23 +552,20 @@ function AppContent() {
                   Lịch Chiếu
                 </Link>
 
-                {/* Menu Cụm Rạp & Giá Vé Mobile (chỉ click các mục nhỏ) */}
+                {/* Menu Cụm Rạp & Dịch Vụ Mobile (Gọn gàng, không bị xổ 15 rạp tràn lan) */}
                 <div className="flex flex-col rounded-xl bg-white/[0.03] p-2 border border-white/[0.05]">
                   <div className="px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-500/90 font-mono">
-                    Cụm Rạp & Giá Vé
+                    Cụm Rạp & Dịch Vụ
                   </div>
-                  <div className="flex flex-col gap-0.5">
-                    {cinemas.map(c => (
-                      <Link 
-                        key={c.id}
-                        to={`/cinemas?id=${c.id}`} 
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="px-3 py-2 rounded-lg hover:bg-white/10 text-gray-200 text-xs truncate"
-                      >
-                        {c.name}
-                      </Link>
-                    ))}
-                    <div className="h-px bg-white/5 my-1"></div>
+                  <div className="flex flex-col gap-1">
+                    <Link 
+                      to="/cinemas" 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="px-3 py-2 rounded-lg hover:bg-white/10 text-gray-200 text-xs font-semibold flex items-center justify-between"
+                    >
+                      <span>Hệ Thống Cụm Rạp Toàn Quốc</span>
+                      <span className="text-[10px] font-mono text-amber-400">Xem tất cả →</span>
+                    </Link>
                     <Link 
                       to="/cinemas?section=prices" 
                       onClick={() => setMobileMenuOpen(false)}
@@ -577,15 +574,48 @@ function AppContent() {
                       <span>Bảng Giá Vé Toàn Quốc</span>
                       <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">GIÁ VÉ</span>
                     </Link>
+                    <Link 
+                      to="/group-booking" 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="px-3 py-2 rounded-lg hover:bg-white/10 text-emerald-400 text-xs font-semibold flex items-center justify-between"
+                    >
+                      <span>Đặt Vé Đoàn & Thuê Rạp</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">B2B</span>
+                    </Link>
+                    <Link 
+                      to="/rules" 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="px-3 py-2 rounded-lg hover:bg-white/10 text-gray-200 text-xs font-semibold"
+                    >
+                      <span>Nội Quy & Quy Định Rạp</span>
+                    </Link>
                   </div>
                 </div>
-                <Link 
-                  to="/promotions" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-2.5 rounded-xl hover:bg-white/10 text-gray-200"
-                >
-                  Ưu Đãi
-                </Link>
+
+                {/* Menu Hội Viên Mobile */}
+                <div className="flex flex-col rounded-xl bg-white/[0.03] p-2 border border-white/[0.05]">
+                  <div className="px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-500/90 font-mono">
+                    Hội Viên & Ưu Đãi
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Link 
+                      to="/membership" 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="px-3 py-2 rounded-lg hover:bg-white/10 text-amber-300 text-xs font-semibold flex items-center justify-between"
+                    >
+                      <span>Đặc Quyền Hội Viên Stars</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">VIP</span>
+                    </Link>
+                    <Link 
+                      to="/promotions" 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="px-3 py-2 rounded-lg hover:bg-white/10 text-gray-200 text-xs font-semibold"
+                    >
+                      <span>Khuyến Mãi & Sự Kiện</span>
+                    </Link>
+                  </div>
+                </div>
+
                 <Link 
                   to="/blog" 
                   onClick={() => setMobileMenuOpen(false)}

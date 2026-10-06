@@ -388,24 +388,30 @@ export default function GroupBooking() {
               </div>
             </div>
 
-            {/* Direct Hotline Box */}
-            <div className="rounded-3xl p-6 bg-gradient-to-br from-amber-500/20 via-orange-500/10 to-transparent border border-amber-500/30 text-xs">
-              <h4 className="font-display font-black text-white uppercase text-sm mb-3">
+            {/* Direct Hotline Box - Nền tối nổi bật sắc nét */}
+            <div className="rounded-3xl p-6 bg-slate-900 border-2 border-amber-500/40 text-xs shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+              <h4 className="font-display font-black text-amber-400 uppercase text-sm mb-3 tracking-wider flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
                 LIÊN HỆ TRỰC TIẾP PHÒNG KINH DOANH
               </h4>
-              <p className="text-gray-300 mb-4 leading-relaxed">
+              <p className="text-gray-200 mb-4 leading-relaxed font-medium">
                 Quý công ty cần tư vấn gấp cho sự kiện trong vòng 24h, vui lòng kết nối ngay:
               </p>
-              <div className="space-y-2 font-mono">
-                <div className="flex items-center gap-2 text-white">
-                  <Phone size={14} className="text-amber-400" />
-                  <strong>Hotline Doanh Nghiệp:</strong>
-                  <span className="text-amber-400 font-bold">1900 2224 (Nhánh 2)</span>
+              <div className="space-y-2.5 font-mono">
+                <div className="flex flex-wrap items-center gap-2 text-white">
+                  <span className="flex items-center gap-1.5 text-gray-300">
+                    <Phone size={14} className="text-amber-400" />
+                    <strong>Hotline Doanh Nghiệp:</strong>
+                  </span>
+                  <span className="text-amber-300 font-bold bg-amber-500/20 px-2.5 py-0.5 rounded-lg border border-amber-500/30">1900 2224 (Nhánh 2)</span>
                 </div>
-                <div className="flex items-center gap-2 text-white">
-                  <Mail size={14} className="text-amber-400" />
-                  <strong>Email B2B:</strong>
-                  <span className="text-gray-300">sales@aeoncine.vn</span>
+                <div className="flex flex-wrap items-center gap-2 text-white">
+                  <span className="flex items-center gap-1.5 text-gray-300">
+                    <Mail size={14} className="text-amber-400" />
+                    <strong>Email B2B:</strong>
+                  </span>
+                  <span className="text-gray-100 font-semibold underline underline-offset-2">sales@aeoncine.vn</span>
                 </div>
               </div>
             </div>

@@ -78,48 +78,48 @@ export default function MembershipGuide() {
             </div>
           </div>
 
-          {/* TIER 2: G-STAR (FEATURED) */}
-          <div className="relative rounded-3xl p-7 bg-gradient-to-b from-amber-500/15 via-zinc-900/90 to-zinc-900 border-2 border-amber-500/50 hover:border-amber-400 transition-all duration-300 flex flex-col justify-between group hover:-translate-y-2 shadow-2xl shadow-amber-500/20">
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-black text-[10px] font-mono font-black uppercase tracking-widest shadow-md">
+          {/* TIER 2: G-STAR (FEATURED - Khung giữa sáng đẹp rõ ràng) */}
+          <div className="relative rounded-3xl p-7 bg-gradient-to-b from-amber-50 via-amber-100/50 to-white dark:from-amber-500/15 dark:via-zinc-900/90 dark:to-zinc-900 border-2 border-amber-500 hover:border-amber-400 transition-all duration-300 flex flex-col justify-between group hover:-translate-y-2 shadow-2xl shadow-amber-500/20">
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-mono font-black uppercase tracking-widest shadow-md">
               PHỔ BIẾN NHẤT
             </div>
 
             <div>
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-5 text-black group-hover:scale-110 transition-transform shadow-lg shadow-amber-500/30">
-                <Award size={28} className="text-zinc-950" />
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-5 text-white group-hover:scale-110 transition-transform shadow-lg shadow-amber-500/30">
+                <Award size={28} className="text-white drop-shadow" />
               </div>
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-display font-black text-2xl text-gradient-amber">HẠNG G-STAR</h3>
-                <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                <h3 className="font-display font-black text-2xl text-amber-600 dark:text-amber-400">HẠNG G-STAR</h3>
+                <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40">
                   TỪ 100 ĐIỂM
                 </span>
               </div>
-              <p className="text-xs text-gray-300 mb-6">
+              <p className="text-xs text-slate-700 dark:text-gray-300 mb-6 font-medium">
                 Mốc thăng hạng đầu tiên. Tự động đạt được khi tích lũy đủ 100 điểm thưởng (~1.000.000đ - 2.000.000đ chi tiêu).
               </p>
 
               <div className="space-y-3 mb-6">
-                <div className="flex items-start gap-2.5 text-xs text-gray-200">
-                  <CheckCircle2 size={16} className="text-amber-400 shrink-0 mt-0.5" />
-                  <span>Tích lũy <strong>8%</strong> giá trị giao dịch vé & F&B</span>
+                <div className="flex items-start gap-2.5 text-xs text-slate-800 dark:text-gray-200 font-medium">
+                  <CheckCircle2 size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                  <span>Tích lũy <strong className="text-amber-700 dark:text-amber-400 font-bold">8%</strong> giá trị giao dịch vé & F&B</span>
                 </div>
-                <div className="flex items-start gap-2.5 text-xs text-gray-200">
-                  <Gift size={16} className="text-amber-400 shrink-0 mt-0.5" />
-                  <span><strong>Quà thăng hạng:</strong> Tặng ngay <strong>2 Vé 2D + 2 Combo Bắp Nước</strong></span>
+                <div className="flex items-start gap-2.5 text-xs text-slate-800 dark:text-gray-200 font-medium">
+                  <Gift size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                  <span><strong>Quà thăng hạng:</strong> Tặng ngay <strong className="text-amber-700 dark:text-amber-400 font-bold">2 Vé 2D + 2 Combo Bắp Nước</strong></span>
                 </div>
-                <div className="flex items-start gap-2.5 text-xs text-gray-200">
-                  <CheckCircle2 size={16} className="text-amber-400 shrink-0 mt-0.5" />
-                  <span>Quà sinh nhật: <strong>2 Vé 2D + 1 Sweet Combo</strong></span>
+                <div className="flex items-start gap-2.5 text-xs text-slate-800 dark:text-gray-200 font-medium">
+                  <CheckCircle2 size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                  <span>Quà sinh nhật: <strong className="text-amber-700 dark:text-amber-400 font-bold">2 Vé 2D + 1 Sweet Combo</strong></span>
                 </div>
-                <div className="flex items-start gap-2.5 text-xs text-gray-200">
-                  <CheckCircle2 size={16} className="text-amber-400 shrink-0 mt-0.5" />
-                  <span>Ưu tiên mua vé <strong>Suất chiếu sớm (Sneak Preview)</strong> trước 48h</span>
+                <div className="flex items-start gap-2.5 text-xs text-slate-800 dark:text-gray-200 font-medium">
+                  <CheckCircle2 size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                  <span>Ưu tiên mua vé <strong className="text-amber-700 dark:text-amber-400 font-bold">Suất chiếu sớm (Sneak Preview)</strong> trước 48h</span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-amber-500/20 text-center">
-              <span className="text-xs text-amber-400 font-mono font-bold">Thăng hạng tự động khi đạt 100đ</span>
+            <div className="pt-4 border-t border-amber-500/30 text-center">
+              <span className="text-xs text-amber-600 dark:text-amber-400 font-mono font-bold">Thăng hạng tự động khi đạt 100đ</span>
             </div>
           </div>
 
