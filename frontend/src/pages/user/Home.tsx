@@ -305,16 +305,13 @@ export default function Home() {
 
       {/* Hero Banner Slider (Tỷ lệ cân đối tinh tế chuẩn rạp chiếu, không bị tràn màn hình) */}
       <div className="relative w-full h-[460px] sm:h-[510px] lg:h-[560px] overflow-hidden bg-[var(--bg-void)]">
-        {heroMovies.map((hero: any, index) => {
-          const isActive = index === currentHeroIndex;
+        {heroMovies.length > 0 && (() => {
+          const hero = heroMovies[currentHeroIndex] || heroMovies[0];
+          if (!hero) return null;
           return (
             <div
-              key={hero.id || index}
-              className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-                isActive
-                  ? 'opacity-100 z-10 visible scale-100 pointer-events-auto'
-                  : 'opacity-0 z-0 invisible pointer-events-none scale-[1.02]'
-              }`}
+              key={hero.id || currentHeroIndex}
+              className="absolute inset-0 transition-opacity duration-500 ease-in-out animate-[fadeIn_0.4s_ease-out]"
             >
               {/* Multi-layered Theatrical Vignette Gradients */}
               <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-void)] via-[var(--bg-void)]/60 to-transparent z-10"></div>
@@ -327,7 +324,7 @@ export default function Home() {
                 className="w-full h-full object-cover object-center opacity-50 dark:opacity-60 transition-transform duration-10000 ease-out" 
               />
 
-              <div className="absolute inset-0 z-20 container mx-auto px-4 lg:px-8 flex flex-col justify-center items-start pt-4 sm:pt-6">
+              <div className="absolute inset-0 z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-start pt-4 sm:pt-6">
                 <div className="max-w-2xl animate-[fadeIn_0.5s_ease-out]">
                   
                   {/* Premiere Tag with Live Indicator */}
@@ -399,7 +396,7 @@ export default function Home() {
               </div>
             </div>
           );
-        })}
+        })()}
 
         {/* Theatrical Slider Progress Bar & Thumbnails */}
         <div className="absolute bottom-6 right-4 lg:right-12 z-30 flex items-center gap-2.5">
@@ -420,7 +417,7 @@ export default function Home() {
       </div>
 
       {/* QUICK BOOKING CONCIERGE BAR */}
-      <div className="container mx-auto px-4 lg:px-8 -mt-12 sm:-mt-14 relative z-30 mb-16">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 sm:-mt-14 relative z-30 mb-16">
         <div className="cinema-glass rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl shadow-black/90 border border-white/10 relative overflow-hidden">
           
           {/* Subtle Accent Glow */}
@@ -572,7 +569,7 @@ export default function Home() {
       </div>
 
       {/* SECTION: PHIM ĐIỆN ẢNH ĐANG & SẮP CHIẾU */}
-      <div className="container mx-auto px-4 lg:px-8 py-8">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Section Header with Refined Tabs */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 border-b border-white/[0.07] pb-6">
@@ -725,7 +722,7 @@ export default function Home() {
       </div>
 
       {/* SECTION: TRẢI NGHIỆM ĐIỆN ẢNH THƯỢNG LƯU (CINEMA STANDARDS) */}
-      <div className="container mx-auto px-4 lg:px-8 mt-28">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-28">
         <div className="text-center max-w-2xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 text-amber-400 font-mono text-xs tracking-widest uppercase mb-2">
             <Sparkles size={14} />
@@ -791,7 +788,7 @@ export default function Home() {
       </div>
 
       {/* SECTION: KHUYẾN MÃI & ĐẶC QUYỀN */}
-      <div className="container mx-auto px-4 lg:px-8 mt-28">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-28">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 border-b border-white/[0.07] pb-5">
           <div>
             <div className="flex items-center gap-2 text-amber-400 font-mono text-xs tracking-widest uppercase mb-1">
@@ -856,7 +853,7 @@ export default function Home() {
       </div>
 
       {/* SECTION: GÓC ĐIỆN ẢNH & TIN TỨC */}
-      <div className="container mx-auto px-4 lg:px-8 mt-28">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-28">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 border-b border-white/[0.07] pb-5">
           <div>
             <div className="flex items-center gap-2 text-amber-400 font-mono text-xs tracking-widest uppercase mb-1">

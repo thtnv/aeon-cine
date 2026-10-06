@@ -38,6 +38,14 @@ html {
   /* Giao diện chuẩn full màn hình 100% */
 }
 
+/* Chuẩn hóa Container căn giữa đồng bộ toàn hệ thống */
+.container {
+  width: 100%;
+  max-width: 80rem; /* 1280px (tương đương max-w-7xl) */
+  margin-left: auto;
+  margin-right: auto;
+}
+
 body {
   margin: 0;
 

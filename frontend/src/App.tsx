@@ -249,7 +249,7 @@ function AppContent() {
       {/* Navbar - Modern Cinema Glassmorphism */}
       {!isPortal && (
         <header className="fixed top-0 w-full z-50 cinema-glass transition-all duration-300">
-          <div className="w-full max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 h-[60px] flex items-center justify-between gap-1.5 sm:gap-2.5 xl:gap-4 flex-nowrap whitespace-nowrap overflow-visible">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[60px] flex items-center justify-between gap-2 lg:gap-4 flex-nowrap whitespace-nowrap">
             
             {/* Brand Logo */}
             <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group shrink-0">
@@ -267,8 +267,8 @@ function AppContent() {
               </div>
             </Link>
 
-            {/* Navigation Menu with Taste - Single Line Guaranteed on Desktop */}
-            <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-xs xl:text-[13px] font-semibold tracking-wide shrink-0">
+            {/* Navigation Menu with Taste - Perfectly Centered on Desktop */}
+            <nav className="hidden lg:flex items-center justify-center flex-1 gap-1 xl:gap-2 text-xs xl:text-[13px] font-semibold tracking-wide shrink-0">
               <Link 
                 to="/" 
                 className={`px-1.5 md:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
@@ -424,7 +424,7 @@ function AppContent() {
             </nav>
 
             {/* Right Action Bar - Guaranteed Single Straight Line */}
-            <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-2.5 shrink-0">
+            <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-2 shrink-0 justify-end">
               
               {/* Quick Search Button */}
               <button
