@@ -420,16 +420,14 @@ function AppContent() {
             {/* Right Action Bar - Anchored to the Right Edge */}
             <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-1 2xl:gap-2 shrink-0 justify-end z-10 ml-auto">
 
-              {/* Quick Search Button - Thu gọn thanh lịch, vẫn hiện chữ bên trong */}
+              {/* Quick Search Button - Nút Icon kính mờ sang trọng, thanh thoát */}
               <button
                 onClick={() => setShowSearchModal(true)}
-                className="flex items-center gap-1 px-1.5 sm:px-2 py-1 rounded-xl bg-white/[0.05] hover:bg-white/[0.09] text-gray-300 hover:text-white border border-white/10 text-xs font-medium transition-all duration-200 group shrink-0"
+                className="p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.09] text-gray-300 hover:text-white border border-white/10 hover:border-amber-500/30 transition-all duration-200 group shrink-0 flex items-center justify-center shadow-sm"
                 title="Tìm kiếm phim (Ctrl + K)"
                 aria-label="Tìm kiếm phim"
               >
-                <Search className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform shrink-0" />
-                <span className="text-gray-400 group-hover:text-gray-300 text-[11px] sm:text-xs">Tìm phim...</span>
-                <span className="hidden 2xl:inline-block text-[9px] font-mono px-1 py-0.5 rounded bg-white/10 text-gray-400">⌘K</span>
+                <Search className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
               </button>
 
               {/* Theme Toggle */}
@@ -463,14 +461,14 @@ function AppContent() {
                     )}
                     <Link
                       to="/profile"
-                      className="flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all group shrink-0 whitespace-nowrap"
+                      className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all group shrink-0 whitespace-nowrap"
                     >
                       <UserAvatar
                         name={currentUser?.name || 'Khách'}
                         avatarUrl={currentUser?.avatar}
                         size="sm"
                       />
-                      <span className="hidden xl:inline text-xs font-semibold text-gray-200 group-hover:text-amber-300 transition-colors max-w-[80px] 2xl:max-w-[130px] truncate">
+                      <span className="hidden xl:inline text-xs font-semibold text-gray-200 group-hover:text-amber-300 transition-colors whitespace-nowrap">
                         {currentUser?.name || 'Tài khoản'}
                       </span>
                     </Link>
