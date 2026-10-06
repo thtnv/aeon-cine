@@ -35,7 +35,7 @@ html.light,
 }
 
 html {
-  zoom: 0.8; /* Mức 80% chuẩn giúp toàn bộ UI không bị tràn hay mất góc, thanh thoát và sắc nét */
+  /* Giao diện chuẩn full màn hình 100% */
 }
 
 body {

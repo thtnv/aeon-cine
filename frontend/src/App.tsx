@@ -249,7 +249,7 @@ function AppContent() {
       {/* Navbar - Modern Cinema Glassmorphism */}
       {!isPortal && (
         <header className="fixed top-0 w-full z-50 cinema-glass transition-all duration-300">
-          <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 h-[60px] flex items-center justify-between gap-1 sm:gap-2 xl:gap-3 flex-nowrap whitespace-nowrap overflow-visible">
+          <div className="w-full max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 h-[60px] flex items-center justify-between gap-1.5 sm:gap-2.5 xl:gap-4 flex-nowrap whitespace-nowrap overflow-visible">
             
             {/* Brand Logo */}
             <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group shrink-0">
@@ -445,37 +445,37 @@ function AppContent() {
               {/* Auth Status / Action Buttons */}
               <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-2 shrink-0">
                 {isLoggedIn ? (
-                  <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-2">
+                  <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-2 shrink-0 whitespace-nowrap">
                     {((currentUser?.role || '').toUpperCase() === 'ADMIN') && (
                       <Link 
                         to="/admin" 
-                        className="flex items-center gap-1 px-2 py-1 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 hover:text-white hover:border-amber-400 text-[11px] font-display font-bold uppercase tracking-wider transition-all shadow-sm shrink-0"
+                        className="flex items-center gap-1 px-2 py-1 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 hover:text-white hover:border-amber-400 text-[11px] font-display font-bold uppercase tracking-wider transition-all shadow-sm shrink-0 whitespace-nowrap"
                         title="Vào bảng điều khiển Quản trị viên"
                       >
-                        <ShieldCheck size={12} className="text-amber-400" />
-                        <span className="hidden md:inline">Quản Trị</span>
+                        <ShieldCheck size={12} className="text-amber-400 shrink-0" />
+                        <span className="hidden xl:inline">Quản Trị</span>
                       </Link>
                     )}
                     {((currentUser?.role || '').toUpperCase() === 'ACCOUNTANT') && (
                       <Link 
                         to="/accountant" 
-                        className="flex items-center gap-1 px-2 py-1 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 text-emerald-300 hover:text-white hover:border-emerald-400 text-[11px] font-display font-bold uppercase tracking-wider transition-all shadow-sm shrink-0"
+                        className="flex items-center gap-1 px-2 py-1 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 text-emerald-300 hover:text-white hover:border-emerald-400 text-[11px] font-display font-bold uppercase tracking-wider transition-all shadow-sm shrink-0 whitespace-nowrap"
                         title="Vào Cổng Kế Toán & Quản Lý Doanh Thu"
                       >
-                        <DollarSign size={12} className="text-emerald-400" />
-                        <span className="hidden md:inline">Kế Toán</span>
+                        <DollarSign size={12} className="text-emerald-400 shrink-0" />
+                        <span className="hidden xl:inline">Kế Toán</span>
                       </Link>
                     )}
                     <Link 
                       to="/profile" 
-                      className="flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all group shrink-0"
+                      className="flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all group shrink-0 whitespace-nowrap"
                     >
                       <UserAvatar 
                         name={currentUser?.name || 'Khách'} 
                         avatarUrl={currentUser?.avatar}
                         size="sm" 
                       />
-                      <span className="hidden md:inline text-xs font-semibold text-gray-200 group-hover:text-amber-300 transition-colors max-w-[70px] lg:max-w-[100px] xl:max-w-[130px] truncate">
+                      <span className="hidden xl:inline text-xs font-semibold text-gray-200 group-hover:text-amber-300 transition-colors max-w-[80px] 2xl:max-w-[130px] truncate">
                         {currentUser?.name || 'Tài khoản'}
                       </span>
                     </Link>
