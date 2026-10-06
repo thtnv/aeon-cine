@@ -249,10 +249,10 @@ function AppContent() {
       {/* Navbar - Modern Cinema Glassmorphism */}
       {!isPortal && (
         <header className="fixed top-0 w-full z-50 cinema-glass transition-all duration-300">
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[60px] flex items-center justify-between gap-2 lg:gap-4 flex-nowrap whitespace-nowrap">
+          <div className="relative w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-[60px] flex items-center justify-between flex-nowrap whitespace-nowrap">
             
-            {/* Brand Logo */}
-            <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group shrink-0">
+            {/* Brand Logo - Left Aligned */}
+            <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group shrink-0 z-10">
               <div className="relative w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:shadow-amber-500/40 group-hover:scale-105 transition-all duration-300 border border-white/20">
                 <Film className="text-white w-4 h-4 transition-transform duration-300 group-hover:rotate-12" />
                 <div className="absolute -inset-1 rounded-xl bg-amber-400/20 blur-sm -z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -261,14 +261,14 @@ function AppContent() {
                 <span className="font-display font-extrabold text-sm sm:text-base lg:text-lg tracking-tight text-white leading-none flex items-center gap-1">
                   AEON <span className="text-gradient-amber">CINE</span>
                 </span>
-                <span className="hidden xl:block text-[8px] lg:text-[9px] font-mono tracking-widest text-gray-400 uppercase mt-0.5">
+                <span className="hidden 2xl:block text-[8px] lg:text-[9px] font-mono tracking-widest text-gray-400 uppercase mt-0.5">
                   PREMIUM CINEMA
                 </span>
               </div>
             </Link>
 
-            {/* Navigation Menu with Taste - Perfectly Centered on Desktop */}
-            <nav className="hidden lg:flex items-center justify-center flex-1 gap-1 xl:gap-2 text-xs xl:text-[13px] font-semibold tracking-wide shrink-0">
+            {/* Navigation Menu - Absolute Dead Center on Desktop */}
+            <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 text-xs xl:text-[13px] font-semibold tracking-wide absolute left-1/2 -translate-x-1/2 z-10 whitespace-nowrap">
               <Link 
                 to="/" 
                 className={`px-1.5 md:px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
@@ -423,17 +423,17 @@ function AppContent() {
               </Link>
             </nav>
 
-            {/* Right Action Bar - Guaranteed Single Straight Line */}
-            <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-2 shrink-0 justify-end">
+            {/* Right Action Bar - Right Aligned, Never Overflowing */}
+            <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-2 shrink-0 z-10 justify-end">
               
               {/* Quick Search Button */}
               <button
                 onClick={() => setShowSearchModal(true)}
-                className="flex items-center gap-1.5 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.09] text-gray-300 hover:text-white border border-white/10 text-xs font-medium transition-all duration-200 group shrink-0"
+                className="flex items-center gap-1.5 p-1.5 sm:px-2 sm:py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.09] text-gray-300 hover:text-white border border-white/10 text-xs font-medium transition-all duration-200 group shrink-0"
                 title="Tìm kiếm phim (Ctrl + K)"
               >
                 <Search className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
-                <span className="hidden xl:inline text-gray-400 group-hover:text-gray-300">Tìm phim...</span>
+                <span className="hidden 2xl:inline text-gray-400 group-hover:text-gray-300">Tìm phim...</span>
                 <span className="hidden 2xl:inline-block text-[9px] font-mono px-1 py-0.5 rounded bg-white/10 text-gray-400">⌘K</span>
               </button>
 
