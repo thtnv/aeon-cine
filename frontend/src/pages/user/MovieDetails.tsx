@@ -53,6 +53,19 @@ export default function MovieDetails() {
   const token = localStorage.getItem('token');
 
   const handleBookingAction = (targetUrl: string) => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const u = JSON.parse(userStr);
+        const role = (u.role || '').toUpperCase();
+        if (role && role !== 'USER') {
+          const portal = role === 'ADMIN' ? '/admin' : role === 'ACCOUNTANT' ? '/accountant' : '/admin/scanner';
+          alert(`Tài khoản ${role} là tài khoản quản trị/nội bộ, không được phép đặt vé xem phim B2C nhằm tuân thủ quy chế kiểm soát nội bộ. Đang chuyển hướng về trang làm việc.`);
+          navigate(portal);
+          return;
+        }
+      } catch (e) {}
+    }
     const userToken = localStorage.getItem('token');
     if (userToken) {
       navigate(targetUrl);

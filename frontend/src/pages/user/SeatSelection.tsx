@@ -81,12 +81,25 @@ export default function SeatSelection() {
   const [selectedCity, setSelectedCity] = useState<string>('ALL');
   const [cinemaSearch, setCinemaSearch] = useState<string>('');
 
-  // AUTH GUARD: Bắt buộc đăng nhập trước khi vào luồng đặt vé và chọn ghế
+  // AUTH GUARD: Bắt buộc đăng nhập trước khi vào luồng đặt vé và chọn ghế (Chỉ dành cho USER)
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       const redirectUrl = location.pathname + location.search;
       navigate(`/login?redirect=${encodeURIComponent(redirectUrl)}`, { replace: true });
+      return;
+    }
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const u = JSON.parse(userStr);
+        const role = (u.role || '').toUpperCase();
+        if (role && role !== 'USER') {
+          const portal = role === 'ADMIN' ? '/admin' : role === 'ACCOUNTANT' ? '/accountant' : '/admin/scanner';
+          alert(`Tài khoản ${role} là tài khoản quản trị/nội bộ, không được phép đặt vé xem phim B2C nhằm tuân thủ quy chế kiểm soát nội bộ. Đang chuyển hướng về trang làm việc.`);
+          navigate(portal, { replace: true });
+        }
+      } catch (e) {}
     }
   }, [location.pathname, location.search, navigate]);
 

@@ -256,6 +256,28 @@ export default function Home() {
     setTrailerModalUrl(embedUrl);
   };
 
+  const navigateToBooking = (targetMovieId: string, paramsStr: string = '') => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const u = JSON.parse(userStr);
+        const role = (u.role || '').toUpperCase();
+        if (role && role !== 'USER') {
+          const portal = role === 'ADMIN' ? '/admin' : role === 'ACCOUNTANT' ? '/accountant' : '/admin/scanner';
+          alert(`Tài khoản ${role} là tài khoản quản trị/nội bộ, không được phép đặt vé xem phim B2C nhằm tuân thủ quy chế kiểm soát nội bộ. Đang chuyển hướng về trang làm việc.`);
+          navigate(portal);
+          return;
+        }
+      } catch (e) {}
+    }
+    const targetUrl = `/booking/${targetMovieId}${paramsStr}`;
+    if (localStorage.getItem('token')) {
+      navigate(targetUrl);
+    } else {
+      navigate(`/login?redirect=${encodeURIComponent(targetUrl)}`);
+    }
+  };
+
   const handleQuickBookingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const targetMovieId = quickMovieId || (movies[0] ? movies[0].id : '1');
@@ -265,13 +287,7 @@ export default function Home() {
     if (quickDateKey) params.set('date', quickDateKey);
 
     const queryString = params.toString() ? `?${params.toString()}` : '';
-
-    const targetUrl = `/booking/${targetMovieId}${queryString}`;
-    if (localStorage.getItem('token')) {
-      navigate(targetUrl);
-    } else {
-      navigate(`/login?redirect=${encodeURIComponent(targetUrl)}`);
-    }
+    navigateToBooking(targetMovieId, queryString);
   };
 
   if (loading) {
@@ -364,14 +380,7 @@ export default function Home() {
                   {/* Call to Action Buttons */}
                   <div className="flex flex-wrap items-center gap-3">
                     <button 
-                      onClick={() => {
-                        const target = `/booking/${hero.id}`;
-                        if (localStorage.getItem('token')) {
-                          navigate(target);
-                        } else {
-                          navigate(`/login?redirect=${encodeURIComponent(target)}`);
-                        }
-                      }}
+                      onClick={() => navigateToBooking(hero.id)}
                       className="cinema-btn-primary py-2.5 sm:py-3 px-6 text-xs sm:text-sm flex items-center gap-2 group cursor-pointer shadow-lg shadow-amber-500/20"
                     >
                       <Ticket className="w-4 h-4 transition-transform group-hover:rotate-12" />
@@ -640,12 +649,7 @@ export default function Home() {
                       <button 
                         onClick={(e) => {
                           e.preventDefault();
-                          const target = `/booking/${movie.id}`;
-                          if (localStorage.getItem('token')) {
-                            navigate(target);
-                          } else {
-                            navigate(`/login?redirect=${encodeURIComponent(target)}`);
-                          }
+                          navigateToBooking(movie.id);
                         }}
                         className="cinema-btn-primary w-full py-3 text-xs tracking-wider cursor-pointer shadow-lg shadow-amber-500/30"
                       >

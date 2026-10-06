@@ -223,6 +223,19 @@ export default function MoviesList() {
                     {activeTab === 'NOW_SHOWING' ? (
                       <button
                         onClick={() => {
+                          const userStr = localStorage.getItem('user');
+                          if (userStr) {
+                            try {
+                              const u = JSON.parse(userStr);
+                              const role = (u.role || '').toUpperCase();
+                              if (role && role !== 'USER') {
+                                const portal = role === 'ADMIN' ? '/admin' : role === 'ACCOUNTANT' ? '/accountant' : '/admin/scanner';
+                                alert(`Tài khoản ${role} là tài khoản quản trị/nội bộ, không được phép đặt vé xem phim B2C. Đang chuyển hướng về trang làm việc.`);
+                                navigate(portal);
+                                return;
+                              }
+                            } catch (e) {}
+                          }
                           const target = `/booking/${movie.id}`;
                           if (localStorage.getItem('token')) {
                             navigate(target);

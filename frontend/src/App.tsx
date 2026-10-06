@@ -17,6 +17,9 @@ import Blog from './pages/user/Blog';
 import MoviesList from './pages/user/MoviesList';
 import PaymentSuccess from './pages/user/PaymentSuccess';
 import PaymentCancel from './pages/user/PaymentCancel';
+import MembershipGuide from './pages/user/MembershipGuide';
+import GroupBooking from './pages/user/GroupBooking';
+import CinemaRules from './pages/user/CinemaRules';
 import { Film, Search, LogOut, X, Smartphone, ShieldCheck, Ticket, ChevronDown, DollarSign } from 'lucide-react';
 import { API_URL } from './config/api';
 import { ThemeProvider } from './context/ThemeContext';
@@ -97,6 +100,32 @@ function UserPrivateRoute({ children }: { children: React.ReactElement }) {
 
   return children;
 }
+
+// BẢO VỆ ĐẶT VÉ B2C: Tuyệt đối chỉ tài khoản Khách Hàng (USER) mới được tham gia đặt vé!
+function UserBookingRoute({ children }: { children: React.ReactElement }) {
+  const token = localStorage.getItem('token');
+  const userStr = localStorage.getItem('user');
+  const location = useLocation();
+
+  if (!token) {
+    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />;
+  }
+
+  try {
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      const role = (user.role || '').toUpperCase();
+      if (role && role !== 'USER') {
+        const portal = role === 'ADMIN' ? '/admin' : role === 'ACCOUNTANT' ? '/accountant' : '/admin/scanner';
+        alert(`Tài khoản ${role} là tài khoản quản trị/nội bộ, không được phép đặt vé xem phim B2C nhằm tuân thủ quy định kiểm soát nội bộ. Đang chuyển hướng về trang làm việc.`);
+        return <Navigate to={portal} replace />;
+      }
+    }
+  } catch (e) {}
+
+  return children;
+}
+
 
 function AppContent() {
   const location = useLocation();
@@ -208,29 +237,29 @@ function AppContent() {
       {/* Navbar - Modern Cinema Glassmorphism */}
       {!isPortal && (
         <header className="fixed top-0 w-full z-50 cinema-glass transition-all duration-300">
-          <div className="container mx-auto px-4 lg:px-8 h-[64px] flex items-center justify-between gap-4">
+          <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 h-[60px] flex items-center justify-between gap-1.5 xl:gap-3 flex-nowrap whitespace-nowrap overflow-x-hidden">
             
             {/* Brand Logo */}
-            <Link to="/" className="flex items-center gap-2.5 group shrink-0">
-              <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:shadow-amber-500/40 group-hover:scale-105 transition-all duration-300 border border-white/20">
-                <Film className="text-white w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:rotate-12" />
+            <Link to="/" className="flex items-center gap-2 group shrink-0">
+              <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:shadow-amber-500/40 group-hover:scale-105 transition-all duration-300 border border-white/20">
+                <Film className="text-white w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform duration-300 group-hover:rotate-12" />
                 <div className="absolute -inset-1 rounded-xl bg-amber-400/20 blur-sm -z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </div>
               <div className="flex flex-col">
-                <span className="font-display font-extrabold text-lg sm:text-xl tracking-tight text-white leading-none flex items-center gap-1">
+                <span className="font-display font-extrabold text-base sm:text-lg tracking-tight text-white leading-none flex items-center gap-1">
                   AEON <span className="text-gradient-amber">CINE</span>
                 </span>
-                <span className="text-[9px] sm:text-[10px] font-mono tracking-widest text-gray-400 uppercase mt-0.5">
+                <span className="text-[8px] sm:text-[9px] font-mono tracking-widest text-gray-400 uppercase mt-0.5">
                   PREMIUM CINEMA
                 </span>
               </div>
             </Link>
 
-            {/* Navigation Menu with Taste */}
-            <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-[13px] font-semibold tracking-wide">
+            {/* Navigation Menu with Taste - Single Line Guaranteed */}
+            <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 text-xs xl:text-[13px] font-semibold tracking-wide shrink-0">
               <Link 
                 to="/" 
-                className={`px-3.5 py-2 rounded-xl transition-all duration-200 ${
+                className={`px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
                   location.pathname === '/' 
                     ? 'text-white bg-white/[0.08] shadow-sm shadow-black/40' 
                     : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
@@ -244,27 +273,27 @@ function AppContent() {
                 <div 
                   role="button"
                   tabIndex={0}
-                  className={`px-3.5 py-2 rounded-xl transition-all duration-200 flex items-center gap-1.5 cursor-default select-none ${
+                  className={`px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${
                     location.pathname.startsWith('/movies') || location.pathname.startsWith('/phim')
                       ? 'text-white bg-white/[0.08]' 
                       : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
                   }`}
                 >
                   <span>Phim Điện Ảnh</span>
-                  <ChevronDown size={13} className="text-gray-400 group-hover:text-amber-400 group-hover:rotate-180 transition-transform duration-300" />
+                  <ChevronDown size={12} className="text-gray-400 group-hover:text-amber-400 group-hover:rotate-180 transition-transform duration-300" />
                 </div>
                 <div className="absolute top-full left-0 hidden group-hover:block pt-2 z-50 animate-[fadeIn_0.15s_ease-out]">
                   <div className="cinema-glass rounded-2xl p-2 min-w-[210px] flex flex-col gap-1 shadow-2xl shadow-black/90 border border-slate-200 dark:border-white/10">
                     <Link 
                       to="/movies?tab=NOW_SHOWING" 
-                      className="px-3.5 py-2.5 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all flex items-center justify-between group/sub"
+                      className="px-3 py-2 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all flex items-center justify-between"
                     >
                       <span>Phim Đang Chiếu</span>
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                     </Link>
                     <Link 
                       to="/movies?tab=COMING_SOON" 
-                      className="px-3.5 py-2.5 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all flex items-center justify-between group/sub"
+                      className="px-3 py-2 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all flex items-center justify-between"
                     >
                       <span>Phim Sắp Chiếu</span>
                       <span className="text-[10px] font-mono text-amber-500 dark:text-amber-400 font-bold">HOT</span>
@@ -276,7 +305,7 @@ function AppContent() {
               {/* Menu Lịch Chiếu */}
               <Link 
                 to="/showtimes" 
-                className={`px-3.5 py-2 rounded-xl transition-all duration-200 ${
+                className={`px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
                   location.pathname === '/showtimes' 
                     ? 'text-white bg-white/[0.08]' 
                     : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
@@ -285,28 +314,28 @@ function AppContent() {
                 Lịch Chiếu
               </Link>
 
-              {/* Menu Rạp / Giá Vé */}
+              {/* Menu Cụm Rạp & Dịch Vụ */}
               <div className="relative group">
                 <div 
                   role="button"
                   tabIndex={0}
-                  className={`px-3.5 py-2 rounded-xl transition-all duration-200 flex items-center gap-1.5 cursor-default select-none ${
-                    location.pathname.startsWith('/cinemas') 
+                  className={`px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${
+                    location.pathname.startsWith('/cinemas') || location.pathname === '/group-booking' || location.pathname === '/rules'
                       ? 'text-white bg-white/[0.08]' 
                       : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
                   }`}
                 >
-                  <span>Cụm Rạp & Giá Vé</span>
-                  <ChevronDown size={13} className="text-gray-400 group-hover:text-amber-400 group-hover:rotate-180 transition-transform duration-300" />
+                  <span>Cụm Rạp & Dịch Vụ</span>
+                  <ChevronDown size={12} className="text-gray-400 group-hover:text-amber-400 group-hover:rotate-180 transition-transform duration-300" />
                 </div>
                 <div className="absolute top-full left-0 hidden group-hover:block pt-2 z-50 animate-[fadeIn_0.15s_ease-out]">
                   <div className="cinema-glass rounded-2xl p-2 min-w-[240px] flex flex-col gap-1 shadow-2xl shadow-black/90 border border-slate-200 dark:border-white/10">
-                    <div className="px-3.5 py-1.5 text-[10px] uppercase font-mono font-bold text-slate-500 dark:text-gray-500 tracking-wider">Hệ thống rạp toàn quốc</div>
-                    {cinemas.map(c => (
+                    <div className="px-3 py-1 text-[10px] uppercase font-mono font-bold text-slate-500 dark:text-gray-500 tracking-wider">Hệ thống rạp toàn quốc</div>
+                    {cinemas.slice(0, 5).map(c => (
                       <Link 
                         key={c.id} 
                         to={`/cinemas?id=${c.id}`} 
-                        className="px-3.5 py-2 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all truncate"
+                        className="px-3 py-1.5 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all truncate"
                       >
                         {c.name}
                       </Link>
@@ -314,31 +343,65 @@ function AppContent() {
                     <div className="h-px bg-slate-200 dark:bg-white/5 my-1"></div>
                     <Link 
                       to="/cinemas?section=prices" 
-                      className="px-3.5 py-2 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all flex items-center justify-between"
+                      className="px-3 py-1.5 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all flex items-center justify-between"
                     >
                       <span>Bảng Giá Vé Toàn Quốc</span>
-                      <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">GIÁ VÉ</span>
+                      <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-300">GIÁ VÉ</span>
+                    </Link>
+                    <Link 
+                      to="/group-booking" 
+                      className="px-3 py-1.5 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all flex items-center justify-between"
+                    >
+                      <span>Đặt Vé Đoàn & Thuê Rạp</span>
+                      <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400">B2B</span>
+                    </Link>
+                    <Link 
+                      to="/rules" 
+                      className="px-3 py-1.5 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all flex items-center justify-between"
+                    >
+                      <span>Nội Quy & Quy Định Rạp</span>
                     </Link>
                   </div>
                 </div>
               </div>
 
-              {/* Menu Sự Kiện */}
-              <Link 
-                to="/promotions" 
-                className={`px-3.5 py-2 rounded-xl transition-all duration-200 ${
-                  location.pathname === '/promotions' 
-                    ? 'text-white bg-white/[0.08]' 
-                    : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
-                }`}
-              >
-                Ưu Đãi
-              </Link>
+              {/* Menu Hội Viên & Ưu Đãi */}
+              <div className="relative group">
+                <div 
+                  role="button"
+                  tabIndex={0}
+                  className={`px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1 cursor-default select-none ${
+                    location.pathname === '/promotions' || location.pathname === '/membership'
+                      ? 'text-white bg-white/[0.08]' 
+                      : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
+                  }`}
+                >
+                  <span>Hội Viên & Ưu Đãi</span>
+                  <ChevronDown size={12} className="text-gray-400 group-hover:text-amber-400 group-hover:rotate-180 transition-transform duration-300" />
+                </div>
+                <div className="absolute top-full left-0 hidden group-hover:block pt-2 z-50 animate-[fadeIn_0.15s_ease-out]">
+                  <div className="cinema-glass rounded-2xl p-2 min-w-[210px] flex flex-col gap-1 shadow-2xl shadow-black/90 border border-slate-200 dark:border-white/10">
+                    <Link 
+                      to="/membership" 
+                      className="px-3 py-2 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all flex items-center justify-between"
+                    >
+                      <span>Đặc Quyền Hội Viên</span>
+                      <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400">VIP</span>
+                    </Link>
+                    <Link 
+                      to="/promotions" 
+                      className="px-3 py-2 rounded-xl text-slate-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-white hover:bg-amber-500/10 text-xs font-medium transition-all flex items-center justify-between"
+                    >
+                      <span>Khuyến Mãi & Sự Kiện</span>
+                    </Link>
+                  </div>
+                </div>
+              </div>
 
               {/* Menu Blog */}
               <Link 
                 to="/blog" 
-                className={`px-3.5 py-2 rounded-xl transition-all duration-200 ${
+                className={`px-2 xl:px-2.5 py-1.5 rounded-xl transition-all duration-200 ${
                   location.pathname === '/blog' 
                     ? 'text-white bg-white/[0.08]' 
                     : 'text-gray-300 hover:text-white hover:bg-white/[0.04]'
@@ -348,81 +411,81 @@ function AppContent() {
               </Link>
             </nav>
 
-            {/* Right Action Bar */}
-            <div className="flex items-center gap-3">
+            {/* Right Action Bar - Guaranteed Single Straight Line */}
+            <div className="flex items-center gap-1.5 xl:gap-2.5 shrink-0">
               
               {/* Quick Search Button */}
               <button
                 onClick={() => setShowSearchModal(true)}
-                className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.09] text-gray-300 hover:text-white border border-white/10 text-xs font-medium transition-all duration-200 group"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.09] text-gray-300 hover:text-white border border-white/10 text-xs font-medium transition-all duration-200 group shrink-0"
                 title="Tìm kiếm phim (Ctrl + K)"
               >
                 <Search className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
-                <span className="hidden sm:inline text-gray-400 group-hover:text-gray-300">Tìm kiếm phim...</span>
-                <span className="hidden md:inline-block text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/10 text-gray-400 border border-white/10">⌘K</span>
+                <span className="hidden xl:inline text-gray-400 group-hover:text-gray-300">Tìm phim...</span>
+                <span className="hidden 2xl:inline-block text-[9px] font-mono px-1 py-0.5 rounded bg-white/10 text-gray-400">⌘K</span>
               </button>
 
               {/* Theme Toggle */}
-              <ThemeToggle />
-
-              <div className="h-5 w-px bg-white/10 hidden sm:block"></div>
+              <div className="shrink-0">
+                <ThemeToggle />
+              </div>
 
               {/* Auth Status / Action Buttons */}
-              <div className="hidden sm:flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-1.5 xl:gap-2 shrink-0">
                 {isLoggedIn ? (
-                  <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-1.5 xl:gap-2">
                     {((currentUser?.role || '').toUpperCase() === 'ADMIN') && (
                       <Link 
                         to="/admin" 
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 hover:text-white hover:border-amber-400 text-xs font-display font-bold uppercase tracking-wider transition-all shadow-sm"
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 hover:text-white hover:border-amber-400 text-[11px] font-display font-bold uppercase tracking-wider transition-all shadow-sm shrink-0"
                         title="Vào bảng điều khiển Quản trị viên"
                       >
-                        <ShieldCheck size={13} className="text-amber-400" />
+                        <ShieldCheck size={12} className="text-amber-400" />
                         <span>Quản Trị</span>
                       </Link>
                     )}
                     {((currentUser?.role || '').toUpperCase() === 'ACCOUNTANT') && (
                       <Link 
                         to="/accountant" 
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 text-emerald-300 hover:text-white hover:border-emerald-400 text-xs font-display font-bold uppercase tracking-wider transition-all shadow-sm"
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 text-emerald-300 hover:text-white hover:border-emerald-400 text-[11px] font-display font-bold uppercase tracking-wider transition-all shadow-sm shrink-0"
                         title="Vào Cổng Kế Toán & Quản Lý Doanh Thu"
                       >
-                        <DollarSign size={13} className="text-emerald-400" />
+                        <DollarSign size={12} className="text-emerald-400" />
                         <span>Kế Toán</span>
                       </Link>
                     )}
                     <Link 
                       to="/profile" 
-                      className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all group"
+                      className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all group shrink-0"
                     >
                       <UserAvatar 
                         name={currentUser?.name || 'Khách'} 
                         avatarUrl={currentUser?.avatar}
                         size="sm" 
                       />
-                      <span className="text-xs font-semibold text-gray-200 group-hover:text-amber-300 transition-colors max-w-[120px] truncate">
+                      <span className="text-xs font-semibold text-gray-200 group-hover:text-amber-300 transition-colors max-w-[85px] xl:max-w-[120px] truncate">
                         {currentUser?.name || 'Tài khoản'}
                       </span>
                     </Link>
                     <button 
                       onClick={handleLogout} 
-                      className="text-gray-400 hover:text-red-400 p-2 rounded-xl hover:bg-red-500/10 transition-colors" 
+                      className="text-gray-400 hover:text-red-400 p-1.5 rounded-xl hover:bg-red-500/10 transition-colors shrink-0" 
                       title="Đăng xuất"
                     >
-                      <LogOut className="w-4 h-4" />
+                      <LogOut className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-1.5">
                     <Link 
                       to="/login" 
-                      className="text-xs font-semibold text-gray-300 hover:text-white px-3 py-2 rounded-xl hover:bg-white/[0.05] transition-all"
+                      className="text-xs font-semibold text-gray-300 hover:text-white px-2.5 py-1.5 rounded-xl hover:bg-white/[0.05] transition-all shrink-0"
                     >
                       Đăng nhập
                     </Link>
                     <Link 
                       to="/register" 
-                      className="cinema-btn-primary text-xs px-4 py-2 font-bold transition-all"
+                      className="cinema-btn-primary text-xs px-3.5 py-1.5 font-bold transition-all shrink-0"
                     >
                       Đăng ký
                     </Link>
@@ -433,10 +496,10 @@ function AppContent() {
               {/* Mobile Menu Hamburger */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2.5 rounded-xl bg-white/[0.05] border border-white/10 text-gray-300 hover:text-white"
+                className="lg:hidden p-2 rounded-xl bg-white/[0.05] border border-white/10 text-gray-300 hover:text-white shrink-0"
                 aria-label="Toggle menu"
               >
-                <div className="w-5 h-4 flex flex-col justify-between">
+                <div className="w-4 h-3.5 flex flex-col justify-between">
                   <span className={`h-0.5 w-full bg-current transition-transform duration-300 ${mobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
                   <span className={`h-0.5 w-full bg-current transition-opacity duration-300 ${mobileMenuOpen ? 'opacity-0' : ''}`}></span>
                   <span className={`h-0.5 w-full bg-current transition-transform duration-300 ${mobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
@@ -579,7 +642,7 @@ function AppContent() {
       )}
 
       {/* Main Content */}
-      <main className={`flex-1 ${!isPortal ? 'mt-[64px]' : ''}`}>
+      <main className={`flex-1 ${!isPortal ? 'mt-[60px]' : ''}`}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/movies" element={<MoviesList />} />
@@ -587,6 +650,11 @@ function AppContent() {
           <Route path="/phim-sap-chieu" element={<MoviesList />} />
           <Route path="/showtimes" element={<Showtimes />} />
           <Route path="/cinemas" element={<Cinemas />} />
+          <Route path="/membership" element={<MembershipGuide />} />
+          <Route path="/group-booking" element={<GroupBooking />} />
+          <Route path="/cinemas/sale" element={<GroupBooking />} />
+          <Route path="/rules" element={<CinemaRules />} />
+          <Route path="/cgv-rules" element={<CinemaRules />} />
           <Route path="/promotions" element={<Promotions />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/login" element={<Login />} />
@@ -596,7 +664,7 @@ function AppContent() {
           <Route path="/accountant" element={<AccountantRoute><AccountantDashboard /></AccountantRoute>} />
           <Route path="/admin/scanner" element={<StaffRoute><StaffScanner /></StaffRoute>} />
           <Route path="/movie/:id" element={<MovieDetails />} />
-          <Route path="/booking/:movieId" element={<UserPrivateRoute><SeatSelection /></UserPrivateRoute>} />
+          <Route path="/booking/:movieId" element={<UserBookingRoute><SeatSelection /></UserBookingRoute>} />
           <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/payment/cancel" element={<PaymentCancel />} />
         </Routes>
@@ -665,6 +733,19 @@ function AppContent() {
                     <button
                       onClick={() => {
                         setShowSearchModal(false);
+                        const userStr = localStorage.getItem('user');
+                        if (userStr) {
+                          try {
+                            const u = JSON.parse(userStr);
+                            const role = (u.role || '').toUpperCase();
+                            if (role && role !== 'USER') {
+                              const portal = role === 'ADMIN' ? '/admin' : role === 'ACCOUNTANT' ? '/accountant' : '/admin/scanner';
+                              alert(`Tài khoản ${role} là tài khoản quản trị/nội bộ, không được phép đặt vé xem phim B2C.`);
+                              navigate(portal);
+                              return;
+                            }
+                          } catch (e) {}
+                        }
                         const target = `/booking/${m.id}`;
                         navigate(localStorage.getItem('token') ? target : `/login?redirect=${encodeURIComponent(target)}`);
                       }}
@@ -739,35 +820,35 @@ function AppContent() {
                   <li><Link to="/movies?tab=COMING_SOON" className="hover:text-amber-300 transition-colors">Phim Sắp Chiếu</Link></li>
                   <li><Link to="/showtimes" className="hover:text-amber-300 transition-colors">Suất Chiếu IMAX Laser</Link></li>
                   <li><Link to="/blog" className="hover:text-amber-300 transition-colors">Bình Luận Điện Ảnh</Link></li>
-                  <li><Link to="/promotions" className="hover:text-amber-300 transition-colors">Thành Viên Hạng Vàng</Link></li>
+                  <li><Link to="/membership" className="hover:text-amber-300 transition-colors">Đặc Quyền Hội Viên Stars</Link></li>
                 </ul>
               </div>
 
               {/* Links Column 2 */}
               <div>
                 <h4 className="font-display text-xs font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-amber-500 pl-3">
-                  Cụm Rạp
+                  Cụm Rạp & Dịch Vụ
                 </h4>
                 <ul className="space-y-2.5 text-xs text-gray-400 font-medium">
                   <li><Link to="/cinemas" className="hover:text-amber-300 transition-colors">Aeon Cine Tân Phú Celadon</Link></li>
                   <li><Link to="/cinemas" className="hover:text-amber-300 transition-colors">Aeon Cine Bình Tân</Link></li>
                   <li><Link to="/cinemas" className="hover:text-amber-300 transition-colors">Aeon Cine Hà Đông</Link></li>
-                  <li><Link to="/cinemas" className="hover:text-amber-300 transition-colors">Aeon Cine Huế Luxury</Link></li>
-                  <li><Link to="/cinemas" className="hover:text-amber-300 transition-colors">Phòng Chiếu VIP Gold Class</Link></li>
+                  <li><Link to="/cinemas?section=prices" className="hover:text-amber-300 transition-colors">Bảng Giá Vé Chuẩn Toàn Quốc</Link></li>
+                  <li><Link to="/group-booking" className="hover:text-amber-300 transition-colors">Đặt Vé Nhóm & Sự Kiện</Link></li>
                 </ul>
               </div>
 
               {/* Links Column 3 */}
               <div>
                 <h4 className="font-display text-xs font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-amber-500 pl-3">
-                  Chính Sách & Hỗ Trợ
+                  Chính Sách & Nội Quy
                 </h4>
                 <ul className="space-y-2.5 text-xs text-gray-400 font-medium">
-                  <li><a href="#" className="hover:text-amber-300 transition-colors">Điều Khoản Dịch Vụ</a></li>
-                  <li><a href="#" className="hover:text-amber-300 transition-colors">Chính Sách Bảo Mật</a></li>
-                  <li><a href="#" className="hover:text-amber-300 transition-colors">Quy Định Đổi / Trả Vé</a></li>
-                  <li><a href="#" className="hover:text-amber-300 transition-colors">Quy Chuẩn Độ Tuổi (P, K, T)</a></li>
-                  <li><a href="#" className="hover:text-amber-300 transition-colors">Hỏi Đáp Thường Gặp (FAQ)</a></li>
+                  <li><Link to="/rules" className="hover:text-amber-300 transition-colors">Nội Quy & Quy Định Tại Rạp</Link></li>
+                  <li><Link to="/rules" className="hover:text-amber-300 transition-colors">Chính Sách Hoàn / Hủy Vé (60p)</Link></li>
+                  <li><Link to="/rules" className="hover:text-amber-300 transition-colors">Quy Chuẩn Phân Loại Độ Tuổi</Link></li>
+                  <li><Link to="/membership" className="hover:text-amber-300 transition-colors">Hướng Dẫn Thẻ & Tích Điểm</Link></li>
+                  <li><Link to="/group-booking" className="hover:text-amber-300 transition-colors">Thuê Trọn Rạp & Vé Doanh Nghiệp</Link></li>
                 </ul>
               </div>
             </div>

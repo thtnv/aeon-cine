@@ -34,8 +34,13 @@ html.light,
   --text-muted: #64748b;
 }
 
+html {
+  zoom: 0.85; /* Mặc định thu nhỏ 85% giúp giao diện thanh thoát, vừa vặn mà không cần zoom thủ công trong trình duyệt */
+}
+
 body {
   margin: 0;
+
   min-width: 320px;
   min-height: 100vh;
   background-color: var(--bg-void);

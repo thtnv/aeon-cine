@@ -26,6 +26,7 @@ import ticketRoutes from './routes/ticket.routes';
 import blogRoutes from './routes/blog.routes';
 import promotionRoutes from './routes/promotion.routes';
 import priceRoutes from './routes/price.routes';
+import groupBookingRoutes from './routes/groupBooking.routes';
 
 // Tối ưu hóa: Bật nén HTTP Gzip/Brotli cho toàn bộ API responses
 app.use(compression());
@@ -57,6 +58,8 @@ app.use('/api/tickets', ticketRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/prices', priceRoutes);
+app.use('/api/group-bookings', groupBookingRoutes);
+
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Backend is running' });

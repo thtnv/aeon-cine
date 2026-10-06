@@ -16,14 +16,14 @@ export const createBooking = async (req: Request, res: Response) => {
       total 
     } = req.body;
 
-    // 1. Resolve Valid User ID & Kiểm soát nội bộ (Chặn tài khoản Kế toán công vụ đặt vé)
+    // 1. Resolve Valid User ID & Kiểm soát nội bộ (Chỉ USER mới được phép đặt vé)
     let validUserId = userId;
     if (userId) {
       const userExists = await prisma.user.findUnique({ where: { id: userId } });
       if (userExists) {
-        if (userExists.role === 'ACCOUNTANT') {
+        if (userExists.role !== 'USER') {
           return res.status(403).json({
-            message: 'Tài khoản công vụ Kế toán không được phép đặt vé xem phim nhằm tuân thủ quy định kiểm soát nội bộ và chống xung đột lợi ích.'
+            message: `Tài khoản nội bộ (${userExists.role}) không được phép đặt vé xem phim B2C nhằm tuân thủ quy định kiểm soát nội bộ rạp chiếu và chống xung đột lợi ích. Chỉ tài khoản Khách hàng (USER) mới có quyền đặt vé.`
           });
         }
         validUserId = userExists.id;
@@ -405,6 +405,94 @@ export const getBookingStats = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ message: 'Error calculating booking stats', error });
+  }
+};
+
+export const refundBooking = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const booking = await prisma.booking.findUnique({
+      where: { id: String(id) },
+      include: {
+        tickets: {
+          include: {
+            showtime: { include: { movie: true, room: { include: { cinema: true } } } },
+            seat: true
+          }
+        },
+        user: true
+      }
+    });
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Không tìm thấy thông tin đơn đặt vé!' });
+    }
+
+    if (booking.status === 'CANCELLED' || booking.paymentStatus === 'REFUNDED') {
+      return res.status(400).json({ message: 'Đơn đặt vé này đã được hủy/hoàn tiền trước đó.' });
+    }
+
+    // 1. Kiểm tra quy định thời gian (Phải trước giờ chiếu tối thiểu 60 phút theo chính sách rạp Galaxy Cinema / CGV)
+    if (booking.tickets && booking.tickets.length > 0) {
+      const showtime = booking.tickets[0].showtime;
+      const showtimeStart = new Date(showtime.startTime).getTime();
+      const now = Date.now();
+      const diffMinutes = Math.floor((showtimeStart - now) / (1000 * 60));
+
+      if (diffMinutes < 60) {
+        return res.status(400).json({
+          message: `Theo quy định rạp AEON CINE, vé chỉ được hủy và hoàn tiền trước giờ chiếu tối thiểu 60 phút (Hiện tại chỉ còn ${diffMinutes > 0 ? diffMinutes : 0} phút đến giờ chiếu hoặc suất chiếu đã diễn ra).`
+        });
+      }
+    }
+
+    // 2. Tính số điểm hoàn trả vào Ví Hội Viên (Hoàn 100% giá trị thanh toán, 1.000đ = 1 điểm thưởng)
+    const refundPoints = Math.round(Number(booking.total || 0) / 1000);
+
+    const result = await prisma.$transaction(async (tx) => {
+      // Cập nhật trạng thái Booking
+      const updatedBooking = await tx.booking.update({
+        where: { id: booking.id },
+        data: {
+          status: 'CANCELLED',
+          paymentStatus: 'REFUNDED'
+        }
+      });
+
+      // Hoàn điểm vào tài khoản User
+      let updatedUser = null;
+      if (booking.userId) {
+        const user = await tx.user.findUnique({ where: { id: booking.userId } });
+        if (user) {
+          const newPoints = user.rewardPoints + refundPoints;
+          let newLevel = user.membershipLevel;
+          if (newPoints >= 500) newLevel = 'X-STAR';
+          else if (newPoints >= 100) newLevel = 'G-STAR';
+          else newLevel = 'STAR';
+
+          updatedUser = await tx.user.update({
+            where: { id: booking.userId },
+            data: {
+              rewardPoints: newPoints,
+              membershipLevel: newLevel
+            }
+          });
+        }
+      }
+
+      return { updatedBooking, updatedUser };
+    });
+
+    res.json({
+      success: true,
+      message: `Hủy vé thành công! Đã hoàn trả 100% giá trị đơn (${Number(booking.total).toLocaleString()}đ) tương đương +${refundPoints} Điểm Thưởng Stars vào tài khoản hội viên của bạn.`,
+      booking: result.updatedBooking,
+      refundPoints,
+      user: result.updatedUser
+    });
+  } catch (error: any) {
+    console.error('Error refunding booking:', error);
+    res.status(500).json({ message: 'Lỗi khi xử lý hủy vé và hoàn tiền', error: error?.message || error });
   }
 };
 

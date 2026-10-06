@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Ticket, Award, CheckCircle2, Clock, QrCode, Edit3, ShieldCheck, X, DollarSign } from 'lucide-react';
+import { 
+  Ticket, Award, CheckCircle2, Clock, QrCode, Edit3, ShieldCheck, 
+  X, DollarSign, RotateCcw, Gift, AlertTriangle, Sparkles, ChevronRight
+} from 'lucide-react';
 import { API_URL } from '../../config/api';
 import UserAvatar from '../../components/UserAvatar';
 
@@ -32,6 +35,11 @@ export default function UserProfile() {
   const [selectedQrBooking, setSelectedQrBooking] = useState<Booking | null>(null);
   const [showMemberCardModal, setShowMemberCardModal] = useState(false);
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+  const [showRewardsModal, setShowRewardsModal] = useState(false);
+  const [selectedRefundBooking, setSelectedRefundBooking] = useState<Booking | null>(null);
+  const [isRefunding, setIsRefunding] = useState(false);
+  const [refundSuccessMsg, setRefundSuccessMsg] = useState('');
+  const [refundErrorMsg, setRefundErrorMsg] = useState('');
 
   // Edit Profile Form
   const [editName, setEditName] = useState('');
@@ -184,6 +192,40 @@ export default function UserProfile() {
     }
   };
 
+  // Handle Refund / Cancel Booking
+  const handleRefundBooking = async () => {
+    if (!selectedRefundBooking) return;
+    setIsRefunding(true);
+    setRefundErrorMsg('');
+    setRefundSuccessMsg('');
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/bookings/${selectedRefundBooking.id}/refund`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setRefundSuccessMsg(data.message || 'Hủy vé và hoàn tiền thành công!');
+        // Refresh data
+        await fetchUserData();
+        setTimeout(() => {
+          setSelectedRefundBooking(null);
+          setRefundSuccessMsg('');
+        }, 2500);
+      } else {
+        setRefundErrorMsg(data.message || 'Không thể hủy vé. Vui lòng kiểm tra lại điều kiện hoàn vé.');
+      }
+    } catch {
+      setRefundErrorMsg('Lỗi kết nối máy chủ khi thực hiện hoàn tiền.');
+    } finally {
+      setIsRefunding(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -242,13 +284,26 @@ export default function UserProfile() {
                 >
                   <QrCode size={14} /> Mã Thẻ Thành Viên
                 </button>
+                <button
+                  onClick={() => setShowRewardsModal(true)}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-4 py-2 rounded-xl transition-colors cursor-pointer"
+                >
+                  <Gift size={14} /> Quyền Lợi & Mốc Thưởng
+                </button>
               </div>
             </div>
           </div>
 
           <div className="flex gap-4 w-full lg:w-auto justify-end">
-            <div className="bg-gray-900 border border-gray-800 rounded-2xl px-6 py-4 text-center min-w-[140px]">
-              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Điểm Tích Lũy</p>
+            <div 
+              onClick={() => setShowRewardsModal(true)}
+              className="bg-gray-900 hover:bg-gray-800/80 cursor-pointer transition-colors border border-gray-800 rounded-2xl px-6 py-4 text-center min-w-[140px] group"
+              title="Bấm để xem quyền lợi và hướng dẫn tiêu điểm"
+            >
+              <p className="text-xs text-gray-500 group-hover:text-amber-400 font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1">
+                <span>Điểm Tích Lũy</span>
+                <Sparkles size={11} className="text-amber-400" />
+              </p>
               <p className="text-3xl font-black text-orange-500">{user?.rewardPoints || 0} <span className="text-xs font-normal text-gray-400">điểm</span></p>
             </div>
             <div className="bg-gray-900 border border-gray-800 rounded-2xl px-6 py-4 text-center min-w-[140px]">
@@ -264,8 +319,11 @@ export default function UserProfile() {
             <span className="flex items-center gap-1.5 text-orange-400">
               <ShieldCheck size={16} /> Tiến Trình Thăng Hạng: <strong className="text-white uppercase">{currentTier}</strong> → <strong className="text-orange-400 uppercase">{nextTier}</strong>
             </span>
-            <span>
-              {pointsNeeded > 0 ? `Tích thêm ${pointsNeeded} điểm để lên ${nextTier}` : '🎉 Bạn đã đạt hạng thành viên cao nhất!'}
+            <span className="flex items-center gap-2">
+              <span>{pointsNeeded > 0 ? `Tích thêm ${pointsNeeded} điểm để lên ${nextTier}` : '🎉 Bạn đã đạt hạng thành viên cao nhất!'}</span>
+              <button onClick={() => setShowRewardsModal(true)} className="text-[11px] text-amber-400 underline hover:text-amber-300">
+                Chi tiết mốc
+              </button>
             </span>
           </div>
 
@@ -302,6 +360,10 @@ export default function UserProfile() {
             const room = firstTicket?.showtime?.room;
             const seats = item.tickets.map(t => t.seat.name).join(', ');
 
+            const isRefunded = item.status === 'CANCELLED' || item.paymentStatus === 'REFUNDED';
+            const startTime = firstTicket?.showtime?.startTime ? new Date(firstTicket.showtime.startTime).getTime() : 0;
+            const canRefund = !isRefunded && (startTime - Date.now() > 60 * 60 * 1000);
+
             return (
               <div key={item.id} className="bg-[#1a1d24] border border-gray-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between hover:border-gray-700 transition-all">
                 <div>
@@ -314,9 +376,16 @@ export default function UserProfile() {
                         <Clock size={12} /> {new Date(item.createdAt).toLocaleDateString('vi-VN')} {new Date(item.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
-                    <span className="bg-green-500/20 text-green-400 text-xs font-bold px-3 py-1 rounded-full border border-green-500/30 flex items-center gap-1">
-                      <CheckCircle2 size={12} /> {item.paymentStatus === 'PAID' ? 'Đã Thanh Toán' : item.status}
-                    </span>
+                    
+                    {isRefunded ? (
+                      <span className="bg-red-500/20 text-red-400 text-xs font-bold px-3 py-1 rounded-full border border-red-500/30 flex items-center gap-1">
+                        <RotateCcw size={12} /> Đã Hủy Vé & Hoàn Tiền
+                      </span>
+                    ) : (
+                      <span className="bg-green-500/20 text-green-400 text-xs font-bold px-3 py-1 rounded-full border border-green-500/30 flex items-center gap-1">
+                        <CheckCircle2 size={12} /> {item.paymentStatus === 'PAID' ? 'Đã Thanh Toán' : item.status}
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex gap-4 mb-4">
@@ -325,27 +394,55 @@ export default function UserProfile() {
                       <h3 className="text-lg font-black text-white mb-1 line-clamp-1">{movie?.title || 'Phim Chiếu Rạp'}</h3>
                       <p className="text-gray-400 text-xs mb-2">{cinema?.name || 'AEON MALL'} - {room?.name || 'Phòng 01'}</p>
                       <p className="text-sm font-semibold text-gray-300">Ghế: <strong className="text-orange-400">{seats}</strong></p>
+                      {firstTicket?.showtime?.startTime && (
+                        <p className="text-xs text-amber-400/90 font-mono mt-1">
+                          Suất: {new Date(firstTicket.showtime.startTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} ngày {new Date(firstTicket.showtime.startTime).toLocaleDateString('vi-VN')}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center border-t border-gray-800 pt-4 mt-2">
+                <div className="flex justify-between items-center border-t border-gray-800 pt-4 mt-2 gap-3">
                   <div>
                     <p className="text-xs text-gray-500">Tổng tiền</p>
-                    <p className="text-lg font-black text-white">{item.total.toLocaleString()} đ</p>
+                    <p className={`text-lg font-black ${isRefunded ? 'line-through text-gray-500' : 'text-white'}`}>
+                      {item.total.toLocaleString()} đ
+                    </p>
                   </div>
-                  <button
-                    onClick={() => setSelectedQrBooking(item)}
-                    className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-colors shadow-lg shadow-orange-500/20"
-                  >
-                    Xem Mã QR Vé
-                  </button>
+                  
+                  <div className="flex items-center gap-2">
+                    {canRefund && (
+                      <button
+                        onClick={() => {
+                          setSelectedRefundBooking(item);
+                          setRefundErrorMsg('');
+                          setRefundSuccessMsg('');
+                        }}
+                        className="bg-red-500/15 hover:bg-red-500/25 text-red-300 font-bold px-3.5 py-2.5 rounded-xl text-xs border border-red-500/30 transition-all flex items-center gap-1.5 cursor-pointer"
+                        title="Hủy vé trước giờ chiếu 60 phút và nhận lại 100% điểm thưởng Stars"
+                      >
+                        <RotateCcw size={13} />
+                        <span>Hoàn Vé</span>
+                      </button>
+                    )}
+
+                    {!isRefunded && (
+                      <button
+                        onClick={() => setSelectedQrBooking(item)}
+                        className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-colors shadow-lg shadow-orange-500/20 cursor-pointer"
+                      >
+                        Xem Mã QR Vé
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
       )}
+
 
       {/* MEMBER CARD MODAL (Barcode / QR Code thành viên) */}
       {showMemberCardModal && (
@@ -535,6 +632,216 @@ export default function UserProfile() {
           </div>
         </div>
       )}
+
+      {/* REFUND MODAL (Hủy vé & Hoàn tiền theo chuẩn Galaxy Cinema & CGV) */}
+      {selectedRefundBooking && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-[fadeIn_0.15s_ease-out]">
+          <div className="bg-[#181a20] border border-gray-800 text-white rounded-3xl p-6 sm:p-8 max-w-md w-full relative shadow-2xl">
+            <button 
+              onClick={() => setSelectedRefundBooking(null)} 
+              className="absolute top-5 right-5 text-gray-400 hover:text-white p-1 rounded-xl hover:bg-white/10 transition-colors"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-8 h-8 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center border border-red-500/30">
+                <RotateCcw size={16} />
+              </span>
+              <div>
+                <h3 className="font-display font-black text-lg text-white uppercase">YÊU CẦU HOÀN VÉ</h3>
+                <p className="text-[11px] text-gray-400">Chính sách hủy vé & hoàn tiền rạp AEON CINE</p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 my-4 text-xs space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Mã vé:</span>
+                <span className="font-mono font-bold text-orange-400">{selectedRefundBooking.ticketCode}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Phim:</span>
+                <span className="font-bold text-white text-right max-w-[220px] truncate">
+                  {selectedRefundBooking.tickets[0]?.showtime?.movie?.title || 'Phim Chiếu Rạp'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Ghế đặt:</span>
+                <span className="font-bold text-amber-300">
+                  {selectedRefundBooking.tickets.map(t => t.seat.name).join(', ')}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Giá trị hoàn trả (100%):</span>
+                <span className="font-mono font-extrabold text-white">
+                  {Number(selectedRefundBooking.total).toLocaleString()} đ
+                </span>
+              </div>
+              <div className="pt-2 border-t border-white/10 flex justify-between items-center text-amber-400">
+                <span className="font-bold flex items-center gap-1">
+                  <Gift size={13} /> Quy đổi Điểm Thưởng Stars:
+                </span>
+                <span className="font-mono font-black text-sm">
+                  +{Math.round(Number(selectedRefundBooking.total) / 1000)} điểm
+                </span>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px] leading-relaxed mb-4 flex items-start gap-2.5">
+              <AlertTriangle size={15} className="shrink-0 mt-0.5 text-amber-400" />
+              <div>
+                <strong>Quy định hủy vé:</strong> Theo quy chuẩn rạp Galaxy Cinema & CGV, vé được hủy trước giờ chiếu tối thiểu <strong>60 phút</strong>. Giá trị đơn được hoàn 100% vào Ví Điểm Thưởng Stars của tài khoản để bạn đặt vé khác mọi lúc.
+              </div>
+            </div>
+
+            {refundSuccessMsg && (
+              <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold mb-4 flex items-center gap-2">
+                <CheckCircle2 size={16} />
+                <span>{refundSuccessMsg}</span>
+              </div>
+            )}
+
+            {refundErrorMsg && (
+              <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs font-semibold mb-4">
+                {refundErrorMsg}
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setSelectedRefundBooking(null)}
+                disabled={isRefunding}
+                className="flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-gray-300 font-bold text-xs transition-colors cursor-pointer"
+              >
+                Hủy Bỏ
+              </button>
+              <button
+                onClick={handleRefundBooking}
+                disabled={isRefunding}
+                className="flex-1 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs transition-all shadow-lg shadow-red-600/30 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {isRefunding ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    <RotateCcw size={13} />
+                    <span>Xác Nhận Hoàn Vé</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* REWARDS & MILESTONES MODAL (Giải thích chi tiết điểm thưởng và mốc điểm - Ảnh 4) */}
+      {showRewardsModal && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-[fadeIn_0.15s_ease-out]">
+          <div className="bg-[#181a20] border border-gray-800 text-white rounded-3xl p-6 sm:p-8 max-w-lg w-full relative shadow-2xl">
+            <button 
+              onClick={() => setShowRewardsModal(false)} 
+              className="absolute top-5 right-5 text-gray-400 hover:text-white p-1 rounded-xl hover:bg-white/10 transition-colors"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex items-center gap-2 mb-4">
+              <span className="w-9 h-9 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+                <Gift size={18} />
+              </span>
+              <div>
+                <h3 className="font-display font-black text-xl text-white uppercase">
+                  ĐẶC QUYỀN & MỐC ĐIỂM THƯỞNG
+                </h3>
+                <p className="text-xs text-gray-400">Cách nhận quà và nâng hạng hội viên AEON CINE Stars</p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-orange-500/10 to-transparent border border-amber-500/30 mb-5 flex items-center justify-between">
+              <div>
+                <span className="text-[11px] font-mono text-gray-400 uppercase">Điểm Tích Lũy Của Bạn</span>
+                <p className="text-2xl font-black text-orange-400 font-mono">
+                  {user?.rewardPoints || 0} <span className="text-xs text-gray-300 font-normal">điểm</span>
+                </p>
+              </div>
+              <div className="text-right">
+                <span className="text-[11px] font-mono text-gray-400 uppercase">Quy Đổi Trừ Tiền Mặt</span>
+                <p className="text-base font-bold text-white font-mono">
+                  = {((user?.rewardPoints || 0) * 1000).toLocaleString()} đ
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3.5 mb-6 text-xs">
+              
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 flex gap-3 items-start">
+                <span className="w-7 h-7 rounded-lg bg-zinc-800 text-gray-300 font-mono font-bold flex items-center justify-center shrink-0 border border-white/10">
+                  01
+                </span>
+                <div>
+                  <h4 className="font-bold text-white text-xs mb-1 flex items-center justify-between">
+                    <span>MỐC STAR (0 - 99 ĐIỂM)</span>
+                    <span className="text-[10px] font-mono text-gray-400">Khởi đầu</span>
+                  </h4>
+                  <p className="text-gray-300 text-[11px] leading-relaxed">
+                    • Tích lũy <strong>5%</strong> giá trị mọi giao dịch vé & combo.<br />
+                    • Quà sinh nhật: <strong>1 Vé xem phim 2D</strong> miễn phí.<br />
+                    • Đồng giá vé 55.000đ vào Thứ 4 Vui Vẻ hàng tuần.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex gap-3 items-start">
+                <span className="w-7 h-7 rounded-lg bg-amber-500 text-black font-mono font-black flex items-center justify-center shrink-0">
+                  02
+                </span>
+                <div>
+                  <h4 className="font-bold text-amber-300 text-xs mb-1 flex items-center justify-between">
+                    <span>MỐC G-STAR (KHI ĐẠT 100 ĐIỂM)</span>
+                    <span className="text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded">MỤC TIÊU TIẾP THEO</span>
+                  </h4>
+                  <p className="text-gray-200 text-[11px] leading-relaxed">
+                    • Tự động thăng hạng lên <strong>G-STAR</strong> khi đạt 100 điểm.<br />
+                    • <strong>Nhận ngay gói quà thăng hạng:</strong> <strong>2 Vé 2D + 2 Combo Bắp Nước</strong> gửi vào kho voucher.<br />
+                    • Nâng tỷ lệ tích điểm lên <strong>8%</strong> cho các lần xem phim sau.<br />
+                    • Ưu tiên đặt vé suất chiếu sớm (Sneak Preview) trước 48h.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 flex gap-3 items-start">
+                <span className="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-300 font-mono font-bold flex items-center justify-center shrink-0 border border-rose-500/30">
+                  03
+                </span>
+                <div>
+                  <h4 className="font-bold text-white text-xs mb-1 flex items-center justify-between">
+                    <span>MỐC X-STAR (KHI ĐẠT 500 ĐIỂM)</span>
+                    <span className="text-[10px] font-mono text-rose-400">VIP Thượng Lưu</span>
+                  </h4>
+                  <p className="text-gray-300 text-[11px] leading-relaxed">
+                    • Tặng <strong>4 Vé xem phim (cả IMAX Laser)</strong> + 4 Combo VIP.<br />
+                    • Tỷ lệ tích điểm tối đa <strong>10%</strong>.<br />
+                    • Lối đi riêng VIP Concierge không xếp hàng và vé mời tham dự Premiere ra mắt phim thảm đỏ.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+
+            <div className="flex gap-3">
+              <Link
+                to="/membership"
+                onClick={() => setShowRewardsModal(false)}
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-black font-extrabold text-xs uppercase tracking-wider text-center transition-all shadow-lg shadow-amber-500/25 flex items-center justify-center gap-1.5"
+              >
+                <span>Xem Bảng Chính Sách Hội Viên Chi Tiết</span>
+                <ChevronRight size={14} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
