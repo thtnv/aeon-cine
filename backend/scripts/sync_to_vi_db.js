@@ -51,7 +51,7 @@ async function syncDatabases() {
     await targetClient.connect();
     console.log('✓ Kết nối thành công Cơ sở dữ liệu đích: aeon_cinema_db_vi\n');
 
-    // 0. Tạo bảng DatVeNhom nếu chưa tồn tại trong aeon_cinema_db_vi
+    // 0. Tạo các bảng và cột mới nếu chưa tồn tại trong aeon_cinema_db_vi
     await targetClient.query(`
       CREATE TABLE IF NOT EXISTS "DatVeNhom" (
         "maDatVeNhom" VARCHAR(36) PRIMARY KEY,
@@ -69,13 +69,36 @@ async function syncDatabases() {
         "ngayTao" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
         "ngayCapNhat" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
       );
-      COMMENT ON TABLE "DatVeNhom" IS 'Bảng quản lý đơn yêu cầu đặt vé xem phim theo nhóm, sự kiện, thuê trọn rạp';
+
+      CREATE TABLE IF NOT EXISTS "PhimTheLoai" (
+        "maPhim" VARCHAR(36) NOT NULL REFERENCES "Phim"("maPhim") ON DELETE CASCADE,
+        "maTheLoai" VARCHAR(36) NOT NULL REFERENCES "TheLoaiPhim"("maTheLoai") ON DELETE CASCADE,
+        "ngayTao" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        PRIMARY KEY ("maPhim", "maTheLoai")
+      );
+
+      CREATE TABLE IF NOT EXISTS "PhimDienVien" (
+        "maPhim" VARCHAR(36) NOT NULL REFERENCES "Phim"("maPhim") ON DELETE CASCADE,
+        "maDienVien" VARCHAR(36) NOT NULL REFERENCES "DienVien"("maDienVien") ON DELETE CASCADE,
+        "vaiDien" VARCHAR(255),
+        "ngayTao" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        PRIMARY KEY ("maPhim", "maDienVien")
+      );
+
+      ALTER TABLE "DonDatVe" ADD COLUMN IF NOT EXISTS "maVoucher" VARCHAR(36);
+      ALTER TABLE "VeXemPhim" ADD COLUMN IF NOT EXISTS "maBangGia" VARCHAR(36);
+      ALTER TABLE "MaGiamGia" ADD COLUMN IF NOT EXISTS "maKhuyenMai" VARCHAR(36);
+      ALTER TABLE "BaiVietTinTuc" ADD COLUMN IF NOT EXISTS "maTacGia" VARCHAR(36);
+      ALTER TABLE "BaiVietTinTuc" ADD COLUMN IF NOT EXISTS "maPhim" VARCHAR(36);
+      ALTER TABLE "KhoaGiuGheTamThoi" ALTER COLUMN "maNguoiDung" DROP NOT NULL;
     `);
 
-    // 1. Dọn sạch dữ liệu cũ trong aeon_cinema_db_vi để đảm bảo toàn vẹn dữ liệu
+    // 1. Dọn sạch dữ liệu cũ trong aeon_cinema_db_vi
     console.log('🧹 Đang làm sạch các bảng dữ liệu trong aeon_cinema_db_vi (TRUNCATE CASCADE)...');
     await targetClient.query(`
       TRUNCATE TABLE 
+        "PhimTheLoai",
+        "PhimDienVien",
         "VeXemPhim",
         "KhoaGiuGheTamThoi",
         "ChiTietComboDonHang",
@@ -104,7 +127,7 @@ async function syncDatabases() {
     // =========================================================================
 
     // --- 1. User ➔ NguoiDung ---
-    console.log('⏳ [1/19] Đang đồng bộ User ➔ NguoiDung...');
+    console.log('⏳ [1/21] Đang đồng bộ User ➔ NguoiDung...');
     const users = (await sourceClient.query('SELECT * FROM "User"')).rows;
     const userRows = users.map(u => ({
       maNguoiDung: u.id,
@@ -128,7 +151,7 @@ async function syncDatabases() {
     console.log(`✓ Đã đồng bộ ${userRows.length} tài khoản người dùng.\n`);
 
     // --- 2. Movie ➔ Phim ---
-    console.log('⏳ [2/19] Đang đồng bộ Movie ➔ Phim...');
+    console.log('⏳ [2/21] Đang đồng bộ Movie ➔ Phim...');
     const movies = (await sourceClient.query('SELECT * FROM "Movie"')).rows;
     const movieRows = movies.map(m => ({
       maPhim: m.id,
@@ -158,7 +181,7 @@ async function syncDatabases() {
     console.log(`✓ Đã đồng bộ ${movieRows.length} phim điện ảnh.\n`);
 
     // --- 3. Cinema ➔ CumRap ---
-    console.log('⏳ [3/19] Đang đồng bộ Cinema ➔ CumRap...');
+    console.log('⏳ [3/21] Đang đồng bộ Cinema ➔ CumRap...');
     const cinemas = (await sourceClient.query('SELECT * FROM "Cinema"')).rows;
     const cinemaRows = cinemas.map(c => ({
       maCumRap: c.id,
@@ -180,7 +203,7 @@ async function syncDatabases() {
     console.log(`✓ Đã đồng bộ ${cinemaRows.length} cụm rạp chiếu phim.\n`);
 
     // --- 4. Room ➔ PhongChieu ---
-    console.log('⏳ [4/19] Đang đồng bộ Room ➔ PhongChieu...');
+    console.log('⏳ [4/21] Đang đồng bộ Room ➔ PhongChieu...');
     const rooms = (await sourceClient.query('SELECT * FROM "Room"')).rows;
     const roomRows = rooms.map(r => ({
       maPhongChieu: r.id,
@@ -192,10 +215,10 @@ async function syncDatabases() {
     await batchInsert(targetClient, 'PhongChieu', [
       'maPhongChieu', 'tenPhongChieu', 'maCumRap', 'ngayTao', 'ngayCapNhat'
     ], roomRows);
-    console.log(`✓ Đã đồng bộ ${roomRows.length} phòng chiếu phim.\n`);
+    console.log(`✓ Đã đồng bộ ${roomRows.length} phòng chiếu.\n`);
 
     // --- 5. Seat ➔ GheNgoi ---
-    console.log('⏳ [5/19] Đang đồng bộ Seat ➔ GheNgoi (Ma trận ghế)...');
+    console.log('⏳ [5/21] Đang đồng bộ Seat ➔ GheNgoi...');
     const seats = (await sourceClient.query('SELECT * FROM "Seat"')).rows;
     const seatRows = seats.map(s => ({
       maGhe: s.id,
@@ -209,7 +232,7 @@ async function syncDatabases() {
     console.log(`✓ Đã đồng bộ ${seatRows.length} ghế ngồi.\n`);
 
     // --- 6. Showtime ➔ SuatChieu ---
-    console.log('⏳ [6/19] Đang đồng bộ Showtime ➔ SuatChieu...');
+    console.log('⏳ [6/21] Đang đồng bộ Showtime ➔ SuatChieu...');
     const showtimes = (await sourceClient.query('SELECT * FROM "Showtime"')).rows;
     const showtimeRows = showtimes.map(st => ({
       maSuatChieu: st.id,
@@ -225,52 +248,11 @@ async function syncDatabases() {
     await batchInsert(targetClient, 'SuatChieu', [
       'maSuatChieu', 'maPhim', 'maPhongChieu', 'dinhDang', 'ngonNgu',
       'thoiGianBatDau', 'thoiGianKetThuc', 'ngayTao', 'ngayCapNhat'
-    ], showtimeRows, 500);
-    console.log(`✓ Đã đồng bộ ${showtimeRows.length} suất chiếu phim.\n`);
+    ], showtimeRows, 400);
+    console.log(`✓ Đã đồng bộ ${showtimeRows.length} suất chiếu.\n`);
 
-    // --- 7. Booking ➔ DonDatVe ---
-    console.log('⏳ [7/19] Đang đồng bộ Booking ➔ DonDatVe...');
-    const bookings = (await sourceClient.query('SELECT * FROM "Booking"')).rows;
-    const bookingRows = bookings.map(b => ({
-      maDonHang: b.id,
-      maNguoiDung: b.userId,
-      trangThaiDonHang: b.status,
-      phuongThucThanhToan: b.paymentMethod,
-      trangThaiThanhToan: b.paymentStatus || 'UNPAID',
-      maVoucher: b.voucherCode,
-      soTienGiamGia: b.discountAmount || 0,
-      maVeDienTu: b.ticketCode,
-      duongDanMaQR: b.qrCodeUrl,
-      tongTien: b.total,
-      ngayTao: b.createdAt,
-      ngayCapNhat: b.updatedAt
-    }));
-    await batchInsert(targetClient, 'DonDatVe', [
-      'maDonHang', 'maNguoiDung', 'trangThaiDonHang', 'phuongThucThanhToan',
-      'trangThaiThanhToan', 'maVoucher', 'soTienGiamGia', 'maVeDienTu',
-      'duongDanMaQR', 'tongTien', 'ngayTao', 'ngayCapNhat'
-    ], bookingRows);
-    console.log(`✓ Đã đồng bộ ${bookingRows.length} đơn đặt vé / hóa đơn.\n`);
-
-    // --- 8. Ticket ➔ VeXemPhim ---
-    console.log('⏳ [8/19] Đang đồng bộ Ticket ➔ VeXemPhim...');
-    const tickets = (await sourceClient.query('SELECT * FROM "Ticket"')).rows;
-    const ticketRows = tickets.map(t => ({
-      maVe: t.id,
-      maDonHang: t.bookingId,
-      maSuatChieu: t.showtimeId,
-      maGhe: t.seatId,
-      giaVe: t.price,
-      ngayTao: t.createdAt,
-      ngayCapNhat: t.updatedAt
-    }));
-    await batchInsert(targetClient, 'VeXemPhim', [
-      'maVe', 'maDonHang', 'maSuatChieu', 'maGhe', 'giaVe', 'ngayTao', 'ngayCapNhat'
-    ], ticketRows);
-    console.log(`✓ Đã đồng bộ ${ticketRows.length} vé xem phim chi tiết.\n`);
-
-    // --- 9. FoodCombo ➔ ComboBapNuoc ---
-    console.log('⏳ [9/19] Đang đồng bộ FoodCombo ➔ ComboBapNuoc...');
+    // --- 7. FoodCombo ➔ ComboBapNuoc ---
+    console.log('⏳ [7/21] Đang đồng bộ FoodCombo ➔ ComboBapNuoc...');
     const foods = (await sourceClient.query('SELECT * FROM "FoodCombo"')).rows;
     const foodRows = foods.map(f => ({
       maCombo: f.id,
@@ -285,27 +267,34 @@ async function syncDatabases() {
     await batchInsert(targetClient, 'ComboBapNuoc', [
       'maCombo', 'tenCombo', 'moTa', 'giaBan', 'duongDanHinhAnh', 'trangThai', 'ngayTao', 'ngayCapNhat'
     ], foodRows);
-    console.log(`✓ Đã đồng bộ ${foodRows.length} gói combo bắp nước F&B.\n`);
+    console.log(`✓ Đã đồng bộ ${foodRows.length} combo bắp nước.\n`);
 
-    // --- 10. BookingFood ➔ ChiTietComboDonHang ---
-    console.log('⏳ [10/19] Đang đồng bộ BookingFood ➔ ChiTietComboDonHang...');
-    const bookingFoods = (await sourceClient.query('SELECT * FROM "BookingFood"')).rows;
-    const bookingFoodRows = bookingFoods.map(bf => ({
-      maChiTietCombo: bf.id,
-      maDonHang: bf.bookingId,
-      maCombo: bf.foodId,
-      soLuong: bf.quantity,
-      donGia: bf.price,
-      ngayTao: bf.createdAt,
-      ngayCapNhat: bf.updatedAt
+    // --- 8. Promotion ➔ ChuongTrinhKhuyenMai ---
+    console.log('⏳ [8/21] Đang đồng bộ Promotion ➔ ChuongTrinhKhuyenMai...');
+    const promos = (await sourceClient.query('SELECT * FROM "Promotion"')).rows;
+    const promoRows = promos.map(p => ({
+      maKhuyenMai: p.id,
+      tieuDe: p.title,
+      moTa: p.desc,
+      danhMuc: p.category,
+      nhanNoiBat: p.badge,
+      maCode: p.code,
+      hanSuDung: p.validUntil,
+      dieuKhoan: p.terms,
+      duongDanAnhBia: p.coverUrl,
+      loaiIcon: p.iconType || 'ticket',
+      trangThai: p.status || 'ACTIVE',
+      ngayTao: p.createdAt,
+      ngayCapNhat: p.updatedAt
     }));
-    await batchInsert(targetClient, 'ChiTietComboDonHang', [
-      'maChiTietCombo', 'maDonHang', 'maCombo', 'soLuong', 'donGia', 'ngayTao', 'ngayCapNhat'
-    ], bookingFoodRows);
-    console.log(`✓ Đã đồng bộ ${bookingFoodRows.length} chi tiết bắp nước theo đơn.\n`);
+    await batchInsert(targetClient, 'ChuongTrinhKhuyenMai', [
+      'maKhuyenMai', 'tieuDe', 'moTa', 'danhMuc', 'nhanNoiBat', 'maCode',
+      'hanSuDung', 'dieuKhoan', 'duongDanAnhBia', 'loaiIcon', 'trangThai', 'ngayTao', 'ngayCapNhat'
+    ], promoRows);
+    console.log(`✓ Đã đồng bộ ${promoRows.length} chương trình khuyến mãi.\n`);
 
-    // --- 11. Voucher ➔ MaGiamGia ---
-    console.log('⏳ [11/19] Đang đồng bộ Voucher ➔ MaGiamGia...');
+    // --- 9. Voucher ➔ MaGiamGia ---
+    console.log('⏳ [9/21] Đang đồng bộ Voucher ➔ MaGiamGia...');
     const vouchers = (await sourceClient.query('SELECT * FROM "Voucher"')).rows;
     const voucherRows = vouchers.map(v => ({
       maVoucher: v.id,
@@ -318,17 +307,93 @@ async function syncDatabases() {
       gioiHanSuDung: v.usageLimit,
       soLuotDaDung: v.usedCount || 0,
       trangThai: v.status || 'ACTIVE',
+      maKhuyenMai: v.promotionId || null,
       ngayTao: v.createdAt,
       ngayCapNhat: v.updatedAt
     }));
     await batchInsert(targetClient, 'MaGiamGia', [
       'maVoucher', 'maCode', 'loaiGiamGia', 'giaTriGiam', 'giaTriDonToiThieu',
-      'ngayBatDau', 'ngayKetThuc', 'gioiHanSuDung', 'soLuotDaDung', 'trangThai', 'ngayTao', 'ngayCapNhat'
+      'ngayBatDau', 'ngayKetThuc', 'gioiHanSuDung', 'soLuotDaDung', 'trangThai', 'maKhuyenMai', 'ngayTao', 'ngayCapNhat'
     ], voucherRows);
-    console.log(`✓ Đã đồng bộ ${voucherRows.length} voucher mã giảm giá.\n`);
+    console.log(`✓ Đã đồng bộ ${voucherRows.length} mã giảm giá.\n`);
 
-    // --- 12. Review ➔ DanhGiaBinhLuan ---
-    console.log('⏳ [12/19] Đang đồng bộ Review ➔ DanhGiaBinhLuan...');
+    // --- 10. Booking ➔ DonDatVe ---
+    console.log('⏳ [10/21] Đang đồng bộ Booking ➔ DonDatVe...');
+    const bookings = (await sourceClient.query('SELECT * FROM "Booking"')).rows;
+    const bookingRows = bookings.map(b => ({
+      maDonHang: b.id,
+      maNguoiDung: b.userId,
+      trangThaiDonHang: b.status,
+      phuongThucThanhToan: b.paymentMethod,
+      trangThaiThanhToan: b.paymentStatus || 'UNPAID',
+      maVoucher: b.voucherId || null,
+      soTienGiamGia: b.discountAmount || 0,
+      maVeDienTu: b.ticketCode,
+      duongDanMaQR: b.qrCodeUrl,
+      tongTien: b.total,
+      ngayTao: b.createdAt,
+      ngayCapNhat: b.updatedAt
+    }));
+    await batchInsert(targetClient, 'DonDatVe', [
+      'maDonHang', 'maNguoiDung', 'trangThaiDonHang', 'phuongThucThanhToan', 'trangThaiThanhToan',
+      'maVoucher', 'soTienGiamGia', 'maVeDienTu', 'duongDanMaQR', 'tongTien', 'ngayTao', 'ngayCapNhat'
+    ], bookingRows);
+    console.log(`✓ Đã đồng bộ ${bookingRows.length} đơn đặt vé.\n`);
+
+    // --- 11. PriceConfig ➔ BangGiaVe ---
+    console.log('⏳ [11/21] Đang đồng bộ PriceConfig ➔ BangGiaVe...');
+    const prices = (await sourceClient.query('SELECT * FROM "PriceConfig"')).rows;
+    const priceRows = prices.map(p => ({
+      maBangGia: p.id,
+      loaiGhe: p.seatType,
+      dinhDang: p.format || '2D',
+      laCuoiTuan: p.isWeekend || false,
+      giaVe: p.price,
+      ngayTao: p.createdAt,
+      ngayCapNhat: p.updatedAt
+    }));
+    await batchInsert(targetClient, 'BangGiaVe', [
+      'maBangGia', 'loaiGhe', 'dinhDang', 'laCuoiTuan', 'giaVe', 'ngayTao', 'ngayCapNhat'
+    ], priceRows);
+    console.log(`✓ Đã đồng bộ ${priceRows.length} cấu hình bảng giá vé.\n`);
+
+    // --- 12. Ticket ➔ VeXemPhim ---
+    console.log('⏳ [12/21] Đang đồng bộ Ticket ➔ VeXemPhim...');
+    const tickets = (await sourceClient.query('SELECT * FROM "Ticket"')).rows;
+    const ticketRows = tickets.map(t => ({
+      maVe: t.id,
+      maDonHang: t.bookingId,
+      maSuatChieu: t.showtimeId,
+      maGhe: t.seatId,
+      maBangGia: t.priceConfigId || null,
+      giaVe: t.price,
+      ngayTao: t.createdAt,
+      ngayCapNhat: t.updatedAt
+    }));
+    await batchInsert(targetClient, 'VeXemPhim', [
+      'maVe', 'maDonHang', 'maSuatChieu', 'maGhe', 'maBangGia', 'giaVe', 'ngayTao', 'ngayCapNhat'
+    ], ticketRows);
+    console.log(`✓ Đã đồng bộ ${ticketRows.length} vé xem phim.\n`);
+
+    // --- 13. BookingFood ➔ ChiTietComboDonHang ---
+    console.log('⏳ [13/21] Đang đồng bộ BookingFood ➔ ChiTietComboDonHang...');
+    const bfList = (await sourceClient.query('SELECT * FROM "BookingFood"')).rows;
+    const bfRows = bfList.map(bf => ({
+      maChiTietCombo: bf.id,
+      maDonHang: bf.bookingId,
+      maCombo: bf.foodId,
+      soLuong: bf.quantity,
+      donGia: bf.price,
+      ngayTao: bf.createdAt,
+      ngayCapNhat: bf.updatedAt
+    }));
+    await batchInsert(targetClient, 'ChiTietComboDonHang', [
+      'maChiTietCombo', 'maDonHang', 'maCombo', 'soLuong', 'donGia', 'ngayTao', 'ngayCapNhat'
+    ], bfRows);
+    console.log(`✓ Đã đồng bộ ${bfRows.length} chi tiết bắp nước theo đơn.\n`);
+
+    // --- 14. Review ➔ DanhGiaBinhLuan ---
+    console.log('⏳ [14/21] Đang đồng bộ Review ➔ DanhGiaBinhLuan...');
     const reviews = (await sourceClient.query('SELECT * FROM "Review"')).rows;
     const reviewRows = reviews.map(r => ({
       maDanhGia: r.id,
@@ -342,43 +407,26 @@ async function syncDatabases() {
     await batchInsert(targetClient, 'DanhGiaBinhLuan', [
       'maDanhGia', 'maNguoiDung', 'maPhim', 'soSaoDanhGia', 'noiDungBinhLuan', 'ngayTao', 'ngayCapNhat'
     ], reviewRows);
-    console.log(`✓ Đã đồng bộ ${reviewRows.length} đánh giá bình luận.\n`);
+    console.log(`✓ Đã đồng bộ ${reviewRows.length} bình luận đánh giá.\n`);
 
-    // --- 13. SeatHold ➔ KhoaGiuGheTamThoi ---
-    console.log('⏳ [13/19] Đang đồng bộ SeatHold ➔ KhoaGiuGheTamThoi...');
+    // --- 15. SeatHold ➔ KhoaGiuGheTamThoi ---
+    console.log('⏳ [15/21] Đang đồng bộ SeatHold ➔ KhoaGiuGheTamThoi...');
     const seatHolds = (await sourceClient.query('SELECT * FROM "SeatHold"')).rows;
-    const seatHoldRows = seatHolds.map(sh => ({
+    const shRows = seatHolds.map(sh => ({
       maGiuGhe: sh.id,
       maSuatChieu: sh.showtimeId,
       maGhe: sh.seatId,
-      maNguoiDung: sh.userId,
+      maNguoiDung: sh.userId || null,
       thoiGianHetHan: sh.expiresAt,
       ngayTao: sh.createdAt
     }));
     await batchInsert(targetClient, 'KhoaGiuGheTamThoi', [
       'maGiuGhe', 'maSuatChieu', 'maGhe', 'maNguoiDung', 'thoiGianHetHan', 'ngayTao'
-    ], seatHoldRows);
-    console.log(`✓ Đã đồng bộ ${seatHoldRows.length} khóa giữ ghế thời gian thực.\n`);
+    ], shRows);
+    console.log(`✓ Đã đồng bộ ${shRows.length} bản ghi giữ ghế tạm thời.\n`);
 
-    // --- 14. PriceConfig ➔ BangGiaVe ---
-    console.log('⏳ [14/19] Đang đồng bộ PriceConfig ➔ BangGiaVe...');
-    const prices = (await sourceClient.query('SELECT * FROM "PriceConfig"')).rows;
-    const priceRows = prices.map(p => ({
-      maBangGia: p.id,
-      loaiGhe: p.seatType,
-      dinhDang: p.format,
-      laCuoiTuan: p.isWeekend,
-      giaVe: p.price,
-      ngayTao: p.createdAt,
-      ngayCapNhat: p.updatedAt
-    }));
-    await batchInsert(targetClient, 'BangGiaVe', [
-      'maBangGia', 'loaiGhe', 'dinhDang', 'laCuoiTuan', 'giaVe', 'ngayTao', 'ngayCapNhat'
-    ], priceRows);
-    console.log(`✓ Đã đồng bộ ${priceRows.length} cấu hình giá vé.\n`);
-
-    // --- 15. Genre ➔ TheLoaiPhim ---
-    console.log('⏳ [15/19] Đang đồng bộ Genre ➔ TheLoaiPhim...');
+    // --- 16. Genre ➔ TheLoaiPhim ---
+    console.log('⏳ [16/21] Đang đồng bộ Genre ➔ TheLoaiPhim...');
     const genres = (await sourceClient.query('SELECT * FROM "Genre"')).rows;
     const genreRows = genres.map(g => ({
       maTheLoai: g.id,
@@ -391,8 +439,8 @@ async function syncDatabases() {
     ], genreRows);
     console.log(`✓ Đã đồng bộ ${genreRows.length} thể loại phim.\n`);
 
-    // --- 16. Actor ➔ DienVien ---
-    console.log('⏳ [16/19] Đang đồng bộ Actor ➔ DienVien...');
+    // --- 17. Actor ➔ DienVien ---
+    console.log('⏳ [17/21] Đang đồng bộ Actor ➔ DienVien...');
     const actors = (await sourceClient.query('SELECT * FROM "Actor"')).rows;
     const actorRows = actors.map(a => ({
       maDienVien: a.id,
@@ -404,58 +452,63 @@ async function syncDatabases() {
     await batchInsert(targetClient, 'DienVien', [
       'maDienVien', 'tenDienVien', 'duongDanAnh', 'ngayTao', 'ngayCapNhat'
     ], actorRows);
-    console.log(`✓ Đã đồng bộ ${actorRows.length} diễn viên & đạo diễn.\n`);
+    console.log(`✓ Đã đồng bộ ${actorRows.length} diễn viên điện ảnh.\n`);
 
-    // --- 17. Promotion ➔ ChuongTrinhKhuyenMai ---
-    console.log('⏳ [17/19] Đang đồng bộ Promotion ➔ ChuongTrinhKhuyenMai...');
-    const promotions = (await sourceClient.query('SELECT * FROM "Promotion"')).rows;
-    const promoRows = promotions.map(pr => ({
-      maKhuyenMai: pr.id,
-      tieuDe: pr.title,
-      moTa: pr.desc,
-      danhMuc: pr.category,
-      nhanNoiBat: pr.badge,
-      maCode: pr.code,
-      hanSuDung: pr.validUntil,
-      dieuKhoan: pr.terms,
-      duongDanAnhBia: pr.coverUrl,
-      loaiIcon: pr.iconType || 'ticket',
-      trangThai: pr.status || 'ACTIVE',
-      ngayTao: pr.createdAt,
-      ngayCapNhat: pr.updatedAt
+    // --- 18. MovieGenre ➔ PhimTheLoai ---
+    console.log('⏳ [18/21] Đang đồng bộ MovieGenre ➔ PhimTheLoai...');
+    const movieGenres = (await sourceClient.query('SELECT * FROM "MovieGenre"')).rows;
+    const mgRows = movieGenres.map(mg => ({
+      maPhim: mg.movieId,
+      maTheLoai: mg.genreId,
+      ngayTao: mg.createdAt
     }));
-    await batchInsert(targetClient, 'ChuongTrinhKhuyenMai', [
-      'maKhuyenMai', 'tieuDe', 'moTa', 'danhMuc', 'nhanNoiBat', 'maCode',
-      'hanSuDung', 'dieuKhoan', 'duongDanAnhBia', 'loaiIcon', 'trangThai', 'ngayTao', 'ngayCapNhat'
-    ], promoRows);
-    console.log(`✓ Đã đồng bộ ${promoRows.length} chương trình khuyến mãi.\n`);
+    await batchInsert(targetClient, 'PhimTheLoai', [
+      'maPhim', 'maTheLoai', 'ngayTao'
+    ], mgRows);
+    console.log(`✓ Đã đồng bộ ${mgRows.length} quan hệ Phim - Thể Loại.\n`);
 
-    // --- 18. Blog ➔ BaiVietTinTuc ---
-    console.log('⏳ [18/19] Đang đồng bộ Blog ➔ BaiVietTinTuc...');
+    // --- 19. MovieActor ➔ PhimDienVien ---
+    console.log('⏳ [19/21] Đang đồng bộ MovieActor ➔ PhimDienVien...');
+    const movieActors = (await sourceClient.query('SELECT * FROM "MovieActor"')).rows;
+    const maRows = movieActors.map(ma => ({
+      maPhim: ma.movieId,
+      maDienVien: ma.actorId,
+      vaiDien: ma.characterName || null,
+      ngayTao: ma.createdAt
+    }));
+    await batchInsert(targetClient, 'PhimDienVien', [
+      'maPhim', 'maDienVien', 'vaiDien', 'ngayTao'
+    ], maRows);
+    console.log(`✓ Đã đồng bộ ${maRows.length} quan hệ Phim - Diễn Viên.\n`);
+
+    // --- 20. Blog ➔ BaiVietTinTuc ---
+    console.log('⏳ [20/21] Đang đồng bộ Blog ➔ BaiVietTinTuc...');
     const blogs = (await sourceClient.query('SELECT * FROM "Blog"')).rows;
-    const blogRows = blogs.map(bl => ({
-      maBaiViet: bl.id,
-      tieuDe: bl.title,
-      tomTat: bl.summary,
-      noiDung: bl.content,
-      danhMuc: bl.category,
-      tacGia: bl.author || 'Aeon Cine Editor',
-      ngayDang: bl.publishDate,
-      thoiGianDoc: bl.readingTime || '5 phút đọc',
-      duongDanAnh: bl.imageUrl,
-      luotXem: bl.views || 0,
-      trangThai: bl.status || 'ACTIVE',
-      ngayTao: bl.createdAt,
-      ngayCapNhat: bl.updatedAt
+    const blogRows = blogs.map(b => ({
+      maBaiViet: b.id,
+      tieuDe: b.title,
+      tomTat: b.summary,
+      noiDung: b.content,
+      danhMuc: b.category,
+      tacGia: b.author || 'Aeon Cine Editor',
+      maTacGia: b.authorId || null,
+      maPhim: b.movieId || null,
+      ngayDang: b.publishDate,
+      thoiGianDoc: b.readingTime || '5 phút đọc',
+      duongDanAnh: b.imageUrl,
+      luotXem: b.views || 0,
+      trangThai: b.status || 'ACTIVE',
+      ngayTao: b.createdAt,
+      ngayCapNhat: b.updatedAt
     }));
     await batchInsert(targetClient, 'BaiVietTinTuc', [
       'maBaiViet', 'tieuDe', 'tomTat', 'noiDung', 'danhMuc', 'tacGia',
-      'ngayDang', 'thoiGianDoc', 'duongDanAnh', 'luotXem', 'trangThai', 'ngayTao', 'ngayCapNhat'
+      'maTacGia', 'maPhim', 'ngayDang', 'thoiGianDoc', 'duongDanAnh', 'luotXem', 'trangThai', 'ngayTao', 'ngayCapNhat'
     ], blogRows);
     console.log(`✓ Đã đồng bộ ${blogRows.length} bài viết tin tức & blog điện ảnh.\n`);
 
-    // --- 19. GroupBooking ➔ DatVeNhom ---
-    console.log('⏳ [19/19] Đang đồng bộ GroupBooking ➔ DatVeNhom...');
+    // --- 21. GroupBooking ➔ DatVeNhom ---
+    console.log('⏳ [21/21] Đang đồng bộ GroupBooking ➔ DatVeNhom...');
     const groupBookings = (await sourceClient.query('SELECT * FROM "GroupBooking"')).rows;
     const groupBookingRows = groupBookings.map(gb => ({
       maDatVeNhom: gb.id,
@@ -500,10 +553,12 @@ async function syncDatabases() {
       { src: 'BookingFood', tgt: 'ChiTietComboDonHang', desc: 'Chi tiết bắp nước đơn hàng' },
       { src: 'Voucher', tgt: 'MaGiamGia', desc: 'Mã giảm giá (Voucher)' },
       { src: 'Review', tgt: 'DanhGiaBinhLuan', desc: 'Đánh giá & Bình luận phim' },
-      { src: 'SeatHold', tgt: 'KhoaGiuGheTamThoi', desc: 'Khóa giữ ghế 10 phút' },
+      { src: 'SeatHold', tgt: 'KhoaGiuGheTamThoi', desc: 'Khóa giữ ghế tạm thời' },
       { src: 'PriceConfig', tgt: 'BangGiaVe', desc: 'Cấu hình bảng giá vé' },
       { src: 'Genre', tgt: 'TheLoaiPhim', desc: 'Thể loại phim' },
-      { src: 'Actor', tgt: 'DienVien', desc: 'Diễn viên & Đạo diễn' },
+      { src: 'Actor', tgt: 'DienVien', desc: 'Diễn viên điện ảnh' },
+      { src: 'MovieGenre', tgt: 'PhimTheLoai', desc: 'Quan hệ Phim - Thể Loại (N-N)' },
+      { src: 'MovieActor', tgt: 'PhimDienVien', desc: 'Quan hệ Phim - Diễn Viên (N-N)' },
       { src: 'Promotion', tgt: 'ChuongTrinhKhuyenMai', desc: 'Chương trình khuyến mãi' },
       { src: 'Blog', tgt: 'BaiVietTinTuc', desc: 'Bài viết Góc Điện Ảnh' },
       { src: 'GroupBooking', tgt: 'DatVeNhom', desc: 'Đặt vé nhóm & Sự kiện' }
@@ -522,7 +577,7 @@ async function syncDatabases() {
 
     console.log('========================================================================');
     if (allMatch) {
-      console.log('🎉 TẤT CẢ 19/19 BẢNG ĐÃ ĐƯỢC ĐỒNG BỘ CHÍNH XÁC 100% SANG aeon_cinema_db_vi!');
+      console.log('🎉 TẤT CẢ 21/21 BẢNG ĐÃ ĐƯỢC ĐỒNG BỘ CHÍNH XÁC 100% SANG aeon_cinema_db_vi!');
     } else {
       console.warn('⚠️ CÓ BẢNG BỊ LỆCH SỐ LƯỢNG DỮ LIỆU! VUI LÒNG KIỂM TRA LẠI.');
     }

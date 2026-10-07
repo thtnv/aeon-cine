@@ -63,6 +63,16 @@ export const createBooking = async (req: Request, res: Response) => {
     const ticketCode = `GLX-${Math.floor(100000 + Math.random() * 900000)}`;
 
     const booking = await prisma.$transaction(async (tx) => {
+      let resolvedVoucherId: string | null = null;
+      if (voucherCode) {
+        const vRec = await tx.voucher.findUnique({
+          where: { code: String(voucherCode).toUpperCase().trim() }
+        });
+        if (vRec) {
+          resolvedVoucherId = vRec.id;
+        }
+      }
+
       const newBooking = await tx.booking.create({
         data: {
           userId: validUserId,
@@ -70,6 +80,7 @@ export const createBooking = async (req: Request, res: Response) => {
           paymentStatus: paymentMethod === 'CASH' ? 'PAID' : 'UNPAID',
           paymentMethod: paymentMethod || 'VNPAY',
           voucherCode: voucherCode || null,
+          voucherId: resolvedVoucherId,
           discountAmount: Number(discountAmount || 0),
           ticketCode,
           total: Number(total)
@@ -87,18 +98,24 @@ export const createBooking = async (req: Request, res: Response) => {
         data: { qrCodeUrl }
       });
 
+      // Find price configurations to link to tickets
+      const allPriceConfigs = await tx.priceConfig.findMany();
+
       const ticketsData = await Promise.all(
         seatIds.map(async (sId: string) => {
           let resolvedSeatId = sId;
+          let seatTypeVal: any = 'STANDARD';
           if (st && st.room && st.room.seats) {
             const found = st.room.seats.find(s => s.name.toUpperCase() === sId.toUpperCase() || s.id === sId);
             if (found) {
               resolvedSeatId = found.id;
+              seatTypeVal = found.type;
             } else {
               const row = sId.charAt(0);
               let seatType: any = 'STANDARD';
               if (row === 'H') seatType = 'SWEETBOX';
               else if (['C', 'D', 'E', 'F'].includes(row)) seatType = 'VIP';
+              seatTypeVal = seatType;
               const newSeat = await tx.seat.create({
                 data: {
                   name: sId.toUpperCase(),
@@ -110,10 +127,14 @@ export const createBooking = async (req: Request, res: Response) => {
             }
           }
 
+          const matchedPc = allPriceConfigs.find(pc => pc.seatType === seatTypeVal && pc.format === (st?.format || '2D'))
+                         || allPriceConfigs.find(pc => pc.seatType === seatTypeVal);
+
           return {
             bookingId: newBooking.id,
             showtimeId: validShowtimeId,
             seatId: resolvedSeatId,
+            priceConfigId: matchedPc ? matchedPc.id : null,
             price: (total + (discountAmount || 0)) / seatIds.length
           };
         })

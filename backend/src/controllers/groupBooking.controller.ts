@@ -23,14 +23,27 @@ export const createGroupBooking = async (req: Request, res: Response) => {
       });
     }
 
+    let validCinemaId: string | null = null;
+    let resolvedCinemaName = cinemaName ? cinemaName.trim() : null;
+    if (cinemaId) {
+      const c = await prisma.cinema.findUnique({ where: { id: String(cinemaId) } });
+      if (c) {
+        validCinemaId = c.id;
+        if (!resolvedCinemaName) resolvedCinemaName = c.name;
+      }
+    } else if (resolvedCinemaName) {
+      const c = await prisma.cinema.findFirst({ where: { name: { contains: resolvedCinemaName, mode: 'insensitive' } } });
+      if (c) validCinemaId = c.id;
+    }
+
     const newRequest = await prisma.groupBooking.create({
       data: {
         contactName: contactName.trim(),
         phone: phone.trim(),
         email: email.trim(),
         companyName: companyName ? companyName.trim() : null,
-        cinemaId: cinemaId || null,
-        cinemaName: cinemaName || null,
+        cinemaId: validCinemaId,
+        cinemaName: resolvedCinemaName,
         serviceType: serviceType || 'GROUP_TICKET',
         expectedGuests: Number(expectedGuests) || 20,
         expectedDate: expectedDate || null,

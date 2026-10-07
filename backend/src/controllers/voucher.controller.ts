@@ -64,7 +64,18 @@ export const getAllVouchers = async (req: Request, res: Response) => {
 
 export const createVoucher = async (req: Request, res: Response) => {
   try {
-    const { code, discountType, discountValue, minOrderValue, startDate, endDate, usageLimit } = req.body;
+    const { code, discountType, discountValue, minOrderValue, startDate, endDate, usageLimit, promotionId } = req.body;
+
+    let validPromotionId: string | null = promotionId || null;
+    if (validPromotionId) {
+      const p = await prisma.promotion.findUnique({ where: { id: String(validPromotionId) } });
+      if (!p) validPromotionId = null;
+    }
+    if (!validPromotionId && code) {
+      const p = await prisma.promotion.findFirst({ where: { code: String(code).trim() } });
+      if (p) validPromotionId = p.id;
+    }
+
     const voucher = await prisma.voucher.create({
       data: {
         code: String(code).toUpperCase().trim(),
@@ -73,7 +84,8 @@ export const createVoucher = async (req: Request, res: Response) => {
         minOrderValue: Number(minOrderValue || 0),
         startDate: new Date(startDate || Date.now()),
         endDate: new Date(endDate || (Date.now() + 365 * 24 * 60 * 60 * 1000)),
-        usageLimit: Number(usageLimit || 0)
+        usageLimit: Number(usageLimit || 0),
+        promotionId: validPromotionId
       }
     });
     res.status(201).json(voucher);

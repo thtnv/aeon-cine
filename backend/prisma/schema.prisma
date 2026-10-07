@@ -8,21 +8,23 @@ datasource db {
 }
 
 model User {
-  id              String    @id @default(uuid())
-  email           String    @unique
+  id              String     @id @default(uuid())
+  email           String     @unique
   password        String
   name            String
-  role            Role      @default(USER)
+  role            Role       @default(USER)
   phone           String?
   avatar          String?
   birthDate       String?
   gender          String?
-  rewardPoints    Int       @default(0)
-  membershipLevel String    @default("STAR") // STAR, GSTAR, XSTAR
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  rewardPoints    Int        @default(0)
+  membershipLevel String     @default("STAR") // STAR, GSTAR, XSTAR
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
   bookings        Booking[]
   reviews         Review[]
+  seatHolds       SeatHold[]
+  blogs           Blog[]
 }
 
 enum Role {
@@ -33,7 +35,7 @@ enum Role {
 }
 
 model Movie {
-  id          String     @id @default(uuid())
+  id          String       @id @default(uuid())
   title       String
   description String
   genre       String
@@ -49,25 +51,29 @@ model Movie {
   producer    String?
   director    String?
   actors      String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   showtimes   Showtime[]
   reviews     Review[]
+  movieGenres MovieGenre[]
+  movieActors MovieActor[]
+  blogs       Blog[]
 }
 
 model Cinema {
-  id            String   @id @default(uuid())
+  id            String         @id @default(uuid())
   name          String
   location      String
   address       String?
-  city          String   @default("TP.HCM")
+  city          String         @default("TP.HCM")
   phone         String?
   mapUrl        String?
   directionsUrl String?
-  amenities     String[] @default([])
+  amenities     String[]       @default([])
   rooms         Room[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  groupBookings GroupBooking[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 model Room {
@@ -84,12 +90,13 @@ model Room {
 }
 
 model Seat {
-  id       String   @id @default(uuid())
-  name     String // e.g. A1, B2
-  type     SeatType @default(STANDARD)
-  roomId   String
-  room     Room     @relation(fields: [roomId], references: [id])
-  bookings Ticket[]
+  id        String     @id @default(uuid())
+  name      String // e.g. A1, B2
+  type      SeatType   @default(STANDARD)
+  roomId    String
+  room      Room       @relation(fields: [roomId], references: [id])
+  bookings  Ticket[]
+  seatHolds SeatHold[]
 
   @@index([roomId])
 }
@@ -129,6 +136,8 @@ model Booking {
   paymentMethod  String? // VNPAY, MOMO, CASH
   paymentStatus  String        @default("UNPAID") // UNPAID, PAID, FAILED
   voucherCode    String?
+  voucherId      String?
+  voucher        Voucher?      @relation(fields: [voucherId], references: [id], onDelete: SetNull)
   discountAmount Float         @default(0)
   ticketCode     String?       @unique
   qrCodeUrl      String?
@@ -139,25 +148,29 @@ model Booking {
   updatedAt      DateTime      @updatedAt
 
   @@index([userId])
+  @@index([voucherId])
   @@index([status])
   @@index([createdAt])
 }
 
 model Ticket {
-  id         String   @id @default(uuid())
-  bookingId  String
-  booking    Booking  @relation(fields: [bookingId], references: [id])
-  showtimeId String
-  showtime   Showtime @relation(fields: [showtimeId], references: [id])
-  seatId     String
-  seat       Seat     @relation(fields: [seatId], references: [id])
-  price      Float
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id            String       @id @default(uuid())
+  bookingId     String
+  booking       Booking      @relation(fields: [bookingId], references: [id])
+  showtimeId    String
+  showtime      Showtime     @relation(fields: [showtimeId], references: [id])
+  seatId        String
+  seat          Seat         @relation(fields: [seatId], references: [id])
+  priceConfigId String?
+  priceConfig   PriceConfig? @relation(fields: [priceConfigId], references: [id], onDelete: SetNull)
+  price         Float
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 
   @@index([showtimeId])
   @@index([bookingId])
   @@index([seatId])
+  @@index([priceConfigId])
 }
 
 model FoodCombo {
@@ -185,18 +198,23 @@ model BookingFood {
 }
 
 model Voucher {
-  id            String   @id @default(uuid())
-  code          String   @unique
+  id            String     @id @default(uuid())
+  code          String     @unique
   discountType  String // PERCENTAGE, FIXED_AMOUNT
   discountValue Float
-  minOrderValue Float    @default(0)
+  minOrderValue Float      @default(0)
   startDate     DateTime
   endDate       DateTime
   usageLimit    Int
-  usedCount     Int      @default(0)
-  status        String   @default("ACTIVE")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  usedCount     Int        @default(0)
+  status        String     @default("ACTIVE")
+  promotionId   String?
+  promotion     Promotion? @relation(fields: [promotionId], references: [id], onDelete: SetNull)
+  bookings      Booking[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([promotionId])
 }
 
 model Review {
@@ -217,13 +235,17 @@ model Review {
 model SeatHold {
   id         String   @id @default(uuid())
   showtimeId String
-  showtime   Showtime @relation(fields: [showtimeId], references: [id])
+  showtime   Showtime @relation(fields: [showtimeId], references: [id], onDelete: Cascade)
   seatId     String
-  userId     String
+  seat       Seat     @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt  DateTime
   createdAt  DateTime @default(now())
 
   @@index([showtimeId, expiresAt])
+  @@index([seatId])
+  @@index([userId])
 }
 
 model PriceConfig {
@@ -232,27 +254,55 @@ model PriceConfig {
   format    String // 2D, 3D, IMAX
   isWeekend Boolean  @default(false)
   price     Float
+  tickets   Ticket[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Genre {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String       @id @default(uuid())
+  name        String       @unique
+  movieGenres MovieGenre[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
 
 model Actor {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  avatarUrl String?
+  id          String       @id @default(uuid())
+  name        String       @unique
+  avatarUrl   String?
+  movieActors MovieActor[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model MovieGenre {
+  movieId   String
+  movie     Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  genreId   String
+  genre     Genre    @relation(fields: [genreId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  @@id([movieId, genreId])
+  @@index([movieId])
+  @@index([genreId])
+}
+
+model MovieActor {
+  movieId       String
+  movie         Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  actorId       String
+  actor         Actor    @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  characterName String?
+  createdAt     DateTime @default(now())
+
+  @@id([movieId, actorId])
+  @@index([movieId])
+  @@index([actorId])
 }
 
 model Promotion {
-  id         String   @id @default(uuid())
+  id         String    @id @default(uuid())
   title      String
   desc       String
   category   String // MEMBER, PARTNER, STUDENT, etc.
@@ -261,10 +311,11 @@ model Promotion {
   validUntil String
   terms      String
   coverUrl   String?
-  iconType   String   @default("ticket")
-  status     String   @default("ACTIVE")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  iconType   String    @default("ticket")
+  status     String    @default("ACTIVE")
+  vouchers   Voucher[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
 model Blog {
@@ -274,6 +325,10 @@ model Blog {
   content     String
   category    String // Review Phim, Tin Điện Ảnh, Phim Sắp Chiếu
   author      String   @default("Aeon Cine Editor")
+  authorId    String?
+  authorUser  User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  movieId     String?
+  movie       Movie?   @relation(fields: [movieId], references: [id], onDelete: SetNull)
   publishDate String
   readingTime String   @default("5 phút đọc")
   imageUrl    String?
@@ -281,6 +336,9 @@ model Blog {
   status      String   @default("ACTIVE")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([authorId])
+  @@index([movieId])
 }
 
 model GroupBooking {
@@ -290,6 +348,7 @@ model GroupBooking {
   email          String
   companyName    String?
   cinemaId       String?
+  cinema         Cinema?  @relation(fields: [cinemaId], references: [id], onDelete: SetNull)
   cinemaName     String?
   serviceType    String // GROUP_TICKET, HALL_RENTAL, VOUCHER, EVENT
   expectedGuests Int
@@ -299,6 +358,7 @@ model GroupBooking {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  @@index([cinemaId])
   @@index([status])
   @@index([createdAt])
 }

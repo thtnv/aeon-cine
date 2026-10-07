@@ -33,6 +33,39 @@ export const getMovieById = async (req: Request, res: Response) => {
   }
 };
 
+async function syncMovieGenresAndActors(movieId: string, genreString?: string, actorString?: string) {
+  try {
+    if (genreString) {
+      await prisma.movieGenre.deleteMany({ where: { movieId } });
+      const genreNames = genreString.split(',').map(g => g.trim()).filter(Boolean);
+      for (const name of genreNames) {
+        let genre = await prisma.genre.findUnique({ where: { name } });
+        if (!genre) {
+          genre = await prisma.genre.create({ data: { name } });
+        }
+        await prisma.movieGenre.create({
+          data: { movieId, genreId: genre.id }
+        }).catch(() => {});
+      }
+    }
+    if (actorString) {
+      await prisma.movieActor.deleteMany({ where: { movieId } });
+      const actorNames = actorString.split(',').map(a => a.trim().replace(/\s*\([^)]*\)/, '')).filter(Boolean);
+      for (const name of actorNames) {
+        let actor = await prisma.actor.findUnique({ where: { name } });
+        if (!actor) {
+          actor = await prisma.actor.create({ data: { name } });
+        }
+        await prisma.movieActor.create({
+          data: { movieId, actorId: actor.id }
+        }).catch(() => {});
+      }
+    }
+  } catch (err) {
+    console.error('Error syncing MovieGenre / MovieActor:', err);
+  }
+}
+
 export const createMovie = async (req: Request, res: Response) => {
   try {
     const { 
@@ -46,6 +79,9 @@ export const createMovie = async (req: Request, res: Response) => {
         releaseDate, ageRating, rating, votes, country, producer, director, actors 
       }
     });
+
+    await syncMovieGenresAndActors(movie.id, genre, actors);
+
     apiCache.del('all_movies');
     apiCache.clearPattern('showtimes_');
     res.status(201).json(movie);
@@ -69,6 +105,11 @@ export const updateMovie = async (req: Request, res: Response) => {
         releaseDate, ageRating, rating, votes, country, producer, director, actors 
       }
     });
+
+    if (genre !== undefined || actors !== undefined) {
+      await syncMovieGenresAndActors(movie.id, genre ?? movie.genre, actors ?? (movie.actors || undefined));
+    }
+
     apiCache.del('all_movies');
     apiCache.clearPattern('showtimes_');
     res.json(movie);

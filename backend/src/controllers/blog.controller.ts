@@ -50,9 +50,25 @@ export const getBlogById = async (req: Request, res: Response) => {
 
 export const createBlog = async (req: Request, res: Response) => {
   try {
-    const { title, summary, content, category, author, publishDate, readingTime, imageUrl, status } = req.body;
+    const { title, summary, content, category, author, publishDate, readingTime, imageUrl, status, authorId, movieId } = req.body;
     if (!title || !summary || !content || !category) {
       return res.status(400).json({ message: 'Tiêu đề, tóm tắt, nội dung và thể loại bài viết là bắt buộc' });
+    }
+
+    let validAuthorId: string | null = authorId || null;
+    if (validAuthorId) {
+      const u = await prisma.user.findUnique({ where: { id: String(validAuthorId) } });
+      if (!u) validAuthorId = null;
+    }
+    if (!validAuthorId) {
+      const admin = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
+      if (admin) validAuthorId = admin.id;
+    }
+
+    let validMovieId: string | null = movieId || null;
+    if (validMovieId) {
+      const m = await prisma.movie.findUnique({ where: { id: String(validMovieId) } });
+      if (!m) validMovieId = null;
     }
 
     const newBlog = await prisma.blog.create({
@@ -62,6 +78,8 @@ export const createBlog = async (req: Request, res: Response) => {
         content,
         category,
         author: author || 'Aeon Cine Editor',
+        authorId: validAuthorId,
+        movieId: validMovieId,
         publishDate: publishDate || new Date().toISOString().slice(0, 10),
         readingTime: readingTime || '5 phút đọc',
         imageUrl: imageUrl || null,
