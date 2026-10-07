@@ -114,14 +114,15 @@ model Room {
 }
 
 model Seat {
-  id            String     @id @default(uuid())
-  name          String // e.g. A1, B2
-  typeId        String
-  seatTypeModel SeatType   @relation(fields: [typeId], references: [id])
-  roomId        String
-  room          Room       @relation(fields: [roomId], references: [id])
-  bookings      Ticket[]
-  seatHolds     SeatHold[]
+  id             String          @id @default(uuid())
+  name           String // e.g. A1, B2
+  typeId         String
+  seatTypeModel  SeatType        @relation(fields: [typeId], references: [id])
+  roomId         String
+  room           Room            @relation(fields: [roomId], references: [id])
+  bookings       Ticket[]
+  bookingDetails BookingDetail[]
+  seatHolds      SeatHold[]
 
   @@index([roomId])
   @@index([typeId])
@@ -155,20 +156,21 @@ model ScreenFormat {
 }
 
 model Showtime {
-  id           String        @id @default(uuid())
-  movieId      String
-  movie        Movie         @relation(fields: [movieId], references: [id])
-  roomId       String
-  room         Room          @relation(fields: [roomId], references: [id])
-  formatId     String?
-  screenFormat ScreenFormat? @relation(fields: [formatId], references: [id])
-  language     String        @default("SUB") // SUB, DUB
-  startTime    DateTime
-  endTime      DateTime
-  tickets      Ticket[]
-  seatHolds    SeatHold[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id             String          @id @default(uuid())
+  movieId        String
+  movie          Movie           @relation(fields: [movieId], references: [id])
+  roomId         String
+  room           Room            @relation(fields: [roomId], references: [id])
+  formatId       String?
+  screenFormat   ScreenFormat?   @relation(fields: [formatId], references: [id])
+  language       String          @default("SUB") // SUB, DUB
+  startTime      DateTime
+  endTime        DateTime
+  tickets        Ticket[]
+  bookingDetails BookingDetail[]
+  seatHolds      SeatHold[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 
   @@index([movieId, startTime])
   @@index([roomId, startTime])
@@ -189,23 +191,24 @@ model PaymentMethod {
 }
 
 model Booking {
-  id                 String         @id @default(uuid())
+  id                 String          @id @default(uuid())
   userId             String
-  user               User           @relation(fields: [userId], references: [id])
+  user               User            @relation(fields: [userId], references: [id])
   status             String // PENDING, COMPLETED, CANCELLED
   paymentMethodId    String?
-  paymentMethodModel PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
-  paymentStatus      String         @default("UNPAID") // UNPAID, PAID, FAILED
+  paymentMethodModel PaymentMethod?  @relation(fields: [paymentMethodId], references: [id])
+  paymentStatus      String          @default("UNPAID") // UNPAID, PAID, FAILED
   voucherId          String?
-  voucher            Voucher?       @relation(fields: [voucherId], references: [id], onDelete: SetNull)
-  discountAmount     Float          @default(0)
-  ticketCode         String?        @unique
+  voucher            Voucher?        @relation(fields: [voucherId], references: [id], onDelete: SetNull)
+  discountAmount     Float           @default(0)
+  ticketCode         String?         @unique
   qrCodeUrl          String?
   total              Float
   tickets            Ticket[]
+  bookingDetails     BookingDetail[]
   foodItems          BookingFood[]
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
 
   @@index([userId])
   @@index([voucherId])
@@ -214,19 +217,44 @@ model Booking {
   @@index([createdAt])
 }
 
-model Ticket {
+// Bảng Chi Tiết Đơn Đặt Vé (BookingDetail - Bổ sung theo chuẩn học thuật UTE & GVHD)
+model BookingDetail {
   id            String       @id @default(uuid())
   bookingId     String
-  booking       Booking      @relation(fields: [bookingId], references: [id])
+  booking       Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   showtimeId    String
-  showtime      Showtime     @relation(fields: [showtimeId], references: [id])
+  showtime      Showtime     @relation(fields: [showtimeId], references: [id], onDelete: Cascade)
   seatId        String
-  seat          Seat         @relation(fields: [seatId], references: [id])
+  seat          Seat         @relation(fields: [seatId], references: [id], onDelete: Cascade)
   ticketPriceId String?
   priceConfig   PriceConfig? @relation(fields: [ticketPriceId], references: [id], onDelete: SetNull)
   price         Float
+  ticket        Ticket?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
+
+  @@index([bookingId])
+  @@index([showtimeId])
+  @@index([seatId])
+  @@index([ticketPriceId])
+  @@map("BookingDetail")
+}
+
+model Ticket {
+  id              String         @id @default(uuid())
+  bookingId       String
+  booking         Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  bookingDetailId String?        @unique
+  bookingDetail   BookingDetail? @relation(fields: [bookingDetailId], references: [id], onDelete: Cascade)
+  showtimeId      String
+  showtime        Showtime       @relation(fields: [showtimeId], references: [id], onDelete: Cascade)
+  seatId          String
+  seat            Seat           @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  ticketPriceId   String?
+  priceConfig     PriceConfig?   @relation(fields: [ticketPriceId], references: [id], onDelete: SetNull)
+  price           Float
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   @@index([showtimeId])
   @@index([bookingId])
@@ -317,16 +345,17 @@ model SeatHold {
 
 // Bảng Giá Vé (Được đổi từ PriceConfig thành TicketPrice theo chuẩn học thuật)
 model PriceConfig {
-  id           String        @id @default(uuid())
-  seatTypeId   String?
-  seatType     SeatType?     @relation(fields: [seatTypeId], references: [id], onDelete: Cascade)
-  formatId     String?
-  screenFormat ScreenFormat? @relation(fields: [formatId], references: [id], onDelete: Cascade)
-  isWeekend    Boolean       @default(false)
-  price        Float
-  tickets      Ticket[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id             String          @id @default(uuid())
+  seatTypeId     String?
+  seatType       SeatType?       @relation(fields: [seatTypeId], references: [id], onDelete: Cascade)
+  formatId       String?
+  screenFormat   ScreenFormat?   @relation(fields: [formatId], references: [id], onDelete: Cascade)
+  isWeekend      Boolean         @default(false)
+  price          Float
+  tickets        Ticket[]
+  bookingDetails BookingDetail[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 
   @@index([seatTypeId])
   @@index([formatId])

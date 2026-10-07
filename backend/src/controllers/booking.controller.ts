@@ -152,6 +152,7 @@ export const createBooking = async (req: Request, res: Response) => {
         })
       );
       await tx.ticket.createMany({ data: ticketsData });
+      await tx.bookingDetail.createMany({ data: ticketsData });
 
       // Create Service Items if selected
       if (foodItems && Array.isArray(foodItems) && foodItems.length > 0) {

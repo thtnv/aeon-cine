@@ -38,7 +38,7 @@ async function batchInsert(client, tableName, columns, rows, batchSize = 400) {
 
 async function syncDatabases() {
   console.log('========================================================================');
-  console.log('🚀 BẮT ĐẦU ĐỒNG BỘ TOÀN DIỆN CHUẨN HÓA 26 BẢNG (3NF): aeon_cinema_db ➔ aeon_cinema_db_vi');
+  console.log('🚀 BẮT ĐẦU ĐỒNG BỘ TOÀN DIỆN CHUẨN HÓA 27 BẢNG (3NF): aeon_cinema_db ➔ aeon_cinema_db_vi');
   console.log('========================================================================\n');
 
   const sourceClient = new Client(sourceConfig);
@@ -58,6 +58,7 @@ async function syncDatabases() {
         "PhimTheLoai",
         "PhimDienVien",
         "VeXemPhim",
+        "ChiTietDonDatVe",
         "KhoaGiuGheTamThoi",
         "ChiTietDichVuDonHang",
         "DonDatVe",
@@ -417,11 +418,28 @@ async function syncDatabases() {
     await batchInsert(targetClient, 'BangGiaVe', ['maBangGia', 'maLoaiGhe', 'maDinhDang', 'laCuoiTuan', 'giaVe', 'ngayTao', 'ngayCapNhat'], priceRows);
     console.log(`✓ Đã đồng bộ ${priceRows.length} cấu hình bảng giá vé.\n`);
 
-    // --- 20. Ticket ➔ VeXemPhim ---
-    console.log('⏳ [20/26] Đang đồng bộ Ticket ➔ VeXemPhim...');
+    // --- 20. BookingDetail ➔ ChiTietDonDatVe ---
+    console.log('⏳ [20/27] Đang đồng bộ BookingDetail ➔ ChiTietDonDatVe...');
+    const details = (await sourceClient.query('SELECT * FROM "BookingDetail"')).rows;
+    const detailRows = details.map(d => ({
+      maChiTietDonHang: d.id,
+      maDonHang: d.bookingId,
+      maSuatChieu: d.showtimeId,
+      maGhe: d.seatId,
+      maBangGia: d.ticketPriceId || null,
+      giaVe: d.price,
+      ngayTao: d.createdAt,
+      ngayCapNhat: d.updatedAt
+    }));
+    await batchInsert(targetClient, 'ChiTietDonDatVe', ['maChiTietDonHang', 'maDonHang', 'maSuatChieu', 'maGhe', 'maBangGia', 'giaVe', 'ngayTao', 'ngayCapNhat'], detailRows);
+    console.log(`✓ Đã đồng bộ ${detailRows.length} chi tiết đơn đặt vé.\n`);
+
+    // --- 21. Ticket ➔ VeXemPhim ---
+    console.log('⏳ [21/27] Đang đồng bộ Ticket ➔ VeXemPhim...');
     const tickets = (await sourceClient.query('SELECT * FROM "Ticket"')).rows;
     const ticketRows = tickets.map(t => ({
       maVe: t.id,
+      maChiTietDonHang: t.bookingDetailId || t.id,
       maDonHang: t.bookingId,
       maSuatChieu: t.showtimeId,
       maGhe: t.seatId,
@@ -430,7 +448,7 @@ async function syncDatabases() {
       ngayTao: t.createdAt,
       ngayCapNhat: t.updatedAt
     }));
-    await batchInsert(targetClient, 'VeXemPhim', ['maVe', 'maDonHang', 'maSuatChieu', 'maGhe', 'maBangGia', 'giaVe', 'ngayTao', 'ngayCapNhat'], ticketRows);
+    await batchInsert(targetClient, 'VeXemPhim', ['maVe', 'maChiTietDonHang', 'maDonHang', 'maSuatChieu', 'maGhe', 'maBangGia', 'giaVe', 'ngayTao', 'ngayCapNhat'], ticketRows);
     console.log(`✓ Đã đồng bộ ${ticketRows.length} vé xem phim.\n`);
 
     // --- 21. Service ➔ DichVu ---
@@ -569,6 +587,7 @@ async function syncDatabases() {
       { src: 'Promotion', tgt: 'ChuongTrinhKhuyenMai', desc: 'Chương trình khuyến mãi' },
       { src: 'Voucher', tgt: 'MaGiamGia', desc: 'Mã giảm giá (Voucher)' },
       { src: 'Booking', tgt: 'DonDatVe', desc: 'Đơn đặt vé / Hóa đơn' },
+      { src: 'BookingDetail', tgt: 'ChiTietDonDatVe', desc: 'Chi tiết đơn đặt vé (Theo chuẩn học thuật UTE)' },
       { src: 'TicketPrice', tgt: 'BangGiaVe', desc: 'Cấu hình bảng giá vé' },
       { src: 'Ticket', tgt: 'VeXemPhim', desc: 'Chi tiết vé xem phim' },
       { src: 'Service', tgt: 'DichVu', desc: 'Dịch vụ rạp / Bắp nước (Đổi tên theo GVHD)' },
