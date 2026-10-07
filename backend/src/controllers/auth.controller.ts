@@ -32,18 +32,27 @@ export const register = async (req: Request, res: Response) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const defaultRole = await prisma.role.findUnique({ where: { code: 'USER' } });
+    const defaultLevel = await prisma.membershipLevel.findUnique({ where: { code: 'STAR' } });
+
     const user = await prisma.user.create({
       data: {
         email: emailNormalized,
         password: hashedPassword,
         name: name.trim(),
-        phone: phone ? phone.trim() : null
+        phone: phone ? phone.trim() : null,
+        roleId: defaultRole?.id || null,
+        membershipLevelId: defaultLevel?.id || null
       },
+      include: {
+        roleDetail: true,
+        membership: true
+      }
     });
 
     res.status(201).json({ 
       message: 'Đăng ký tài khoản thành công!', 
-      user: { id: user.id, email: user.email, name: user.name, role: user.role } 
+      user: { id: user.id, email: user.email, name: user.name, role: user.roleDetail?.code || 'USER' } 
     });
   } catch (error) {
     res.status(500).json({ message: 'Lỗi tạo tài khoản', error });
@@ -58,7 +67,13 @@ export const login = async (req: Request, res: Response) => {
     }
 
     const emailNormalized = email.trim().toLowerCase();
-    const user = await prisma.user.findUnique({ where: { email: emailNormalized } });
+    const user = await prisma.user.findUnique({ 
+      where: { email: emailNormalized },
+      include: {
+        roleDetail: true,
+        membership: true
+      }
+    });
     if (!user) {
       return res.status(401).json({ message: 'Email hoặc mật khẩu không chính xác' });
     }
@@ -68,8 +83,11 @@ export const login = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'Email hoặc mật khẩu không chính xác' });
     }
 
+    const roleName = user.roleDetail?.code || 'USER';
+    const membershipName = user.membership?.code || 'STAR';
+
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email, role: roleName },
       process.env.JWT_SECRET || 'secret_key',
       { expiresIn: '1d' }
     );
@@ -81,11 +99,11 @@ export const login = async (req: Request, res: Response) => {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role,
+        role: roleName,
         avatar: user.avatar,
         phone: user.phone,
         rewardPoints: user.rewardPoints,
-        membershipLevel: user.membershipLevel
+        membershipLevel: membershipName
       }
     });
   } catch (error) {

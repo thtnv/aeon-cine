@@ -10,15 +10,25 @@ export interface AuthRequest extends Request {
 export const getUsers = async (req: Request, res: Response) => {
   try {
     const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
-      }
+      include: {
+        roleDetail: true,
+        membership: true
+      },
+      orderBy: { createdAt: 'desc' }
     });
-    res.json(users);
+
+    const result = users.map(u => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      role: u.roleDetail?.code || 'USER',
+      roleId: u.roleId,
+      membershipLevel: u.membership?.code || 'STAR',
+      membershipLevelId: u.membershipLevelId,
+      createdAt: u.createdAt
+    }));
+
+    res.json(result);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch users' });
   }
@@ -101,18 +111,28 @@ export const updateUserRole = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Role không hợp lệ' });
     }
 
+    const roleRecord = await prisma.role.findUnique({ where: { code: role } });
+    if (!roleRecord) {
+      return res.status(400).json({ error: 'Role không tồn tại trong hệ thống' });
+    }
+
     const user = await prisma.user.update({
       where: { id },
-      data: { role },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
+      data: { roleId: roleRecord.id },
+      include: {
+        roleDetail: true,
+        membership: true
       }
     });
-    res.json(user);
+
+    res.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.roleDetail?.code || 'USER',
+      roleId: user.roleId,
+      createdAt: user.createdAt
+    });
   } catch (error) {
     res.status(500).json({ error: 'Failed to update user role' });
   }
@@ -125,18 +145,9 @@ export const getUserProfile = async (req: AuthRequest, res: Response) => {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        avatar: true,
-        phone: true,
-        birthDate: true,
-        gender: true,
-        rewardPoints: true,
-        membershipLevel: true,
-        createdAt: true,
+      include: {
+        roleDetail: true,
+        membership: true
       }
     });
 
@@ -144,7 +155,21 @@ export const getUserProfile = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json(user);
+    res.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.roleDetail?.code || 'USER',
+      roleId: user.roleId,
+      avatar: user.avatar,
+      phone: user.phone,
+      birthDate: user.birthDate,
+      gender: user.gender,
+      rewardPoints: user.rewardPoints,
+      membershipLevel: user.membership?.code || 'STAR',
+      membershipLevelId: user.membershipLevelId,
+      createdAt: user.createdAt
+    });
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch user profile', error });
   }
@@ -160,20 +185,26 @@ export const updateUserProfile = async (req: AuthRequest, res: Response) => {
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: { name, phone, birthDate, gender },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        birthDate: true,
-        gender: true,
-        rewardPoints: true,
-        membershipLevel: true,
-        createdAt: true,
+      include: {
+        roleDetail: true,
+        membership: true
       }
     });
 
-    res.json({ message: 'Cập nhật thông tin thành công', user: updatedUser });
+    const result = {
+      id: updatedUser.id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      role: updatedUser.roleDetail?.code || 'USER',
+      phone: updatedUser.phone,
+      birthDate: updatedUser.birthDate,
+      gender: updatedUser.gender,
+      rewardPoints: updatedUser.rewardPoints,
+      membershipLevel: updatedUser.membership?.code || 'STAR',
+      createdAt: updatedUser.createdAt
+    };
+
+    res.json({ message: 'Cập nhật thông tin thành công', user: result });
   } catch (error) {
     res.status(500).json({ message: 'Lỗi cập nhật thông tin cá nhân', error });
   }
@@ -209,7 +240,6 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
   }
 };
 
-
 export const addRewardPoints = async (req: Request, res: Response) => {
   try {
     const id = req.params.id as string;
@@ -219,7 +249,10 @@ export const addRewardPoints = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid total amount' });
     }
 
-    const user = await prisma.user.findUnique({ where: { id } });
+    const user = await prisma.user.findUnique({ 
+      where: { id },
+      include: { membership: true }
+    });
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     // Rule: 10,000 VNĐ = 1 Point
@@ -227,27 +260,34 @@ export const addRewardPoints = async (req: Request, res: Response) => {
     const newTotalPoints = user.rewardPoints + earnedPoints;
 
     // Membership Level logic: STAR (default), G-STAR (>= 100), X-STAR (>= 500)
-    let newMembershipLevel = user.membershipLevel;
+    let newLevelCode = 'STAR';
     if (newTotalPoints >= 500) {
-      newMembershipLevel = 'X-STAR';
+      newLevelCode = 'XSTAR';
     } else if (newTotalPoints >= 100) {
-      newMembershipLevel = 'G-STAR';
+      newLevelCode = 'GSTAR';
     }
+
+    const targetLevel = await prisma.membershipLevel.findUnique({ where: { code: newLevelCode } });
 
     const updatedUser = await prisma.user.update({
       where: { id },
       data: {
         rewardPoints: newTotalPoints,
-        membershipLevel: newMembershipLevel
+        ...(targetLevel ? { membershipLevelId: targetLevel.id } : {})
       },
-      select: {
-        id: true,
-        rewardPoints: true,
-        membershipLevel: true
+      include: {
+        roleDetail: true,
+        membership: true
       }
     });
 
-    res.json({ message: 'Points added successfully', earnedPoints, user: updatedUser });
+    const result = {
+      id: updatedUser.id,
+      rewardPoints: updatedUser.rewardPoints,
+      membershipLevel: updatedUser.membership?.code || newLevelCode
+    };
+
+    res.json({ message: 'Points added successfully', earnedPoints, user: result });
   } catch (error) {
     res.status(500).json({ message: 'Failed to add reward points', error });
   }

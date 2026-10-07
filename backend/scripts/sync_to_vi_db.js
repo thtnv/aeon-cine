@@ -38,7 +38,7 @@ async function batchInsert(client, tableName, columns, rows, batchSize = 400) {
 
 async function syncDatabases() {
   console.log('========================================================================');
-  console.log('🚀 BẮT ĐẦU ĐỒNG BỘ TOÀN DIỆN CHUẨN HÓA 26 BẢNG: aeon_cinema_db ➔ aeon_cinema_db_vi');
+  console.log('🚀 BẮT ĐẦU ĐỒNG BỘ TOÀN DIỆN CHUẨN HÓA 26 BẢNG (3NF): aeon_cinema_db ➔ aeon_cinema_db_vi');
   console.log('========================================================================\n');
 
   const sourceClient = new Client(sourceConfig);
@@ -50,106 +50,6 @@ async function syncDatabases() {
 
     await targetClient.connect();
     console.log('✓ Kết nối thành công Cơ sở dữ liệu đích: aeon_cinema_db_vi\n');
-
-    // 0. Tạo hoặc cập nhật cấu trúc các bảng mới trong aeon_cinema_db_vi
-    console.log('🏗️ Đang cấu trúc lại các bảng đích chuẩn hóa trong aeon_cinema_db_vi...');
-    
-    // Đổi tên bảng cũ sang tên mới nếu cần
-    await targetClient.query(`
-      DO $$
-      BEGIN
-        IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ComboBapNuoc') AND NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'DichVu') THEN
-          ALTER TABLE "ComboBapNuoc" RENAME TO "DichVu";
-        END IF;
-        IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ChiTietComboDonHang') AND NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ChiTietDichVuDonHang') THEN
-          ALTER TABLE "ChiTietComboDonHang" RENAME TO "ChiTietDichVuDonHang";
-        END IF;
-      END $$;
-    `);
-
-    // Tạo các bảng mới
-    await targetClient.query(`
-      CREATE TABLE IF NOT EXISTS "VaiTro" (
-        "maVaiTro" VARCHAR(36) PRIMARY KEY,
-        "maCode" VARCHAR(50) UNIQUE NOT NULL,
-        "tenVaiTro" VARCHAR(100) NOT NULL,
-        "moTa" TEXT,
-        "ngayTao" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        "ngayCapNhat" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-      );
-
-      CREATE TABLE IF NOT EXISTS "HangThanhVien" (
-        "maHangThanhVien" VARCHAR(36) PRIMARY KEY,
-        "maCode" VARCHAR(50) UNIQUE NOT NULL,
-        "tenHang" VARCHAR(100) NOT NULL,
-        "diemToiThieu" INT DEFAULT 0 NOT NULL,
-        "tiLeGiamGia" FLOAT DEFAULT 0 NOT NULL,
-        "moTa" TEXT,
-        "ngayTao" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        "ngayCapNhat" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-      );
-
-      CREATE TABLE IF NOT EXISTS "LoaiGhe" (
-        "maLoaiGhe" VARCHAR(36) PRIMARY KEY,
-        "maCode" VARCHAR(50) UNIQUE NOT NULL,
-        "tenLoaiGhe" VARCHAR(100) NOT NULL,
-        "phuThu" FLOAT DEFAULT 0 NOT NULL,
-        "moTa" TEXT,
-        "ngayTao" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        "ngayCapNhat" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-      );
-
-      CREATE TABLE IF NOT EXISTS "DinhDangChieu" (
-        "maDinhDang" VARCHAR(36) PRIMARY KEY,
-        "maCode" VARCHAR(50) UNIQUE NOT NULL,
-        "tenDinhDang" VARCHAR(100) NOT NULL,
-        "moTa" TEXT,
-        "ngayTao" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        "ngayCapNhat" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-      );
-
-      CREATE TABLE IF NOT EXISTS "PhuongThucThanhToan" (
-        "maPhuongThuc" VARCHAR(36) PRIMARY KEY,
-        "maCode" VARCHAR(50) UNIQUE NOT NULL,
-        "tenPhuongThuc" VARCHAR(100) NOT NULL,
-        "moTa" TEXT,
-        "ngayTao" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        "ngayCapNhat" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-      );
-
-      CREATE TABLE IF NOT EXISTS "DichVu" (
-        "maCombo" VARCHAR(36) PRIMARY KEY,
-        "tenCombo" VARCHAR(255) NOT NULL,
-        "moTa" TEXT,
-        "giaBan" FLOAT NOT NULL,
-        "duongDanHinhAnh" TEXT,
-        "trangThai" VARCHAR(20) DEFAULT 'ACTIVE' NOT NULL,
-        "ngayTao" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        "ngayCapNhat" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-      );
-
-      CREATE TABLE IF NOT EXISTS "ChiTietDichVuDonHang" (
-        "maChiTietCombo" VARCHAR(36) PRIMARY KEY,
-        "maDonHang" VARCHAR(36) NOT NULL REFERENCES "DonDatVe"("maDonHang") ON DELETE CASCADE,
-        "maCombo" VARCHAR(36) NOT NULL REFERENCES "DichVu"("maCombo") ON DELETE CASCADE,
-        "soLuong" INT NOT NULL,
-        "donGia" FLOAT NOT NULL,
-        "ngayTao" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        "ngayCapNhat" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-      );
-
-      ALTER TABLE "NguoiDung" ADD COLUMN IF NOT EXISTS "maVaiTro" VARCHAR(36);
-      ALTER TABLE "NguoiDung" ADD COLUMN IF NOT EXISTS "maHangThanhVien" VARCHAR(36);
-      ALTER TABLE "GheNgoi" ADD COLUMN IF NOT EXISTS "maLoaiGhe" VARCHAR(36);
-      ALTER TABLE "SuatChieu" ADD COLUMN IF NOT EXISTS "maDinhDang" VARCHAR(36);
-      ALTER TABLE "DonDatVe" ADD COLUMN IF NOT EXISTS "maPhuongThuc" VARCHAR(36);
-      ALTER TABLE "DonDatVe" ADD COLUMN IF NOT EXISTS "maVoucher" VARCHAR(36);
-      ALTER TABLE "VeXemPhim" ADD COLUMN IF NOT EXISTS "maBangGia" VARCHAR(36);
-      ALTER TABLE "MaGiamGia" ADD COLUMN IF NOT EXISTS "maKhuyenMai" VARCHAR(36);
-      ALTER TABLE "BaiVietTinTuc" ADD COLUMN IF NOT EXISTS "maTacGia" VARCHAR(36);
-      ALTER TABLE "BaiVietTinTuc" ADD COLUMN IF NOT EXISTS "maPhim" VARCHAR(36);
-      ALTER TABLE "DatVeNhom" ADD COLUMN IF NOT EXISTS "maCumRap" VARCHAR(36);
-    `);
 
     // 1. Dọn sạch dữ liệu cũ trong aeon_cinema_db_vi
     console.log('🧹 Đang làm sạch các bảng dữ liệu trong aeon_cinema_db_vi (TRUNCATE CASCADE)...');
@@ -219,7 +119,7 @@ async function syncDatabases() {
     await batchInsert(targetClient, 'HangThanhVien', ['maHangThanhVien', 'maCode', 'tenHang', 'diemToiThieu', 'tiLeGiamGia', 'moTa', 'ngayTao', 'ngayCapNhat'], mlRows);
     console.log(`✓ Đã đồng bộ ${mlRows.length} hạng thành viên.\n`);
 
-    // --- 3. User ➔ NguoiDung ---
+    // --- 3. User ➔ NguoiDung (Strict 3NF: maVaiTro, maHangThanhVien) ---
     console.log('⏳ [3/26] Đang đồng bộ User ➔ NguoiDung...');
     const users = (await sourceClient.query('SELECT * FROM "User"')).rows;
     const userRows = users.map(u => ({
@@ -227,21 +127,19 @@ async function syncDatabases() {
       email: u.email,
       matKhau: u.password,
       hoTen: u.name,
-      vaiTro: u.role,
       maVaiTro: u.roleId || null,
       soDienThoai: u.phone,
       anhDaiDien: u.avatar,
       ngaySinh: u.birthDate,
       gioiTinh: u.gender,
       diemTichLuy: u.rewardPoints || 0,
-      hangThanhVien: u.membershipLevel || 'STAR',
       maHangThanhVien: u.membershipLevelId || null,
       ngayTao: u.createdAt,
       ngayCapNhat: u.updatedAt
     }));
     await batchInsert(targetClient, 'NguoiDung', [
-      'maNguoiDung', 'email', 'matKhau', 'hoTen', 'vaiTro', 'maVaiTro', 'soDienThoai',
-      'anhDaiDien', 'ngaySinh', 'gioiTinh', 'diemTichLuy', 'hangThanhVien', 'maHangThanhVien', 'ngayTao', 'ngayCapNhat'
+      'maNguoiDung', 'email', 'matKhau', 'hoTen', 'maVaiTro', 'soDienThoai',
+      'anhDaiDien', 'ngaySinh', 'gioiTinh', 'diemTichLuy', 'maHangThanhVien', 'ngayTao', 'ngayCapNhat'
     ], userRows);
     console.log(`✓ Đã đồng bộ ${userRows.length} tài khoản người dùng.\n`);
 
@@ -387,27 +285,25 @@ async function syncDatabases() {
     await batchInsert(targetClient, 'LoaiGhe', ['maLoaiGhe', 'maCode', 'tenLoaiGhe', 'phuThu', 'moTa', 'ngayTao', 'ngayCapNhat'], stRows);
     console.log(`✓ Đã đồng bộ ${stRows.length} loại ghế ngồi.\n`);
 
-    // --- 13. Seat ➔ GheNgoi ---
+    // --- 13. Seat ➔ GheNgoi (Strict 3NF: maLoaiGhe) ---
     console.log('⏳ [13/26] Đang đồng bộ Seat ➔ GheNgoi...');
     const seats = (await sourceClient.query('SELECT * FROM "Seat"')).rows;
     const seatRows = seats.map(s => ({
       maGhe: s.id,
       tenGhe: s.name,
-      loaiGhe: s.type,
-      maLoaiGhe: s.typeId || null,
+      maLoaiGhe: s.typeId,
       maPhongChieu: s.roomId
     }));
-    await batchInsert(targetClient, 'GheNgoi', ['maGhe', 'tenGhe', 'loaiGhe', 'maLoaiGhe', 'maPhongChieu'], seatRows, 500);
+    await batchInsert(targetClient, 'GheNgoi', ['maGhe', 'tenGhe', 'maLoaiGhe', 'maPhongChieu'], seatRows, 500);
     console.log(`✓ Đã đồng bộ ${seatRows.length} ghế ngồi.\n`);
 
-    // --- 14. Showtime ➔ SuatChieu ---
+    // --- 14. Showtime ➔ SuatChieu (Strict 3NF: maDinhDang) ---
     console.log('⏳ [14/26] Đang đồng bộ Showtime ➔ SuatChieu...');
     const showtimes = (await sourceClient.query('SELECT * FROM "Showtime"')).rows;
     const showtimeRows = showtimes.map(st => ({
       maSuatChieu: st.id,
       maPhim: st.movieId,
       maPhongChieu: st.roomId,
-      dinhDang: st.format || '2D',
       maDinhDang: st.formatId || null,
       ngonNgu: st.language || 'SUB',
       thoiGianBatDau: st.startTime,
@@ -416,7 +312,7 @@ async function syncDatabases() {
       ngayCapNhat: st.updatedAt
     }));
     await batchInsert(targetClient, 'SuatChieu', [
-      'maSuatChieu', 'maPhim', 'maPhongChieu', 'dinhDang', 'maDinhDang', 'ngonNgu',
+      'maSuatChieu', 'maPhim', 'maPhongChieu', 'maDinhDang', 'ngonNgu',
       'thoiGianBatDau', 'thoiGianKetThuc', 'ngayTao', 'ngayCapNhat'
     ], showtimeRows, 400);
     console.log(`✓ Đã đồng bộ ${showtimeRows.length} suất chiếu.\n`);
@@ -483,14 +379,13 @@ async function syncDatabases() {
     ], voucherRows);
     console.log(`✓ Đã đồng bộ ${voucherRows.length} mã giảm giá.\n`);
 
-    // --- 18. Booking ➔ DonDatVe ---
+    // --- 18. Booking ➔ DonDatVe (Strict 3NF: maPhuongThuc) ---
     console.log('⏳ [18/26] Đang đồng bộ Booking ➔ DonDatVe...');
     const bookings = (await sourceClient.query('SELECT * FROM "Booking"')).rows;
     const bookingRows = bookings.map(b => ({
       maDonHang: b.id,
       maNguoiDung: b.userId,
       trangThaiDonHang: b.status,
-      phuongThucThanhToan: b.paymentMethod,
       maPhuongThuc: b.paymentMethodId || null,
       trangThaiThanhToan: b.paymentStatus || 'UNPAID',
       maVoucher: b.voucherId || null,
@@ -502,24 +397,24 @@ async function syncDatabases() {
       ngayCapNhat: b.updatedAt
     }));
     await batchInsert(targetClient, 'DonDatVe', [
-      'maDonHang', 'maNguoiDung', 'trangThaiDonHang', 'phuongThucThanhToan', 'maPhuongThuc', 'trangThaiThanhToan',
+      'maDonHang', 'maNguoiDung', 'trangThaiDonHang', 'maPhuongThuc', 'trangThaiThanhToan',
       'maVoucher', 'soTienGiamGia', 'maVeDienTu', 'duongDanMaQR', 'tongTien', 'ngayTao', 'ngayCapNhat'
     ], bookingRows);
     console.log(`✓ Đã đồng bộ ${bookingRows.length} đơn đặt vé.\n`);
 
-    // --- 19. TicketPrice ➔ BangGiaVe ---
+    // --- 19. TicketPrice ➔ BangGiaVe (Strict 3NF: maLoaiGhe, maDinhDang) ---
     console.log('⏳ [19/26] Đang đồng bộ TicketPrice ➔ BangGiaVe...');
     const prices = (await sourceClient.query('SELECT * FROM "TicketPrice"')).rows;
     const priceRows = prices.map(p => ({
       maBangGia: p.id,
-      loaiGhe: p.seatType,
-      dinhDang: p.format || '2D',
+      maLoaiGhe: p.seatTypeId || null,
+      maDinhDang: p.formatId || null,
       laCuoiTuan: p.isWeekend || false,
       giaVe: p.price,
       ngayTao: p.createdAt,
       ngayCapNhat: p.updatedAt
     }));
-    await batchInsert(targetClient, 'BangGiaVe', ['maBangGia', 'loaiGhe', 'dinhDang', 'laCuoiTuan', 'giaVe', 'ngayTao', 'ngayCapNhat'], priceRows);
+    await batchInsert(targetClient, 'BangGiaVe', ['maBangGia', 'maLoaiGhe', 'maDinhDang', 'laCuoiTuan', 'giaVe', 'ngayTao', 'ngayCapNhat'], priceRows);
     console.log(`✓ Đã đồng bộ ${priceRows.length} cấu hình bảng giá vé.\n`);
 
     // --- 20. Ticket ➔ VeXemPhim ---
@@ -530,7 +425,7 @@ async function syncDatabases() {
       maDonHang: t.bookingId,
       maSuatChieu: t.showtimeId,
       maGhe: t.seatId,
-      maBangGia: t.priceConfigId || null,
+      maBangGia: t.ticketPriceId || null,
       giaVe: t.price,
       ngayTao: t.createdAt,
       ngayCapNhat: t.updatedAt
@@ -539,11 +434,11 @@ async function syncDatabases() {
     console.log(`✓ Đã đồng bộ ${ticketRows.length} vé xem phim.\n`);
 
     // --- 21. Service ➔ DichVu ---
-    console.log('⏳ [21/26] Đang đồng bộ Service ➔ DichVu (Đổi từ Bắp Nước sang Dịch Vụ theo GVHD)...');
+    console.log('⏳ [21/26] Đang đồng bộ Service ➔ DichVu...');
     const services = (await sourceClient.query('SELECT * FROM "Service"')).rows;
     const serviceRows = services.map(s => ({
-      maCombo: s.id,
-      tenCombo: s.name,
+      maDichVu: s.id,
+      tenDichVu: s.name,
       moTa: s.description,
       giaBan: s.price,
       duongDanHinhAnh: s.imageUrl,
@@ -551,22 +446,22 @@ async function syncDatabases() {
       ngayTao: s.createdAt,
       ngayCapNhat: s.updatedAt
     }));
-    await batchInsert(targetClient, 'DichVu', ['maCombo', 'tenCombo', 'moTa', 'giaBan', 'duongDanHinhAnh', 'trangThai', 'ngayTao', 'ngayCapNhat'], serviceRows);
+    await batchInsert(targetClient, 'DichVu', ['maDichVu', 'tenDichVu', 'moTa', 'giaBan', 'duongDanHinhAnh', 'trangThai', 'ngayTao', 'ngayCapNhat'], serviceRows);
     console.log(`✓ Đã đồng bộ ${serviceRows.length} dịch vụ tiện ích / bắp nước.\n`);
 
-    // --- 22. BookingService ➔ ChiTietDichVuDonHang ---
+    // --- 22. BookingService ➔ ChiTietDichVuDonHang (Strict 3NF: maDichVu) ---
     console.log('⏳ [22/26] Đang đồng bộ BookingService ➔ ChiTietDichVuDonHang...');
     const bsList = (await sourceClient.query('SELECT * FROM "BookingService"')).rows;
     const bsRows = bsList.map(bs => ({
       maChiTietCombo: bs.id,
       maDonHang: bs.bookingId,
-      maCombo: bs.foodId,
+      maDichVu: bs.serviceId,
       soLuong: bs.quantity,
       donGia: bs.price,
       ngayTao: bs.createdAt,
       ngayCapNhat: bs.updatedAt
     }));
-    await batchInsert(targetClient, 'ChiTietDichVuDonHang', ['maChiTietCombo', 'maDonHang', 'maCombo', 'soLuong', 'donGia', 'ngayTao', 'ngayCapNhat'], bsRows);
+    await batchInsert(targetClient, 'ChiTietDichVuDonHang', ['maChiTietCombo', 'maDonHang', 'maDichVu', 'soLuong', 'donGia', 'ngayTao', 'ngayCapNhat'], bsRows);
     console.log(`✓ Đã đồng bộ ${bsRows.length} chi tiết dịch vụ theo đơn.\n`);
 
     // --- 23. Review ➔ DanhGiaBinhLuan ---
@@ -598,7 +493,7 @@ async function syncDatabases() {
     await batchInsert(targetClient, 'KhoaGiuGheTamThoi', ['maGiuGhe', 'maSuatChieu', 'maGhe', 'maNguoiDung', 'thoiGianHetHan', 'ngayTao'], shRows);
     console.log(`✓ Đã đồng bộ ${shRows.length} bản ghi giữ ghế tạm thời.\n`);
 
-    // --- 25. Article ➔ BaiVietTinTuc ---
+    // --- 25. Article ➔ BaiVietTinTuc (Strict 3NF: maTacGia) ---
     console.log('⏳ [25/26] Đang đồng bộ Article ➔ BaiVietTinTuc...');
     const articles = (await sourceClient.query('SELECT * FROM "Article"')).rows;
     const articleRows = articles.map(b => ({
@@ -607,7 +502,6 @@ async function syncDatabases() {
       tomTat: b.summary,
       noiDung: b.content,
       danhMuc: b.category,
-      tacGia: b.author || 'Aeon Cine Editor',
       maTacGia: b.authorId || null,
       maPhim: b.movieId || null,
       ngayDang: b.publishDate,
@@ -619,12 +513,12 @@ async function syncDatabases() {
       ngayCapNhat: b.updatedAt
     }));
     await batchInsert(targetClient, 'BaiVietTinTuc', [
-      'maBaiViet', 'tieuDe', 'tomTat', 'noiDung', 'danhMuc', 'tacGia',
+      'maBaiViet', 'tieuDe', 'tomTat', 'noiDung', 'danhMuc',
       'maTacGia', 'maPhim', 'ngayDang', 'thoiGianDoc', 'duongDanAnh', 'luotXem', 'trangThai', 'ngayTao', 'ngayCapNhat'
     ], articleRows);
     console.log(`✓ Đã đồng bộ ${articleRows.length} bài viết tin tức & blog điện ảnh.\n`);
 
-    // --- 26. GroupBooking ➔ DatVeNhom ---
+    // --- 26. GroupBooking ➔ DatVeNhom (Strict 3NF: maCumRap) ---
     console.log('⏳ [26/26] Đang đồng bộ GroupBooking ➔ DatVeNhom...');
     const groupBookings = (await sourceClient.query('SELECT * FROM "GroupBooking"')).rows;
     const groupBookingRows = groupBookings.map(gb => ({
@@ -634,7 +528,6 @@ async function syncDatabases() {
       email: gb.email,
       tenCongTy: gb.companyName,
       maCumRap: gb.cinemaId,
-      tenCumRap: gb.cinemaName,
       loaiDichVu: gb.serviceType,
       soLuongKhach: gb.expectedGuests,
       ngayDuKien: gb.expectedDate,
@@ -645,7 +538,7 @@ async function syncDatabases() {
     }));
     await batchInsert(targetClient, 'DatVeNhom', [
       'maDatVeNhom', 'hoTenLienHe', 'soDienThoai', 'email', 'tenCongTy',
-      'maCumRap', 'tenCumRap', 'loaiDichVu', 'soLuongKhach', 'ngayDuKien',
+      'maCumRap', 'loaiDichVu', 'soLuongKhach', 'ngayDuKien',
       'ghiChu', 'trangThai', 'ngayTao', 'ngayCapNhat'
     ], groupBookingRows);
     console.log(`✓ Đã đồng bộ ${groupBookingRows.length} yêu cầu đặt vé nhóm & sự kiện.\n`);
@@ -654,12 +547,12 @@ async function syncDatabases() {
     // 3. ĐỐI SOÁT & KIỂM TRA SỐ LƯỢNG BẢN GHI (VERIFICATION)
     // =========================================================================
     console.log('========================================================================');
-    console.log('🔍 BẢNG ĐỐI SOÁT CHI TIẾT SỐ LƯỢNG BẢN GHI GIỮA 2 DATABASE (26 BẢNG)');
+    console.log('🔍 BẢNG ĐỐI SOÁT CHI TIẾT SỐ LƯỢNG BẢN GHI GIỮA 2 DATABASE (26 BẢNG 3NF)');
     console.log('========================================================================');
 
     const tableMappings = [
-      { src: 'Role', tgt: 'VaiTro', desc: 'Bảng vai trò tài khoản (Tách chuẩn hóa)' },
-      { src: 'MembershipLevel', tgt: 'HangThanhVien', desc: 'Bảng hạng thành viên Star Club (Tách chuẩn hóa)' },
+      { src: 'Role', tgt: 'VaiTro', desc: 'Bảng vai trò tài khoản (Tách chuẩn hóa 3NF)' },
+      { src: 'MembershipLevel', tgt: 'HangThanhVien', desc: 'Bảng hạng thành viên Star Club (Tách chuẩn hóa 3NF)' },
       { src: 'User', tgt: 'NguoiDung', desc: 'Tài khoản người dùng & hội viên' },
       { src: 'Movie', tgt: 'Phim', desc: 'Danh mục phim điện ảnh' },
       { src: 'Genre', tgt: 'TheLoaiPhim', desc: 'Thể loại phim điện ảnh' },

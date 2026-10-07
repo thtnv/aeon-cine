@@ -43,12 +43,14 @@ export const createGroupBooking = async (req: Request, res: Response) => {
         email: email.trim(),
         companyName: companyName ? companyName.trim() : null,
         cinemaId: validCinemaId,
-        cinemaName: resolvedCinemaName,
         serviceType: serviceType || 'GROUP_TICKET',
         expectedGuests: Number(expectedGuests) || 20,
         expectedDate: expectedDate || null,
         notes: notes ? notes.trim() : null,
         status: 'PENDING'
+      },
+      include: {
+        cinema: true
       }
     });
 
@@ -58,7 +60,10 @@ export const createGroupBooking = async (req: Request, res: Response) => {
       success: true,
       refCode,
       message: `Gửi yêu cầu thành công! Mã hồ sơ của bạn là ${refCode}. Chuyên viên dịch vụ doanh nghiệp AEON CINE sẽ liên hệ bạn trong vòng 2 giờ làm việc.`,
-      data: newRequest
+      data: {
+        ...newRequest,
+        cinemaName: newRequest.cinema?.name || resolvedCinemaName || null
+      }
     });
   } catch (error: any) {
     console.error('Error creating group booking:', error);
@@ -70,9 +75,13 @@ export const createGroupBooking = async (req: Request, res: Response) => {
 export const getAllGroupBookings = async (req: Request, res: Response) => {
   try {
     const list = await prisma.groupBooking.findMany({
+      include: { cinema: true },
       orderBy: { createdAt: 'desc' }
     });
-    res.json(list);
+    res.json(list.map(item => ({
+      ...item,
+      cinemaName: item.cinema?.name || 'Chưa chọn rạp cụ thể'
+    })));
   } catch (error: any) {
     console.error('Error fetching group bookings:', error);
     res.status(500).json({ message: 'Lỗi khi tải danh sách đặt vé đoàn', error });
@@ -90,10 +99,17 @@ export const updateGroupBookingStatus = async (req: Request, res: Response) => {
       data: {
         ...(status ? { status } : {}),
         ...(notes !== undefined ? { notes } : {})
-      }
+      },
+      include: { cinema: true }
     });
 
-    res.json({ success: true, data: updated });
+    res.json({
+      success: true,
+      data: {
+        ...updated,
+        cinemaName: updated.cinema?.name || 'Chưa chọn rạp cụ thể'
+      }
+    });
   } catch (error: any) {
     console.error('Error updating group booking:', error);
     res.status(500).json({ message: 'Lỗi khi cập nhật yêu cầu đặt vé đoàn', error });

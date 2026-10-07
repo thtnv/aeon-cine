@@ -12,7 +12,6 @@ model User {
   email             String           @unique
   password          String
   name              String
-  role              RoleEnum         @default(USER)
   roleId            String?
   roleDetail        Role?            @relation(fields: [roleId], references: [id])
   phone             String?
@@ -20,7 +19,6 @@ model User {
   birthDate         String?
   gender            String?
   rewardPoints      Int              @default(0)
-  membershipLevel   String           @default("STAR") // STAR, GSTAR, XSTAR
   membershipLevelId String?
   membership        MembershipLevel? @relation(fields: [membershipLevelId], references: [id])
   createdAt         DateTime         @default(now())
@@ -32,13 +30,6 @@ model User {
 
   @@index([roleId])
   @@index([membershipLevelId])
-}
-
-enum RoleEnum {
-  USER
-  ADMIN
-  STAFF
-  ACCOUNTANT
 }
 
 model Role {
@@ -123,13 +114,12 @@ model Room {
 }
 
 model Seat {
-  id            String       @id @default(uuid())
+  id            String     @id @default(uuid())
   name          String // e.g. A1, B2
-  type          SeatTypeEnum @default(STANDARD)
-  typeId        String?
-  seatTypeModel SeatType?    @relation(fields: [typeId], references: [id])
+  typeId        String
+  seatTypeModel SeatType   @relation(fields: [typeId], references: [id])
   roomId        String
-  room          Room         @relation(fields: [roomId], references: [id])
+  room          Room       @relation(fields: [roomId], references: [id])
   bookings      Ticket[]
   seatHolds     SeatHold[]
 
@@ -137,33 +127,29 @@ model Seat {
   @@index([typeId])
 }
 
-enum SeatTypeEnum {
-  STANDARD
-  VIP
-  SWEETBOX
-}
-
 model SeatType {
-  id          String   @id @default(uuid())
-  code        String   @unique // STANDARD, VIP, SWEETBOX
-  name        String // Ghế Thường Tiêu Chuẩn, Ghế VIP Cao Cấp, Ghế Đôi Sweetbox
-  surcharge   Float    @default(0)
-  description String?
-  seats       Seat[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String        @id @default(uuid())
+  code         String        @unique // STANDARD, VIP, SWEETBOX
+  name         String // Ghế Thường Tiêu Chuẩn, Ghế VIP Cao Cấp, Ghế Đôi Sweetbox
+  surcharge    Float         @default(0)
+  description  String?
+  seats        Seat[]
+  priceConfigs PriceConfig[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   @@map("SeatType")
 }
 
 model ScreenFormat {
-  id          String     @id @default(uuid())
-  code        String     @unique // 2D, 3D, IMAX
-  name        String // Chuẩn 2D Digital, Kính 3D Thực Tế Sâu, Đại Siêu Phóng IMAX Laser
-  description String?
-  showtimes   Showtime[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id           String        @id @default(uuid())
+  code         String        @unique // 2D, 3D, IMAX
+  name         String // Chuẩn 2D Digital, Kính 3D Thực Tế Sâu, Đại Siêu Phóng IMAX Laser
+  description  String?
+  showtimes    Showtime[]
+  priceConfigs PriceConfig[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   @@map("ScreenFormat")
 }
@@ -174,7 +160,6 @@ model Showtime {
   movie        Movie         @relation(fields: [movieId], references: [id])
   roomId       String
   room         Room          @relation(fields: [roomId], references: [id])
-  format       String        @default("2D") // 2D, 3D, IMAX
   formatId     String?
   screenFormat ScreenFormat? @relation(fields: [formatId], references: [id])
   language     String        @default("SUB") // SUB, DUB
@@ -188,7 +173,6 @@ model Showtime {
   @@index([movieId, startTime])
   @@index([roomId, startTime])
   @@index([startTime])
-  @@index([format])
   @@index([formatId])
 }
 
@@ -209,11 +193,9 @@ model Booking {
   userId             String
   user               User           @relation(fields: [userId], references: [id])
   status             String // PENDING, COMPLETED, CANCELLED
-  paymentMethod      String? // VNPAY, MOMO, CASH
   paymentMethodId    String?
   paymentMethodModel PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
   paymentStatus      String         @default("UNPAID") // UNPAID, PAID, FAILED
-  voucherCode        String?
   voucherId          String?
   voucher            Voucher?       @relation(fields: [voucherId], references: [id], onDelete: SetNull)
   discountAmount     Float          @default(0)
@@ -240,8 +222,8 @@ model Ticket {
   showtime      Showtime     @relation(fields: [showtimeId], references: [id])
   seatId        String
   seat          Seat         @relation(fields: [seatId], references: [id])
-  priceConfigId String?
-  priceConfig   PriceConfig? @relation(fields: [priceConfigId], references: [id], onDelete: SetNull)
+  ticketPriceId String?
+  priceConfig   PriceConfig? @relation(fields: [ticketPriceId], references: [id], onDelete: SetNull)
   price         Float
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
@@ -249,7 +231,7 @@ model Ticket {
   @@index([showtimeId])
   @@index([bookingId])
   @@index([seatId])
-  @@index([priceConfigId])
+  @@index([ticketPriceId])
 }
 
 // Bảng Dịch Vụ (Được đổi từ FoodCombo thành Service theo đúng yêu cầu GVHD)
@@ -272,8 +254,8 @@ model BookingFood {
   id        String    @id @default(uuid())
   bookingId String
   booking   Booking   @relation(fields: [bookingId], references: [id])
-  foodId    String
-  food      FoodCombo @relation(fields: [foodId], references: [id])
+  serviceId String
+  food      FoodCombo @relation(fields: [serviceId], references: [id])
   quantity  Int
   price     Float
   createdAt DateTime  @default(now())
@@ -335,15 +317,19 @@ model SeatHold {
 
 // Bảng Giá Vé (Được đổi từ PriceConfig thành TicketPrice theo chuẩn học thuật)
 model PriceConfig {
-  id        String       @id @default(uuid())
-  seatType  SeatTypeEnum
-  format    String // 2D, 3D, IMAX
-  isWeekend Boolean      @default(false)
-  price     Float
-  tickets   Ticket[]
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  id           String        @id @default(uuid())
+  seatTypeId   String?
+  seatType     SeatType?     @relation(fields: [seatTypeId], references: [id], onDelete: Cascade)
+  formatId     String?
+  screenFormat ScreenFormat? @relation(fields: [formatId], references: [id], onDelete: Cascade)
+  isWeekend    Boolean       @default(false)
+  price        Float
+  tickets      Ticket[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
+  @@index([seatTypeId])
+  @@index([formatId])
   @@map("TicketPrice")
 }
 
@@ -413,7 +399,6 @@ model Blog {
   summary     String
   content     String
   category    String // Review Phim, Tin Điện Ảnh, Phim Sắp Chiếu
-  author      String   @default("Aeon Cine Editor")
   authorId    String?
   authorUser  User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
   movieId     String?
@@ -439,7 +424,6 @@ model GroupBooking {
   companyName    String?
   cinemaId       String?
   cinema         Cinema?  @relation(fields: [cinemaId], references: [id], onDelete: SetNull)
-  cinemaName     String?
   serviceType    String // GROUP_TICKET, HALL_RENTAL, VOUCHER, EVENT
   expectedGuests Int
   expectedDate   String?

@@ -201,12 +201,14 @@ async function completeBookingAndSendEmail(bookingId: string, paymentMethodName:
   const ticketCode = booking.ticketCode || `GLX-${Math.floor(100000 + Math.random() * 900000)}`;
   const qrCodeDataUrl = await QRCode.toDataURL(JSON.stringify({ bookingId: booking.id, ticketCode }));
 
-  const updatedBooking = await prisma.booking.update({
+  const pm = await prisma.paymentMethod.findUnique({ where: { code: paymentMethodName.toUpperCase() } });
+
+  const updatedBooking: any = await prisma.booking.update({
     where: { id: bookingId },
     data: {
       status: 'COMPLETED',
       paymentStatus: 'PAID',
-      paymentMethod: paymentMethodName,
+      paymentMethodId: pm?.id || null,
       ticketCode,
       qrCodeUrl: qrCodeDataUrl
     },
@@ -255,9 +257,9 @@ async function completeBookingAndSendEmail(bookingId: string, paymentMethodName:
     const startTime = firstTicket?.showtime?.startTime 
       ? new Date(firstTicket.showtime.startTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) 
       : 'Suất chiếu đã chọn';
-    const seatsStr = updatedBooking.tickets.map(t => t.seat.name).join(', ') || 'Ghế đã chọn';
+    const seatsStr = updatedBooking.tickets.map((t: any) => t.seat.name).join(', ') || 'Ghế đã chọn';
     const foodStr = updatedBooking.foodItems && updatedBooking.foodItems.length > 0 
-      ? updatedBooking.foodItems.map(f => `${f.quantity}x ${f.food.name}`).join(', ') 
+      ? updatedBooking.foodItems.map((f: any) => `${f.quantity}x ${f.food.name}`).join(', ') 
       : undefined;
 
     sendTicketEmail({

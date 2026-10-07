@@ -18,6 +18,11 @@ export const holdSeats = async (req: Request, res: Response) => {
     // Resolve seat UUIDs from seat names or existing IDs
     const resolvedSeatIds: string[] = [];
     if (st && st.room && st.room.seats) {
+      const allSeatTypes = await prisma.seatType.findMany();
+      const standardType = allSeatTypes.find(t => t.code === 'STANDARD');
+      const vipType = allSeatTypes.find(t => t.code === 'VIP');
+      const sweetboxType = allSeatTypes.find(t => t.code === 'SWEETBOX');
+
       for (const sId of seatIds) {
         const found = st.room.seats.find(s => s.name.toUpperCase() === String(sId).toUpperCase() || s.id === sId);
         if (found) {
@@ -25,13 +30,14 @@ export const holdSeats = async (req: Request, res: Response) => {
         } else {
           // If seat does not exist in room yet, create it
           const row = String(sId).charAt(0).toUpperCase();
-          let seatType: any = 'STANDARD';
-          if (row === 'H') seatType = 'SWEETBOX';
-          else if (['C', 'D', 'E', 'F'].includes(row)) seatType = 'VIP';
+          let targetTypeId = standardType?.id || allSeatTypes[0]?.id;
+          if (row === 'H' && sweetboxType) targetTypeId = sweetboxType.id;
+          else if (['C', 'D', 'E', 'F'].includes(row) && vipType) targetTypeId = vipType.id;
+
           const newSeat = await prisma.seat.create({
             data: {
               name: String(sId).toUpperCase(),
-              type: seatType,
+              typeId: targetTypeId,
               roomId: st.roomId
             }
           });

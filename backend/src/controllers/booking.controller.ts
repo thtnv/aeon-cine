@@ -19,11 +19,15 @@ export const createBooking = async (req: Request, res: Response) => {
     // 1. Resolve Valid User ID & Kiểm soát nội bộ (Chỉ USER mới được phép đặt vé)
     let validUserId = userId;
     if (userId) {
-      const userExists = await prisma.user.findUnique({ where: { id: userId } });
+      const userExists = await prisma.user.findUnique({ 
+        where: { id: userId },
+        include: { roleDetail: true }
+      });
       if (userExists) {
-        if (userExists.role !== 'USER') {
+        const userRole = userExists.roleDetail?.code || 'USER';
+        if (userRole !== 'USER') {
           return res.status(403).json({
-            message: `Tài khoản nội bộ (${userExists.role}) không được phép đặt vé xem phim B2C nhằm tuân thủ quy định kiểm soát nội bộ rạp chiếu và chống xung đột lợi ích. Chỉ tài khoản Khách hàng (USER) mới có quyền đặt vé.`
+            message: `Tài khoản nội bộ (${userRole}) không được phép đặt vé xem phim B2C nhằm tuân thủ quy định kiểm soát nội bộ rạp chiếu và chống xung đột lợi ích. Chỉ tài khoản Khách hàng (USER) mới có quyền đặt vé.`
           });
         }
         validUserId = userExists.id;
@@ -40,21 +44,21 @@ export const createBooking = async (req: Request, res: Response) => {
     let validShowtimeId = showtimeId;
     let st = await prisma.showtime.findUnique({
       where: { id: showtimeId },
-      include: { room: { include: { seats: true } } }
+      include: { room: { include: { seats: { include: { seatTypeModel: true } } } } }
     });
 
     if (!st) {
       // Nếu showtimeId truyền vào là movieId
       const altSt = await prisma.showtime.findFirst({
         where: { movieId: showtimeId },
-        include: { room: { include: { seats: true } } }
+        include: { room: { include: { seats: { include: { seatTypeModel: true } } } } }
       });
       if (altSt) {
         st = altSt;
         validShowtimeId = altSt.id;
       } else {
         st = await prisma.showtime.findFirst({
-          include: { room: { include: { seats: true } } }
+          include: { room: { include: { seats: { include: { seatTypeModel: true } } } } }
         });
         if (st) validShowtimeId = st.id;
       }
@@ -73,13 +77,15 @@ export const createBooking = async (req: Request, res: Response) => {
         }
       }
 
+      const pmCode = (paymentMethod || 'VNPAY').toUpperCase();
+      const pm = await tx.paymentMethod.findUnique({ where: { code: pmCode } });
+
       const newBooking = await tx.booking.create({
         data: {
           userId: validUserId,
           status: paymentMethod === 'CASH' ? 'COMPLETED' : 'PENDING',
           paymentStatus: paymentMethod === 'CASH' ? 'PAID' : 'UNPAID',
-          paymentMethod: paymentMethod || 'VNPAY',
-          voucherCode: voucherCode || null,
+          paymentMethodId: pm?.id || null,
           voucherId: resolvedVoucherId,
           discountAmount: Number(discountAmount || 0),
           ticketCode,
@@ -100,26 +106,32 @@ export const createBooking = async (req: Request, res: Response) => {
 
       // Find price configurations to link to tickets
       const allPriceConfigs = await tx.priceConfig.findMany();
+      const allSeatTypes = await tx.seatType.findMany();
+      const standardType = allSeatTypes.find(t => t.code === 'STANDARD');
+      const vipType = allSeatTypes.find(t => t.code === 'VIP');
+      const sweetboxType = allSeatTypes.find(t => t.code === 'SWEETBOX');
 
       const ticketsData = await Promise.all(
         seatIds.map(async (sId: string) => {
           let resolvedSeatId = sId;
-          let seatTypeVal: any = 'STANDARD';
+          let seatTypeId = standardType?.id || allSeatTypes[0]?.id;
+
           if (st && st.room && st.room.seats) {
             const found = st.room.seats.find(s => s.name.toUpperCase() === sId.toUpperCase() || s.id === sId);
             if (found) {
               resolvedSeatId = found.id;
-              seatTypeVal = found.type;
+              seatTypeId = found.typeId;
             } else {
-              const row = sId.charAt(0);
-              let seatType: any = 'STANDARD';
-              if (row === 'H') seatType = 'SWEETBOX';
-              else if (['C', 'D', 'E', 'F'].includes(row)) seatType = 'VIP';
-              seatTypeVal = seatType;
+              const row = sId.charAt(0).toUpperCase();
+              let targetTypeId = standardType?.id || allSeatTypes[0]?.id;
+              if (row === 'H' && sweetboxType) targetTypeId = sweetboxType.id;
+              else if (['C', 'D', 'E', 'F'].includes(row) && vipType) targetTypeId = vipType.id;
+              seatTypeId = targetTypeId;
+
               const newSeat = await tx.seat.create({
                 data: {
                   name: sId.toUpperCase(),
-                  type: seatType,
+                  typeId: targetTypeId,
                   roomId: st.roomId
                 }
               });
@@ -127,29 +139,32 @@ export const createBooking = async (req: Request, res: Response) => {
             }
           }
 
-          const matchedPc = allPriceConfigs.find(pc => pc.seatType === seatTypeVal && pc.format === (st?.format || '2D'))
-                         || allPriceConfigs.find(pc => pc.seatType === seatTypeVal);
+          const matchedPc = allPriceConfigs.find(pc => pc.seatTypeId === seatTypeId && pc.formatId === st?.formatId)
+                         || allPriceConfigs.find(pc => pc.seatTypeId === seatTypeId);
 
           return {
             bookingId: newBooking.id,
             showtimeId: validShowtimeId,
             seatId: resolvedSeatId,
-            priceConfigId: matchedPc ? matchedPc.id : null,
+            ticketPriceId: matchedPc ? matchedPc.id : null,
             price: (total + (discountAmount || 0)) / seatIds.length
           };
         })
       );
       await tx.ticket.createMany({ data: ticketsData });
 
-      // Create Food Items if selected
+      // Create Service Items if selected
       if (foodItems && Array.isArray(foodItems) && foodItems.length > 0) {
-        const foodData = foodItems.map((f: { foodId: string; quantity: number; price: number }) => ({
+        const foodData = foodItems.map((f: { foodId?: string; serviceId?: string; quantity: number; price: number }) => ({
           bookingId: newBooking.id,
-          foodId: f.foodId,
+          serviceId: f.serviceId || f.foodId || '',
           quantity: Number(f.quantity),
           price: Number(f.price)
-        }));
-        await tx.bookingFood.createMany({ data: foodData });
+        })).filter(f => Boolean(f.serviceId));
+
+        if (foodData.length > 0) {
+          await tx.bookingFood.createMany({ data: foodData });
+        }
       }
 
       // If voucher used, increment usage count
@@ -172,21 +187,20 @@ export const createBooking = async (req: Request, res: Response) => {
       const user = await tx.user.findUnique({ where: { id: validUserId } });
       if (user) {
         const newTotalPoints = Math.max(0, user.rewardPoints - usedPointsCount) + earnedPoints;
-        let newMembershipLevel = user.membershipLevel;
-        
+        let newLevelCode = 'STAR';
         if (newTotalPoints >= 500) {
-          newMembershipLevel = 'X-STAR';
+          newLevelCode = 'XSTAR';
         } else if (newTotalPoints >= 100) {
-          newMembershipLevel = 'G-STAR';
-        } else {
-          newMembershipLevel = 'STAR';
+          newLevelCode = 'GSTAR';
         }
+
+        const targetLevel = await tx.membershipLevel.findUnique({ where: { code: newLevelCode } });
 
         await tx.user.update({
           where: { id: validUserId },
           data: {
             rewardPoints: newTotalPoints,
-            membershipLevel: newMembershipLevel
+            ...(targetLevel ? { membershipLevelId: targetLevel.id } : {})
           }
         });
       }
@@ -197,12 +211,25 @@ export const createBooking = async (req: Request, res: Response) => {
     const fullBooking = await prisma.booking.findUnique({
       where: { id: booking.id },
       include: {
-        tickets: { include: { showtime: { include: { movie: true, room: { include: { cinema: true } } } }, seat: true } },
-        foodItems: { include: { food: true } }
+        tickets: { 
+          include: { 
+            showtime: { include: { movie: true, room: { include: { cinema: true } } } }, 
+            seat: { include: { seatTypeModel: true } } 
+          } 
+        },
+        foodItems: { include: { food: true } },
+        paymentMethodModel: true,
+        voucher: { select: { code: true } }
       }
     });
 
-    res.status(201).json(fullBooking);
+    const formattedBooking = fullBooking ? {
+      ...fullBooking,
+      paymentMethod: fullBooking.paymentMethodModel?.code || 'VNPAY',
+      voucherCode: fullBooking.voucher?.code || null
+    } : null;
+
+    res.status(201).json(formattedBooking);
   } catch (error: any) {
     console.error('Error creating booking:', error);
     res.status(500).json({ message: 'Error creating booking', error: error?.message || error });
@@ -214,6 +241,8 @@ export const getAllBookings = async (req: Request, res: Response) => {
     const bookings = await prisma.booking.findMany({
       include: {
         user: { select: { id: true, name: true, email: true, phone: true } },
+        paymentMethodModel: true,
+        voucher: { select: { code: true } },
         tickets: { 
           include: { 
             showtime: { 
@@ -222,14 +251,19 @@ export const getAllBookings = async (req: Request, res: Response) => {
                 room: { include: { cinema: { select: { id: true, name: true } } } } 
               } 
             }, 
-            seat: true 
+            seat: { include: { seatTypeModel: true } } 
           } 
         },
         foodItems: { include: { food: true } }
       },
       orderBy: { createdAt: 'desc' }
     });
-    res.json(bookings);
+    const formatted = bookings.map(b => ({
+      ...b,
+      paymentMethod: b.paymentMethodModel?.code || 'VNPAY',
+      voucherCode: b.voucher?.code || null
+    }));
+    res.json(formatted);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching all bookings', error });
   }
@@ -241,12 +275,24 @@ export const getUserBookings = async (req: Request, res: Response) => {
     const bookings = await prisma.booking.findMany({
       where: { userId: String(userId) },
       include: {
-        tickets: { include: { showtime: { include: { movie: true, room: { include: { cinema: true } } } }, seat: true } },
+        paymentMethodModel: true,
+        voucher: { select: { code: true } },
+        tickets: { 
+          include: { 
+            showtime: { include: { movie: true, room: { include: { cinema: true } } } }, 
+            seat: { include: { seatTypeModel: true } } 
+          } 
+        },
         foodItems: { include: { food: true } }
       },
       orderBy: { createdAt: 'desc' }
     });
-    res.json(bookings);
+    const formatted = bookings.map(b => ({
+      ...b,
+      paymentMethod: b.paymentMethodModel?.code || 'VNPAY',
+      voucherCode: b.voucher?.code || null
+    }));
+    res.json(formatted);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching bookings', error });
   }
@@ -260,8 +306,8 @@ export const getBookingStats = async (req: Request, res: Response) => {
 
     const totalTickets = await prisma.ticket.count();
     const totalUsers = await prisma.user.count();
-    const totalCustomers = await prisma.user.count({ where: { role: 'USER' } });
-    const totalAdmins = await prisma.user.count({ where: { role: 'ADMIN' } });
+    const totalCustomers = await prisma.user.count({ where: { roleDetail: { code: 'USER' } } });
+    const totalAdmins = await prisma.user.count({ where: { roleDetail: { code: 'ADMIN' } } });
 
     const revenueResult = await prisma.booking.aggregate({
       _sum: { total: true },
@@ -290,17 +336,17 @@ export const getBookingStats = async (req: Request, res: Response) => {
       prisma.booking.aggregate({
         _count: true,
         _sum: { total: true },
-        where: { paymentStatus: 'PAID', paymentMethod: 'VNPAY' }
+        where: { paymentStatus: 'PAID', paymentMethodModel: { code: 'VNPAY' } }
       }),
       prisma.booking.aggregate({
         _count: true,
         _sum: { total: true },
-        where: { paymentStatus: 'PAID', paymentMethod: 'STRIPE' }
+        where: { paymentStatus: 'PAID', paymentMethodModel: { code: 'STRIPE' } }
       }),
       prisma.booking.aggregate({
         _count: true,
         _sum: { total: true },
-        where: { paymentStatus: 'PAID', paymentMethod: 'MOMO' }
+        where: { paymentStatus: 'PAID', paymentMethodModel: { code: 'MOMO' } }
       })
     ]);
 
@@ -322,7 +368,7 @@ export const getBookingStats = async (req: Request, res: Response) => {
 
     // Ticket type breakdown (Standard vs VIP/Sweetbox)
     const vipTickets = await prisma.ticket.count({
-      where: { seat: { type: { in: ['VIP', 'SWEETBOX'] } } }
+      where: { seat: { seatTypeModel: { code: { in: ['VIP', 'SWEETBOX'] } } } }
     });
     const standardTickets = totalTickets - vipTickets;
 
@@ -398,9 +444,9 @@ export const getBookingStats = async (req: Request, res: Response) => {
           total: totalBookings,
           paid: paidBookings,
           unpaid: unpaidBookings,
-          vnpay: { count: vnpayAgg._count || 0, amount: vnpayAgg._sum.total || 0 },
-          stripe: { count: stripeAgg._count || 0, amount: stripeAgg._sum.total || 0 },
-          momo: { count: momoAgg._count || 0, amount: momoAgg._sum.total || 0 }
+          vnpay: { count: vnpayAgg._count || 0, amount: vnpayAgg._sum?.total || 0 },
+          stripe: { count: stripeAgg._count || 0, amount: stripeAgg._sum?.total || 0 },
+          momo: { count: momoAgg._count || 0, amount: momoAgg._sum?.total || 0 }
         },
         tickets: {
           total: totalTickets,
@@ -486,16 +532,17 @@ export const refundBooking = async (req: Request, res: Response) => {
         const user = await tx.user.findUnique({ where: { id: booking.userId } });
         if (user) {
           const newPoints = user.rewardPoints + refundPoints;
-          let newLevel = user.membershipLevel;
-          if (newPoints >= 500) newLevel = 'X-STAR';
-          else if (newPoints >= 100) newLevel = 'G-STAR';
-          else newLevel = 'STAR';
+          let newLevelCode = 'STAR';
+          if (newPoints >= 500) newLevelCode = 'XSTAR';
+          else if (newPoints >= 100) newLevelCode = 'GSTAR';
+
+          const targetLevel = await tx.membershipLevel.findUnique({ where: { code: newLevelCode } });
 
           updatedUser = await tx.user.update({
             where: { id: booking.userId },
             data: {
               rewardPoints: newPoints,
-              membershipLevel: newLevel
+              ...(targetLevel ? { membershipLevelId: targetLevel.id } : {})
             }
           });
         }
@@ -516,4 +563,3 @@ export const refundBooking = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Lỗi khi xử lý hủy vé và hoàn tiền', error: error?.message || error });
   }
 };
-

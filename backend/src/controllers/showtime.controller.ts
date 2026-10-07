@@ -40,7 +40,14 @@ export const getShowtimesByMovie = async (req: Request, res: Response) => {
         id: true,
         movieId: true,
         roomId: true,
-        format: true,
+        formatId: true,
+        screenFormat: {
+          select: {
+            id: true,
+            code: true,
+            name: true
+          }
+        },
         language: true,
         startTime: true,
         endTime: true,
@@ -72,9 +79,14 @@ export const getShowtimesByMovie = async (req: Request, res: Response) => {
       orderBy: { startTime: 'asc' }
     });
 
-    apiCache.set(cacheKey, showtimes, 30);
+    const result = showtimes.map(st => ({
+      ...st,
+      format: st.screenFormat?.code || '2D'
+    }));
+
+    apiCache.set(cacheKey, result, 30);
     res.setHeader('Cache-Control', 'public, max-age=15, stale-while-revalidate=60');
-    res.json(showtimes);
+    res.json(result);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching showtimes', error });
   }
@@ -113,7 +125,14 @@ export const getAllShowtimes = async (req: Request, res: Response) => {
         id: true,
         movieId: true,
         roomId: true,
-        format: true,
+        formatId: true,
+        screenFormat: {
+          select: {
+            id: true,
+            code: true,
+            name: true
+          }
+        },
         language: true,
         startTime: true,
         endTime: true,
@@ -144,9 +163,14 @@ export const getAllShowtimes = async (req: Request, res: Response) => {
       orderBy: { startTime: 'asc' }
     });
 
-    apiCache.set(cacheKey, showtimes, 15);
+    const result = showtimes.map(st => ({
+      ...st,
+      format: st.screenFormat?.code || '2D'
+    }));
+
+    apiCache.set(cacheKey, result, 15);
     res.setHeader('Cache-Control', 'public, max-age=10, stale-while-revalidate=30');
-    res.json(showtimes);
+    res.json(result);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching all showtimes', error });
   }
@@ -155,27 +179,33 @@ export const getAllShowtimes = async (req: Request, res: Response) => {
 export const createShowtime = async (req: Request, res: Response) => {
   try {
     const { movieId, roomId, startTime, endTime, format, language } = req.body;
+    const formatCode = (format || '2D').toUpperCase();
+    const sf = await prisma.screenFormat.findUnique({ where: { code: formatCode } });
+
     const showtime = await prisma.showtime.create({
       data: {
         movieId,
         roomId,
-        format: format || '2D',
+        formatId: sf?.id || null,
         language: language || 'Phụ đề',
         startTime: new Date(startTime),
         endTime: new Date(endTime)
       },
       include: {
         movie: true,
-        room: { include: { cinema: true } }
+        room: { include: { cinema: true } },
+        screenFormat: true
       }
     });
     apiCache.clearPattern('showtimes_');
-    res.status(201).json(showtime);
+    res.status(201).json({
+      ...showtime,
+      format: showtime.screenFormat?.code || '2D'
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error creating showtime', error });
   }
 };
-
 
 export const updateShowtime = async (req: Request, res: Response) => {
   try {
@@ -191,15 +221,21 @@ export const updateShowtime = async (req: Request, res: Response) => {
     if (roomId) updateData.roomId = roomId;
     if (startTime) updateData.startTime = new Date(startTime);
     if (endTime) updateData.endTime = new Date(endTime);
-    if (format !== undefined) updateData.format = format;
     if (language !== undefined) updateData.language = language;
+
+    if (format !== undefined) {
+      const formatCode = String(format).toUpperCase();
+      const sf = await prisma.screenFormat.findUnique({ where: { code: formatCode } });
+      if (sf) updateData.formatId = sf.id;
+    }
 
     const showtime = await prisma.showtime.update({
       where: { id },
       data: updateData,
       include: {
         movie: true,
-        room: { include: { cinema: true } }
+        room: { include: { cinema: true } },
+        screenFormat: true
       }
     });
 
@@ -208,17 +244,24 @@ export const updateShowtime = async (req: Request, res: Response) => {
       const { Client } = require('pg');
       const clientVi = new Client({ connectionString: 'postgresql://postgres:123456@localhost:5432/aeon_cinema_db_vi' });
       await clientVi.connect();
-      await clientVi.query(
-        'UPDATE "SuatChieu" SET "dinhDang" = $1, "ngonNgu" = $2 WHERE "maSuatChieu" = $3',
-        [format || '2D', language || 'Phụ đề', id]
-      );
+      const formatVi = showtime.screenFormat?.code || '2D';
+      const viFormatRow = (await clientVi.query('SELECT "maDinhDang" FROM "DinhDangChieu" WHERE "maDinhDang" = $1', [formatVi])).rows[0];
+      if (viFormatRow) {
+        await clientVi.query(
+          'UPDATE "LichChieu" SET "maDinhDang" = $1, "ngonNgu" = $2 WHERE "maLichChieu" = $3',
+          [viFormatRow.maDinhDang, language || 'Phụ đề', id]
+        );
+      }
       await clientVi.end();
     } catch (viErr: any) {
       // bỏ qua nếu db phụ không bắt buộc
     }
 
     apiCache.clearPattern('showtimes_');
-    res.json(showtime);
+    res.json({
+      ...showtime,
+      format: showtime.screenFormat?.code || '2D'
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error updating showtime', error });
   }
@@ -269,9 +312,9 @@ export const deleteShowtime = async (req: Request, res: Response) => {
       const { Client } = require('pg');
       const clientVi = new Client({ connectionString: 'postgresql://postgres:123456@localhost:5432/aeon_cinema_db_vi' });
       await clientVi.connect();
-      await clientVi.query('DELETE FROM "VeXemPhim" WHERE "maSuatChieu" = $1', [id]);
-      await clientVi.query('DELETE FROM "KhoaGiuGheTamThoi" WHERE "maSuatChieu" = $1', [id]);
-      await clientVi.query('DELETE FROM "SuatChieu" WHERE "maSuatChieu" = $1', [id]);
+      await clientVi.query('DELETE FROM "Ve" WHERE "maLichChieu" = $1', [id]);
+      await clientVi.query('DELETE FROM "GiuGheTamThoi" WHERE "maLichChieu" = $1', [id]);
+      await clientVi.query('DELETE FROM "LichChieu" WHERE "maLichChieu" = $1', [id]);
       await clientVi.end();
     } catch (viErr: any) {
       console.warn('Could not sync showtime deletion to VI db:', viErr.message);

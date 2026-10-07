@@ -56,12 +56,12 @@ export const deleteFood = async (req: Request, res: Response) => {
     const { id } = req.params;
     const foodId = String(id);
 
-    // 1. Delete associated booking food items first
+    // 1. Delete associated booking service items first
     await prisma.bookingFood.deleteMany({
-      where: { foodId }
+      where: { serviceId: foodId }
     });
 
-    // 2. Delete FoodCombo
+    // 2. Delete Service (FoodCombo)
     await prisma.foodCombo.delete({
       where: { id: foodId }
     });
@@ -71,11 +71,11 @@ export const deleteFood = async (req: Request, res: Response) => {
       const { Client } = require('pg');
       const clientVi = new Client({ connectionString: 'postgresql://postgres:123456@localhost:5432/aeon_cinema_db_vi' });
       await clientVi.connect();
-      await clientVi.query('DELETE FROM "ChiTietComboDonHang" WHERE "maCombo" = $1', [foodId]);
-      await clientVi.query('DELETE FROM "ComboBapNuoc" WHERE "maCombo" = $1', [foodId]);
+      await clientVi.query('DELETE FROM "ChiTietDichVuDonHang" WHERE "maDichVu" = $1', [foodId]);
+      await clientVi.query('DELETE FROM "DichVu" WHERE "maDichVu" = $1', [foodId]);
       await clientVi.end();
     } catch (viErr: any) {
-      console.warn('Could not sync food combo deletion to VI db:', viErr.message);
+      console.warn('Could not sync service deletion to VI db:', viErr.message);
     }
 
     apiCache.del('all_food');

@@ -11,15 +11,30 @@ export const getPrices = async (req: Request, res: Response) => {
     }
 
     const prices = await prisma.priceConfig.findMany({
+      include: {
+        seatType: true,
+        screenFormat: true
+      },
       orderBy: [
-        { seatType: 'asc' },
         { isWeekend: 'asc' }
       ]
     });
 
-    apiCache.set('all_prices', prices, 600);
+    const result = prices.map(p => ({
+      id: p.id,
+      seatTypeId: p.seatTypeId,
+      seatType: p.seatType?.code || 'STANDARD',
+      formatId: p.formatId,
+      format: p.screenFormat?.code || '2D',
+      isWeekend: p.isWeekend,
+      price: p.price,
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt
+    }));
+
+    apiCache.set('all_prices', result, 600);
     res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
-    res.json(prices);
+    res.json(result);
   } catch (error) {
     console.error('Error fetching prices:', error);
     res.status(500).json({ message: 'Error fetching price configuration', error });
@@ -66,12 +81,20 @@ export const updatePrices = async (req: Request, res: Response) => {
       );
     }
 
+    const allSeatTypes = await prisma.seatType.findMany();
+    const allFormats = await prisma.screenFormat.findMany();
+    const seatTypeMap = new Map(allSeatTypes.map(st => [st.code, st.id]));
+    const formatMap = new Map(allFormats.map(sf => [sf.code, sf.id]));
+
     const updatedResults = [];
     for (const item of itemsToUpdate) {
+      const seatTypeId = seatTypeMap.get(item.seatType) || allSeatTypes[0]?.id;
+      const formatId = formatMap.get(item.format) || allFormats[0]?.id;
+
       const existing = await prisma.priceConfig.findFirst({
         where: {
-          seatType: item.seatType,
-          format: item.format,
+          seatTypeId,
+          formatId,
           isWeekend: item.isWeekend
         }
       });
@@ -84,7 +107,12 @@ export const updatePrices = async (req: Request, res: Response) => {
         updatedResults.push(u);
       } else {
         const c = await prisma.priceConfig.create({
-          data: item
+          data: {
+            seatTypeId,
+            formatId,
+            isWeekend: item.isWeekend,
+            price: item.price
+          }
         });
         updatedResults.push(c);
       }
@@ -99,7 +127,7 @@ export const updatePrices = async (req: Request, res: Response) => {
         await clientVi.query(`
           UPDATE "BangGiaVe"
           SET "giaVe" = $1, "ngayCapNhat" = NOW()
-          WHERE "loaiGhe" = $2 AND "dinhDang" = $3 AND "laCuoiTuan" = $4
+          WHERE "maLoaiGhe" = $2 AND "maDinhDang" = $3 AND "laCuoiTuan" = $4
         `, [item.price, item.seatType, item.format, item.isWeekend]);
       }
       await clientVi.end();
@@ -114,4 +142,3 @@ export const updatePrices = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Lỗi khi cập nhật giá vé', error });
   }
 };
-

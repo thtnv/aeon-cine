@@ -206,17 +206,22 @@ export const createRoomForCinema = async (req: Request, res: Response) => {
     });
 
     // Tự động tạo 80 ghế chuẩn A1-H10 (H: SWEETBOX, C-G: VIP, A-B: STANDARD)
+    const allSeatTypes = await prisma.seatType.findMany();
+    const standardType = allSeatTypes.find(t => t.code === 'STANDARD');
+    const vipType = allSeatTypes.find(t => t.code === 'VIP');
+    const sweetboxType = allSeatTypes.find(t => t.code === 'SWEETBOX');
+
     const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
     const seatsToCreate = [];
     for (const row of rows) {
-      let seatType: any = 'STANDARD';
-      if (row === 'H') seatType = 'SWEETBOX';
-      else if (['C', 'D', 'E', 'F', 'G'].includes(row)) seatType = 'VIP';
+      let targetTypeId = standardType?.id || allSeatTypes[0]?.id;
+      if (row === 'H' && sweetboxType) targetTypeId = sweetboxType.id;
+      else if (['C', 'D', 'E', 'F', 'G'].includes(row) && vipType) targetTypeId = vipType.id;
 
       for (let num = 1; num <= 10; num++) {
         seatsToCreate.push({
           name: `${row}${num}`,
-          type: seatType,
+          typeId: targetTypeId,
           roomId: room.id
         });
       }
