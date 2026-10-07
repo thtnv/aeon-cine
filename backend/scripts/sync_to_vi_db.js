@@ -57,7 +57,6 @@ async function syncDatabases() {
       TRUNCATE TABLE 
         "PhimTheLoai",
         "PhimDienVien",
-        "VeXemPhim",
         "ChiTietDonDatVe",
         "KhoaGiuGheTamThoi",
         "ChiTietDichVuDonHang",
@@ -419,7 +418,7 @@ async function syncDatabases() {
     console.log(`✓ Đã đồng bộ ${priceRows.length} cấu hình bảng giá vé.\n`);
 
     // --- 20. BookingDetail ➔ ChiTietDonDatVe ---
-    console.log('⏳ [20/27] Đang đồng bộ BookingDetail ➔ ChiTietDonDatVe...');
+    console.log('⏳ [20/26] Đang đồng bộ BookingDetail ➔ ChiTietDonDatVe (Hợp nhất vé xem phim 3NF)...');
     const details = (await sourceClient.query('SELECT * FROM "BookingDetail"')).rows;
     const detailRows = details.map(d => ({
       maChiTietDonHang: d.id,
@@ -428,28 +427,15 @@ async function syncDatabases() {
       maGhe: d.seatId,
       maBangGia: d.ticketPriceId || null,
       giaVe: d.price,
+      maVeDienTu: d.ticketCode || null,
+      trangThaiVe: d.status || 'VALID',
       ngayTao: d.createdAt,
       ngayCapNhat: d.updatedAt
     }));
-    await batchInsert(targetClient, 'ChiTietDonDatVe', ['maChiTietDonHang', 'maDonHang', 'maSuatChieu', 'maGhe', 'maBangGia', 'giaVe', 'ngayTao', 'ngayCapNhat'], detailRows);
-    console.log(`✓ Đã đồng bộ ${detailRows.length} chi tiết đơn đặt vé.\n`);
-
-    // --- 21. Ticket ➔ VeXemPhim ---
-    console.log('⏳ [21/27] Đang đồng bộ Ticket ➔ VeXemPhim...');
-    const tickets = (await sourceClient.query('SELECT * FROM "Ticket"')).rows;
-    const ticketRows = tickets.map(t => ({
-      maVe: t.id,
-      maChiTietDonHang: t.bookingDetailId || t.id,
-      maDonHang: t.bookingId,
-      maSuatChieu: t.showtimeId,
-      maGhe: t.seatId,
-      maBangGia: t.ticketPriceId || null,
-      giaVe: t.price,
-      ngayTao: t.createdAt,
-      ngayCapNhat: t.updatedAt
-    }));
-    await batchInsert(targetClient, 'VeXemPhim', ['maVe', 'maChiTietDonHang', 'maDonHang', 'maSuatChieu', 'maGhe', 'maBangGia', 'giaVe', 'ngayTao', 'ngayCapNhat'], ticketRows);
-    console.log(`✓ Đã đồng bộ ${ticketRows.length} vé xem phim.\n`);
+    await batchInsert(targetClient, 'ChiTietDonDatVe', [
+      'maChiTietDonHang', 'maDonHang', 'maSuatChieu', 'maGhe', 'maBangGia', 'giaVe', 'maVeDienTu', 'trangThaiVe', 'ngayTao', 'ngayCapNhat'
+    ], detailRows);
+    console.log(`✓ Đã đồng bộ ${detailRows.length} chi tiết đơn đặt vé (vé xem phim).\n`);
 
     // --- 21. Service ➔ DichVu ---
     console.log('⏳ [21/26] Đang đồng bộ Service ➔ DichVu...');
@@ -587,9 +573,8 @@ async function syncDatabases() {
       { src: 'Promotion', tgt: 'ChuongTrinhKhuyenMai', desc: 'Chương trình khuyến mãi' },
       { src: 'Voucher', tgt: 'MaGiamGia', desc: 'Mã giảm giá (Voucher)' },
       { src: 'Booking', tgt: 'DonDatVe', desc: 'Đơn đặt vé / Hóa đơn' },
-      { src: 'BookingDetail', tgt: 'ChiTietDonDatVe', desc: 'Chi tiết đơn đặt vé (Theo chuẩn học thuật UTE)' },
+      { src: 'BookingDetail', tgt: 'ChiTietDonDatVe', desc: 'Chi tiết đơn đặt vé & vé xem phim (Chuẩn UTE & Galaxy/CGV)' },
       { src: 'TicketPrice', tgt: 'BangGiaVe', desc: 'Cấu hình bảng giá vé' },
-      { src: 'Ticket', tgt: 'VeXemPhim', desc: 'Chi tiết vé xem phim' },
       { src: 'Service', tgt: 'DichVu', desc: 'Dịch vụ rạp / Bắp nước (Đổi tên theo GVHD)' },
       { src: 'BookingService', tgt: 'ChiTietDichVuDonHang', desc: 'Chi tiết dịch vụ theo đơn' },
       { src: 'Review', tgt: 'DanhGiaBinhLuan', desc: 'Đánh giá & Bình luận phim' },

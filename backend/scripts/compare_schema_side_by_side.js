@@ -23,7 +23,7 @@ const mapping = [
   { en: 'SeatType', vi: 'LoaiGhe' },
   { en: 'Service', vi: 'DichVu' },
   { en: 'Showtime', vi: 'SuatChieu' },
-  { en: 'Ticket', vi: 'VeXemPhim' },
+  { en: 'BookingDetail', vi: 'ChiTietDonDatVe' },
   { en: 'TicketPrice', vi: 'BangGiaVe' },
   { en: 'User', vi: 'NguoiDung' },
   { en: 'Voucher', vi: 'MaGiamGia' }

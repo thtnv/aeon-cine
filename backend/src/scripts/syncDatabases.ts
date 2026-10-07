@@ -37,7 +37,7 @@ export async function syncAll() {
     console.log('🧹 0. Làm sạch dữ liệu trên Supabase Cloud (TRUNCATE CASCADE)...');
     await supabasePrisma.$executeRawUnsafe(`
       TRUNCATE TABLE 
-        "Ticket", "BookingDetail", "BookingService", "SeatHold", "Review", 
+        "BookingDetail", "BookingService", "SeatHold", "Review", 
         "Booking", "Voucher", "Promotion", "Showtime", "Seat", "Room", 
         "Cinema", "ScreenFormat", "SeatType", "TicketPrice", "Service", 
         "Article", "GroupBooking", "MovieGenre", "MovieActor", "Movie", 
@@ -161,15 +161,10 @@ export async function syncAll() {
     await insertInChunks(supabasePrisma.bookingFood, bf);
     console.log(`✓ Synced ${bf.length} booking services`);
 
-    // 24. BookingDetail
-    const bds = await localPrisma.bookingDetail.findMany();
-    await insertInChunks(supabasePrisma.bookingDetail, bds);
-    console.log(`✓ Synced ${bds.length} booking details`);
-
-    // 25. Ticket
+    // 24. BookingDetail (Ticket - Chi Tiết Đơn Đặt Vé)
     const tickets = await localPrisma.ticket.findMany();
     await insertInChunks(supabasePrisma.ticket, tickets);
-    console.log(`✓ Synced ${tickets.length} tickets`);
+    console.log(`✓ Synced ${tickets.length} tickets (BookingDetail)`);
 
     // 26. Review
     const reviews = await localPrisma.review.findMany();

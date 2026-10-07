@@ -39,7 +39,6 @@ async function syncToSupabase() {
     console.log('🧹 0. Dọn dẹp dữ liệu cũ trên Supabase Cloud (TRUNCATE CASCADE)...');
     await supabasePrisma.$executeRawUnsafe(`
       TRUNCATE TABLE 
-        "Ticket",
         "BookingDetail",
         "BookingService",
         "SeatHold",
@@ -208,33 +207,27 @@ async function syncToSupabase() {
     await insertInChunks(supabasePrisma.bookingFood, bf);
     console.log(`✓ Đã nạp ${bf.length} booking services.`);
 
-    // 24. BookingDetail
-    console.log('📥 24. Đồng bộ BookingDetail (Chi Tiết Đơn Đặt Vé)...');
-    const bds = await localPrisma.bookingDetail.findMany();
-    await insertInChunks(supabasePrisma.bookingDetail, bds);
-    console.log(`✓ Đã nạp ${bds.length} booking details.`);
-
-    // 25. Ticket
-    console.log('📥 25. Đồng bộ Ticket (Vé Xem Phim)...');
+    // 24. BookingDetail (Ticket - Chi Tiết Đơn Đặt Vé)
+    console.log('📥 24. Đồng bộ BookingDetail (Chi Tiết Đơn Đặt Vé - 26 Bảng 3NF)...');
     const tickets = await localPrisma.ticket.findMany();
     await insertInChunks(supabasePrisma.ticket, tickets);
-    console.log(`✓ Đã nạp ${tickets.length} tickets.`);
+    console.log(`✓ Đã nạp ${tickets.length} booking details (tickets).`);
 
-    // 26. Review
-    console.log('📥 26. Đồng bộ Review (Đánh Giá Bình Luận)...');
+    // 25. Review
+    console.log('📥 25. Đồng bộ Review (Đánh Giá Bình Luận)...');
     const reviews = await localPrisma.review.findMany();
     await insertInChunks(supabasePrisma.review, reviews);
     console.log(`✓ Đã nạp ${reviews.length} reviews.`);
 
-    // 27. SeatHold
-    console.log('📥 27. Đồng bộ SeatHold (Khóa Giữ Ghế Tạm Thời)...');
+    // 26. SeatHold
+    console.log('📥 26. Đồng bộ SeatHold (Khóa Giữ Ghế Tạm Thời)...');
     const seatHolds = await localPrisma.seatHold.findMany();
     await insertInChunks(supabasePrisma.seatHold, seatHolds);
     console.log(`✓ Đã nạp ${seatHolds.length} seat holds.`);
 
     // BÁO CÁO ĐỐI SOÁT TOÀN DIỆN
     console.log('\n========================================================================');
-    console.log('📊 ĐỐI SOÁT KHỚP DỮ LIỆU GIỮA LOCAL VÀ SUPABASE CLOUD:');
+    console.log('📊 ĐỐI SOÁT KHỚP DỮ LIỆU GIỮA LOCAL VÀ SUPABASE CLOUD (26 BẢNG CHUẨN 3NF):');
     console.log('========================================================================');
 
     const models = [
@@ -258,8 +251,7 @@ async function syncToSupabase() {
       { key: 'voucher', name: 'Voucher (Mã Giảm Giá)' },
       { key: 'promotion', name: 'Promotion (Khuyến Mãi)' },
       { key: 'booking', name: 'Booking (Đơn Đặt Vé)' },
-      { key: 'bookingDetail', name: 'BookingDetail (Chi Tiết Đơn Đặt Vé)' },
-      { key: 'ticket', name: 'Ticket (Vé Xem Phim)' },
+      { key: 'ticket', name: 'BookingDetail (Chi Tiết Đơn Đặt Vé)' },
       { key: 'bookingFood', name: 'BookingService (Chi Tiết Dịch Vụ)' },
       { key: 'review', name: 'Review (Đánh Giá)' },
       { key: 'seatHold', name: 'SeatHold (Giữ Ghế Tạm)' },
