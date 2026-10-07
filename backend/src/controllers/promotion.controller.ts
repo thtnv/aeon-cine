@@ -50,7 +50,7 @@ export const getPromotionById = async (req: Request, res: Response) => {
 
 export const createPromotion = async (req: Request, res: Response) => {
   try {
-    const { title, desc, category, badge, code, validUntil, terms, coverUrl, iconType, status } = req.body;
+    const { title, desc, category, badge, code, validUntil, terms, coverUrl, status } = req.body;
     if (!title || !desc || !category || !validUntil || !terms) {
       return res.status(400).json({ message: 'Thiếu thông tin bắt buộc (tiêu đề, mô tả, danh mục, hạn dùng, thể lệ)' });
     }
@@ -65,7 +65,6 @@ export const createPromotion = async (req: Request, res: Response) => {
         validUntil,
         terms,
         coverUrl: coverUrl || null,
-        iconType: iconType || 'ticket',
         status: status || 'ACTIVE'
       }
     });
@@ -81,7 +80,7 @@ export const createPromotion = async (req: Request, res: Response) => {
 export const updatePromotion = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { title, desc, category, badge, code, validUntil, terms, coverUrl, iconType, status } = req.body;
+    const { title, desc, category, badge, code, validUntil, terms, coverUrl, status } = req.body;
 
     const updated = await prisma.promotion.update({
       where: { id: String(id) },
@@ -94,7 +93,6 @@ export const updatePromotion = async (req: Request, res: Response) => {
         ...(validUntil !== undefined ? { validUntil } : {}),
         ...(terms !== undefined ? { terms } : {}),
         ...(coverUrl !== undefined ? { coverUrl } : {}),
-        ...(iconType !== undefined ? { iconType } : {}),
         ...(status !== undefined ? { status } : {})
       }
     });

@@ -13,7 +13,6 @@ interface Promotion {
   validUntil: string;
   terms: string;
   coverUrl?: string;
-  iconType: string;
 }
 
 export default function Promotions() {

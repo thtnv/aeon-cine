@@ -16,7 +16,6 @@ const initialPromotions = [
 3. Không áp dụng cho suất chiếu đặc biệt, phim IMAX hoặc ngày Lễ/Tết.
 4. Tích điểm bình thường theo giá trị thanh toán thực tế.`,
     coverUrl: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=800&q=80',
-    iconType: 'ticket',
     status: 'ACTIVE'
   },
   {
@@ -31,7 +30,6 @@ const initialPromotions = [
 2. Vui lòng xuất trình Thẻ HSSV hoặc Căn cước công dân khi nhận vé tại quầy.
 3. Mỗi thẻ HSSV được mua 01 vé ưu đãi/ngày.`,
     coverUrl: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&q=80',
-    iconType: 'gift',
     status: 'ACTIVE'
   },
   {
@@ -46,7 +44,6 @@ const initialPromotions = [
 2. Áp dụng khi thanh toán bằng Ví ZaloPay hoặc QR VNPay trên ứng dụng/website Aeon Cine.
 3. Mỗi tài khoản được sử dụng tối đa 02 lần/tháng.`,
     coverUrl: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=800&q=80',
-    iconType: 'percent',
     status: 'ACTIVE'
   },
   {
@@ -61,7 +58,6 @@ const initialPromotions = [
 2. Tự động áp dụng tại bước chọn bắp nước khi đặt vé trực tuyến.
 3. Không có giá trị quy đổi thành tiền mặt.`,
     coverUrl: 'https://images.unsplash.com/photo-1572177191856-3cbde6181226?w=800&q=80',
-    iconType: 'credit',
     status: 'ACTIVE'
   }
 ];

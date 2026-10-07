@@ -13,7 +13,6 @@ interface Promotion {
   validUntil: string;
   terms: string;
   coverUrl?: string;
-  iconType: string;
   status: string;
 }
 
@@ -27,7 +26,6 @@ export default function PromotionManager() {
   const [validUntil, setValidUntil] = useState('31/12/2026');
   const [terms, setTerms] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
-  const [iconType, setIconType] = useState('ticket');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -115,7 +113,6 @@ export default function PromotionManager() {
     setValidUntil('31/12/2026');
     setTerms('');
     setCoverUrl('');
-    setIconType('ticket');
     setEditingId(null);
   };
 
@@ -133,7 +130,6 @@ export default function PromotionManager() {
       validUntil,
       terms,
       coverUrl: coverUrl.trim() || undefined,
-      iconType,
       status: 'ACTIVE'
     };
 
@@ -174,7 +170,6 @@ export default function PromotionManager() {
     setValidUntil(promo.validUntil || '31/12/2026');
     setTerms(promo.terms || '');
     setCoverUrl(promo.coverUrl || '');
-    setIconType(promo.iconType || 'ticket');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -264,7 +259,7 @@ export default function PromotionManager() {
           />
         </div>
 
-        <div className="grid md:grid-cols-4 gap-5">
+        <div className="grid md:grid-cols-3 gap-5">
           <div>
             <label className="block text-gray-300 text-xs font-semibold mb-2">Badge nhãn nổi bật</label>
             <input
@@ -342,19 +337,6 @@ export default function PromotionManager() {
               required
               className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-orange-500 text-sm transition-colors"
             />
-          </div>
-          <div>
-            <label className="block text-gray-300 text-xs font-semibold mb-2">Loại biểu tượng</label>
-            <select
-              value={iconType}
-              onChange={(e) => setIconType(e.target.value)}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-orange-500 text-sm transition-colors"
-            >
-              <option value="ticket">Vé xem phim (Ticket)</option>
-              <option value="gift">Hộp quà (Gift)</option>
-              <option value="percent">Phần trăm (Percent)</option>
-              <option value="credit">Thẻ thanh toán (Credit)</option>
-            </select>
           </div>
         </div>
 

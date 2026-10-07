@@ -344,14 +344,13 @@ async function syncDatabases() {
       hanSuDung: p.validUntil,
       dieuKhoan: p.terms,
       duongDanAnhBia: p.coverUrl,
-      loaiIcon: p.iconType || 'ticket',
       trangThai: p.status || 'ACTIVE',
       ngayTao: p.createdAt,
       ngayCapNhat: p.updatedAt
     }));
     await batchInsert(targetClient, 'ChuongTrinhKhuyenMai', [
       'maKhuyenMai', 'tieuDe', 'moTa', 'danhMuc', 'nhanNoiBat', 'maCode',
-      'hanSuDung', 'dieuKhoan', 'duongDanAnhBia', 'loaiIcon', 'trangThai', 'ngayTao', 'ngayCapNhat'
+      'hanSuDung', 'dieuKhoan', 'duongDanAnhBia', 'trangThai', 'ngayTao', 'ngayCapNhat'
     ], promoRows);
     console.log(`✓ Đã đồng bộ ${promoRows.length} chương trình khuyến mãi.\n`);
 

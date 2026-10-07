@@ -12,7 +12,6 @@ const galaxyPromotions = [
     code: 'JCB30',
     validUntil: '30/11/2026',
     coverUrl: 'https://cdn.galaxycine.vn/media/2026/7/3/jcb-x-galaxy-cinema-2_1783062208257.jpg',
-    iconType: 'percent',
     terms: `Thể lệ chương trình:
 1. Ưu đãi 30% tối đa 100.000đ cho đơn hàng từ 200.000đ khi thanh toán bằng thẻ JCB hoặc Apple Pay liên kết thẻ JCB trên Payoo POS tại hệ thống rạp hoặc thanh toán trực tuyến qua website/ứng dụng.
 2. Áp dụng vào Thứ Bảy và Chủ Nhật hàng tuần đến hết 30/11/2026.
@@ -33,7 +32,6 @@ const galaxyPromotions = [
     code: 'GOANLAC',
     validUntil: '31/12/2026',
     coverUrl: 'https://cdn.galaxycine.vn/media/2026/9/25/galaxy-cineo-go-an-lac--3_1790312454231.jpg',
-    iconType: 'gift',
     terms: `Thể lệ chương trình:
 1. Địa điểm: TTTM GO! An Lạc, Số 1231 Khu phố 5, Quốc Lộ 1A, Phường An Lạc, Bình Tân, TP. HCM.
 2. Đối tượng: Khách hàng thành viên Galaxy Cinema có phát sinh giao dịch mua vé tại rạp.
@@ -56,7 +54,6 @@ const galaxyPromotions = [
     code: 'DANPHUONG',
     validUntil: '31/12/2026',
     coverUrl: 'https://cdn.galaxycine.vn/media/2026/8/24/1200_1787538968703.png',
-    iconType: 'ticket',
     terms: `Thể lệ chương trình:
 1. Địa điểm áp dụng: Rạp Galaxy CineO Vincom Đan Phượng, Hà Nội.
 2. Tặng 01 vé xem phim 2D miễn phí và 01 ly nước ngọt có ga cho khách hàng đăng ký thành viên mới tại rạp.
@@ -77,7 +74,6 @@ const galaxyPromotions = [
     code: 'SUMMER2026',
     validUntil: '31/10/2026',
     coverUrl: 'https://cdn.galaxycine.vn/media/2026/6/30/1200_1782802642595.jpg',
-    iconType: 'gift',
     terms: `Thể lệ chương trình:
 1. Áp dụng cho mọi giao dịch mua vé phim hè có giá trị từ 120.000 VNĐ trên hệ thống.
 2. Mỗi vé hợp lệ tương ứng với 01 mã quay số trúng thưởng may mắn.
@@ -102,7 +98,6 @@ const galaxyPromotions = [
     code: 'BAPCOM',
     validUntil: '31/12/2026',
     coverUrl: 'https://cdn.galaxycine.vn/media/2025/10/31/1200_1761896103954.jpg',
-    iconType: 'ticket',
     terms: `Thể lệ chương trình:
 1. Ra mắt hương vị Bắp Rang Vị Cốm Mùa Thu tại toàn bộ quầy Concession trên toàn quốc.
 2. Tặng kèm 01 Nước ngọt lớn khi nâng cấp lên Combo Bắp Cốm Khổng Lồ.
@@ -123,7 +118,6 @@ const galaxyPromotions = [
     code: 'SHOPEEPAY50',
     validUntil: '31/12/2026',
     coverUrl: 'https://cdn.galaxycine.vn/media/2026/8/30/shopee-x-galaxy-cinema-3_1788051844317.jpg',
-    iconType: 'percent',
     terms: `Thể lệ áp dụng:
 1. Giảm ngay 50.000 VNĐ cho đơn hàng từ 150.000 VNĐ khi chọn thanh toán bằng ShopeePay.
 2. Nhập mã voucher: SHOPEEPAY50 tại bước thanh toán vé.
@@ -144,7 +138,6 @@ const galaxyPromotions = [
     code: 'HAPPYDAY45K',
     validUntil: '31/12/2026',
     coverUrl: 'https://cdn.galaxycine.vn/media/2026/1/12/1200_1768184267400.jpg',
-    iconType: 'ticket',
     terms: `Thể lệ chương trình:
 1. Áp dụng vào ngày Thứ Ba hàng tuần cho tất cả các suất chiếu phim 2D tiêu chuẩn.
 2. Mức giá chi tiết:
@@ -168,7 +161,6 @@ const galaxyPromotions = [
     code: 'STAR2026',
     validUntil: '31/12/2026',
     coverUrl: 'https://cdn.galaxycine.vn/media/2025/1/22/bangqltv-digital-470x247-09_1737516474532.jpg',
-    iconType: 'gift',
     terms: `Thể lệ chương trình:
 1. Áp dụng cho mọi tài khoản thành viên Galaxy Cinema đã kích hoạt trong năm 2026.
 2. Đặc quyền các hạng thẻ:

@@ -389,7 +389,6 @@ model Promotion {
   validUntil String
   terms      String
   coverUrl   String?
-  iconType   String    @default("ticket")
   status     String    @default("ACTIVE")
   vouchers   Voucher[]
   createdAt  DateTime  @default(now())
