@@ -9,6 +9,7 @@
     "build": "tsc",
     "db:sync": "ts-node src/scripts/syncDatabases.ts",
     "db:sync-vi": "node scripts/sync_to_vi_db.js",
+    "db:sync-supabase": "node scripts/sync_to_supabase.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "prisma generate"
   },
