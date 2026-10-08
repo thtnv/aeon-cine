@@ -456,7 +456,7 @@ async function syncDatabases() {
     console.log('⏳ [22/26] Đang đồng bộ BookingService ➔ ChiTietDichVuDonHang...');
     const bsList = (await sourceClient.query('SELECT * FROM "BookingService"')).rows;
     const bsRows = bsList.map(bs => ({
-      maChiTietCombo: bs.id,
+      maChiTietDichVu: bs.id,
       maDonHang: bs.bookingId,
       maDichVu: bs.serviceId,
       soLuong: bs.quantity,
@@ -464,7 +464,7 @@ async function syncDatabases() {
       ngayTao: bs.createdAt,
       ngayCapNhat: bs.updatedAt
     }));
-    await batchInsert(targetClient, 'ChiTietDichVuDonHang', ['maChiTietCombo', 'maDonHang', 'maDichVu', 'soLuong', 'donGia', 'ngayTao', 'ngayCapNhat'], bsRows);
+    await batchInsert(targetClient, 'ChiTietDichVuDonHang', ['maChiTietDichVu', 'maDonHang', 'maDichVu', 'soLuong', 'donGia', 'ngayTao', 'ngayCapNhat'], bsRows);
     console.log(`✓ Đã đồng bộ ${bsRows.length} chi tiết dịch vụ theo đơn.\n`);
 
     // --- 23. Review ➔ DanhGiaBinhLuan ---
