@@ -32,29 +32,29 @@ export const getBlogById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     
-    // Tăng lượt xem và trả về bài viết
-    let blog = await prisma.blog.findUnique({
+    // Kiểm tra bài viết có tồn tại hay không
+    const exists = await prisma.blog.findUnique({
       where: { id: String(id) },
+      select: { id: true }
+    });
+
+    if (!exists) {
+      return res.status(404).json({ message: 'Không tìm thấy bài viết' });
+    }
+
+    // Tăng lượt xem trong CSDL và lấy thông tin chi tiết bài viết mới nhất
+    const updatedBlog = await prisma.blog.update({
+      where: { id: String(id) },
+      data: { views: { increment: 1 } },
       include: {
         authorUser: { select: { id: true, name: true } },
         movie: { select: { id: true, title: true } }
       }
     });
 
-    if (!blog) {
-      return res.status(404).json({ message: 'Không tìm thấy bài viết' });
-    }
-
-    try {
-      await prisma.blog.update({
-        where: { id: String(id) },
-        data: { views: { increment: 1 } }
-      });
-    } catch {}
-
     res.json({
-      ...blog,
-      author: blog.authorUser?.name || 'Ban Biên Tập Aeon Cine'
+      ...updatedBlog,
+      author: updatedBlog.authorUser?.name || 'Ban Biên Tập Aeon Cine'
     });
   } catch (error) {
     console.error('Error fetching blog details:', error);

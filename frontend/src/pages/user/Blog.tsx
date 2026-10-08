@@ -53,6 +53,34 @@ export default function Blog() {
         return cat === sel;
       });
 
+  const handleOpenArticle = async (article: Article) => {
+    // 1. Mở modal ngay lập tức để người dùng không phải chờ
+    setSelectedArticle(article);
+
+    // 2. Ghi nhận lượt xem và chống spam trùng lặp trong cùng phiên làm việc (Session Deduplication)
+    try {
+      const viewedKey = 'aeon_viewed_articles';
+      const raw = sessionStorage.getItem(viewedKey);
+      const viewedList: string[] = raw ? JSON.parse(raw) : [];
+
+      if (!viewedList.includes(article.id)) {
+        const res = await fetch(`${API_URL}/api/blogs/${article.id}`);
+        if (res.ok) {
+          const updated: Article = await res.json();
+          // Cập nhật lượt xem mới nhất trong Modal
+          setSelectedArticle(updated);
+          // Cập nhật lượt xem mới nhất trên thẻ Card ngoài danh sách
+          setArticles(prev => prev.map(a => a.id === article.id ? { ...a, views: updated.views } : a));
+          // Ghi nhớ bài viết đã đọc vào session
+          viewedList.push(article.id);
+          sessionStorage.setItem(viewedKey, JSON.stringify(viewedList));
+        }
+      }
+    } catch (err) {
+      console.error('Lỗi cập nhật lượt xem bài viết:', err);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -106,7 +134,7 @@ export default function Blog() {
             {filteredArticles.map(article => (
               <div
                 key={article.id}
-                onClick={() => setSelectedArticle(article)}
+                onClick={() => handleOpenArticle(article)}
                 className="bg-white dark:bg-[#1a1d24] border border-slate-200 dark:border-gray-800 rounded-3xl overflow-hidden shadow-md dark:shadow-xl hover:border-orange-500/50 transition-all hover:-translate-y-2 cursor-pointer group flex flex-col justify-between"
               >
                 <div>
