@@ -52,6 +52,20 @@ export const getBlogById = async (req: Request, res: Response) => {
       }
     });
 
+    // Đồng bộ tăng lượt xem sang aeon_cinema_db_vi (bảng BaiVietTinTuc)
+    try {
+      const { Client } = require('pg');
+      const clientVi = new Client({ connectionString: 'postgresql://postgres:123456@localhost:5432/aeon_cinema_db_vi' });
+      await clientVi.connect();
+      await clientVi.query(
+        'UPDATE "BaiVietTinTuc" SET "luotXem" = $1 WHERE "maBaiViet" = $2',
+        [updatedBlog.views, id]
+      );
+      await clientVi.end();
+    } catch (viErr) {
+      // bỏ qua nếu db phụ không bắt buộc
+    }
+
     res.json({
       ...updatedBlog,
       author: updatedBlog.authorUser?.name || 'Ban Biên Tập Aeon Cine'
@@ -138,7 +152,7 @@ export const updateBlog = async (req: Request, res: Response) => {
 
     res.json({
       ...updated,
-      author: updated.authorUser?.name || 'Aeon Cine Editor'
+      author: updated.authorUser?.name || 'Ban Biên Tập Aeon Cine'
     });
   } catch (error) {
     console.error('Error updating blog:', error);
