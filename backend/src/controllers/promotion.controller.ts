@@ -20,6 +20,18 @@ export const getPromotions = async (req: Request, res: Response) => {
 
     const promotions = await prisma.promotion.findMany({
       where,
+      include: {
+        vouchers: {
+          select: {
+            id: true,
+            code: true,
+            discountType: true,
+            discountValue: true,
+            minOrderValue: true,
+            status: true
+          }
+        }
+      },
       orderBy: { createdAt: 'desc' }
     });
 
@@ -36,7 +48,19 @@ export const getPromotionById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const promotion = await prisma.promotion.findUnique({
-      where: { id: String(id) }
+      where: { id: String(id) },
+      include: {
+        vouchers: {
+          select: {
+            id: true,
+            code: true,
+            discountType: true,
+            discountValue: true,
+            minOrderValue: true,
+            status: true
+          }
+        }
+      }
     });
     if (!promotion) {
       return res.status(404).json({ message: 'Không tìm thấy ưu đãi' });
@@ -50,7 +74,7 @@ export const getPromotionById = async (req: Request, res: Response) => {
 
 export const createPromotion = async (req: Request, res: Response) => {
   try {
-    const { title, desc, category, badge, code, validUntil, terms, coverUrl, status } = req.body;
+    const { title, desc, category, badge, validUntil, terms, coverUrl, status, voucherCode } = req.body;
     if (!title || !desc || !category || !validUntil || !terms) {
       return res.status(400).json({ message: 'Thiếu thông tin bắt buộc (tiêu đề, mô tả, danh mục, hạn dùng, thể lệ)' });
     }
@@ -61,13 +85,19 @@ export const createPromotion = async (req: Request, res: Response) => {
         desc,
         category,
         badge: badge || null,
-        code: code ? code.trim() : null,
         validUntil,
         terms,
         coverUrl: coverUrl || null,
         status: status || 'ACTIVE'
       }
     });
+
+    if (voucherCode && typeof voucherCode === 'string') {
+      await prisma.voucher.updateMany({
+        where: { code: voucherCode.trim().toUpperCase() },
+        data: { promotionId: newPromotion.id }
+      });
+    }
 
     apiCache.clearPattern('promotions_');
     res.status(201).json(newPromotion);
@@ -80,7 +110,7 @@ export const createPromotion = async (req: Request, res: Response) => {
 export const updatePromotion = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { title, desc, category, badge, code, validUntil, terms, coverUrl, status } = req.body;
+    const { title, desc, category, badge, validUntil, terms, coverUrl, status, voucherCode } = req.body;
 
     const updated = await prisma.promotion.update({
       where: { id: String(id) },
@@ -89,13 +119,21 @@ export const updatePromotion = async (req: Request, res: Response) => {
         ...(desc !== undefined ? { desc } : {}),
         ...(category !== undefined ? { category } : {}),
         ...(badge !== undefined ? { badge } : {}),
-        ...(code !== undefined ? { code: code ? code.trim() : null } : {}),
         ...(validUntil !== undefined ? { validUntil } : {}),
         ...(terms !== undefined ? { terms } : {}),
         ...(coverUrl !== undefined ? { coverUrl } : {}),
         ...(status !== undefined ? { status } : {})
       }
     });
+
+    if (voucherCode !== undefined) {
+      if (voucherCode && typeof voucherCode === 'string') {
+        await prisma.voucher.updateMany({
+          where: { code: voucherCode.trim().toUpperCase() },
+          data: { promotionId: String(id) }
+        });
+      }
+    }
 
     apiCache.clearPattern('promotions_');
     res.json(updated);

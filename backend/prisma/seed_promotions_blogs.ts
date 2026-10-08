@@ -8,7 +8,6 @@ const initialPromotions = [
     desc: 'Đồng giá 55.000 VNĐ cho tất cả thành viên Aeon Member vào mỗi thứ 3 hàng tuần.',
     category: 'MEMBER',
     badge: 'HOT',
-    code: 'HAPPYTUESDAY',
     validUntil: '31/12/2026',
     terms: `Thể lệ chương trình:
 1. Áp dụng cho mọi thành viên có tài khoản Aeon Member (STAR, G-STAR, X-STAR).
@@ -23,7 +22,6 @@ const initialPromotions = [
     desc: 'Vé xem phim 2D đồng giá 45.000 VNĐ dành cho HSSV và khán giả dưới 22 tuổi.',
     category: 'STUDENT',
     badge: 'ƯU ĐÃI KHỦNG',
-    code: 'STUDENT45K',
     validUntil: '31/12/2026',
     terms: `Thể lệ chương trình:
 1. Áp dụng từ Thứ 2 đến Thứ 6 hàng tuần cho suất chiếu trước 17:00.
@@ -37,7 +35,6 @@ const initialPromotions = [
     desc: 'Nhập mã ZALOPAY20 hoặc VNPAYCINE để nhận ngay chiết khấu 20% cho tổng hóa đơn đặt vé.',
     category: 'PARTNER',
     badge: 'CỔNG THANH TOÁN',
-    code: 'ZALOPAY20',
     validUntil: '30/11/2026',
     terms: `Thể lệ áp dụng:
 1. Giảm tối đa 30.000 VNĐ cho đơn hàng từ 100.000 VNĐ.
@@ -51,7 +48,6 @@ const initialPromotions = [
     desc: 'Tặng ngay 01 Nước ngọt lớn khi mua Combo Bắp Nước bất kỳ cho vé xem phim cuối tuần.',
     category: 'MEMBER',
     badge: 'CONCESSION',
-    code: 'COMBOBONUS',
     validUntil: '15/10/2026',
     terms: `Thể lệ chương trình:
 1. Dành riêng cho thành viên từ hạng G-STAR trở lên.

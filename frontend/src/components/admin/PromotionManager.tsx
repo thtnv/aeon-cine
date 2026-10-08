@@ -9,7 +9,7 @@ interface Promotion {
   desc: string;
   category: string;
   badge?: string;
-  code?: string;
+  vouchers?: { id: string; code: string }[];
   validUntil: string;
   terms: string;
   coverUrl?: string;
@@ -126,7 +126,7 @@ export default function PromotionManager() {
       desc,
       category,
       badge: badge.trim() || undefined,
-      code: code.trim().toUpperCase() || undefined,
+      voucherCode: code.trim().toUpperCase() || undefined,
       validUntil,
       terms,
       coverUrl: coverUrl.trim() || undefined,
@@ -166,7 +166,8 @@ export default function PromotionManager() {
     setDesc(promo.desc || '');
     setCategory(promo.category || 'MEMBER');
     setBadge(promo.badge || '');
-    setCode(promo.code || '');
+    const linkedCode = promo.vouchers?.[0]?.code || '';
+    setCode(linkedCode);
     setValidUntil(promo.validUntil || '31/12/2026');
     setTerms(promo.terms || '');
     setCoverUrl(promo.coverUrl || '');
@@ -397,9 +398,9 @@ export default function PromotionManager() {
                 </div>
                 <h3 className="font-black text-slate-900 dark:text-white text-base mb-1 group-hover:text-orange-500 transition-colors">{promo.title}</h3>
                 <p className="text-slate-600 dark:text-gray-400 text-xs line-clamp-2 mb-3">{promo.desc}</p>
-                {promo.code && (
+                {promo.vouchers?.[0]?.code && (
                   <span className="bg-orange-500/10 border border-orange-500/30 text-orange-600 dark:text-orange-400 font-mono font-bold text-xs px-2.5 py-1 rounded-lg inline-block">
-                    MÃ: {promo.code}
+                    MÃ: {promo.vouchers[0].code}
                   </span>
                 )}
               </div>

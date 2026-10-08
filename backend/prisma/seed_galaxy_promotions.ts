@@ -181,54 +181,58 @@ async function main() {
   console.log('🚀 Đang thêm 8 tin Khuyến mãi từ Galaxy Cinema vào Database...');
 
   for (const item of galaxyPromotions) {
-    const { voucher, ...promoData } = item;
+    const { voucher, code, ...promoData } = item;
 
     // Check if promotion already exists by title
     const existingPromo = await prisma.promotion.findFirst({
       where: { title: promoData.title }
     });
 
+    let promoId: string;
     if (existingPromo) {
       await prisma.promotion.update({
         where: { id: existingPromo.id },
         data: promoData
       });
+      promoId = existingPromo.id;
       console.log(`✅ Cập nhật Khuyến mãi: ${promoData.title}`);
     } else {
-      await prisma.promotion.create({
+      const created = await prisma.promotion.create({
         data: promoData
       });
+      promoId = created.id;
       console.log(`✨ Thêm mới Khuyến mãi: ${promoData.title}`);
     }
 
-    // Add / Update matching Voucher so users can use the code at checkout!
-    if (promoData.code && voucher) {
+    // Add / Update matching Voucher linked to Promotion!
+    if (code && voucher) {
       const existingVoucher = await prisma.voucher.findUnique({
-        where: { code: promoData.code }
+        where: { code }
       });
 
       const voucherPayload = {
-        code: promoData.code,
+        code,
         discountType: voucher.discountType,
         discountValue: voucher.discountValue,
         minOrderValue: voucher.minOrderValue,
         startDate: new Date(),
         endDate: new Date('2026-12-31T23:59:59.000Z'),
         usageLimit: voucher.usageLimit,
+        promotionId: promoId,
         status: 'ACTIVE'
       };
 
       if (existingVoucher) {
         await prisma.voucher.update({
-          where: { code: promoData.code },
+          where: { code },
           data: voucherPayload
         });
-        console.log(`   🎟️ Cập nhật Voucher: ${promoData.code}`);
+        console.log(`   🎟️ Cập nhật Voucher: ${code} (gắn với Promotion ${promoId})`);
       } else {
         await prisma.voucher.create({
           data: voucherPayload
         });
-        console.log(`   🎟️ Tạo mới Voucher: ${promoData.code}`);
+        console.log(`   🎟️ Tạo mới Voucher: ${code} (gắn với Promotion ${promoId})`);
       }
     }
   }

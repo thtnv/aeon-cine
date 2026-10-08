@@ -385,7 +385,6 @@ model Promotion {
   desc       String
   category   String // MEMBER, PARTNER, STUDENT, etc.
   badge      String?
-  code       String?
   validUntil String
   terms      String
   coverUrl   String?

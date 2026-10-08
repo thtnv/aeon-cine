@@ -340,7 +340,6 @@ async function syncDatabases() {
       moTa: p.desc,
       danhMuc: p.category,
       nhanNoiBat: p.badge,
-      maCode: p.code,
       hanSuDung: p.validUntil,
       dieuKhoan: p.terms,
       duongDanAnhBia: p.coverUrl,
@@ -349,7 +348,7 @@ async function syncDatabases() {
       ngayCapNhat: p.updatedAt
     }));
     await batchInsert(targetClient, 'ChuongTrinhKhuyenMai', [
-      'maKhuyenMai', 'tieuDe', 'moTa', 'danhMuc', 'nhanNoiBat', 'maCode',
+      'maKhuyenMai', 'tieuDe', 'moTa', 'danhMuc', 'nhanNoiBat',
       'hanSuDung', 'dieuKhoan', 'duongDanAnhBia', 'trangThai', 'ngayTao', 'ngayCapNhat'
     ], promoRows);
     console.log(`✓ Đã đồng bộ ${promoRows.length} chương trình khuyến mãi.\n`);

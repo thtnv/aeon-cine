@@ -71,10 +71,6 @@ export const createVoucher = async (req: Request, res: Response) => {
       const p = await prisma.promotion.findUnique({ where: { id: String(validPromotionId) } });
       if (!p) validPromotionId = null;
     }
-    if (!validPromotionId && code) {
-      const p = await prisma.promotion.findFirst({ where: { code: String(code).trim() } });
-      if (p) validPromotionId = p.id;
-    }
 
     const voucher = await prisma.voucher.create({
       data: {

@@ -9,7 +9,7 @@ interface Promotion {
   desc: string;
   category: string;
   badge?: string;
-  code?: string;
+  vouchers?: { id: string; code: string }[];
   validUntil: string;
   terms: string;
   coverUrl?: string;
@@ -237,12 +237,12 @@ export default function Promotions() {
                         : 'Ưu đãi tự động áp dụng trực tiếp khi chọn suất chiếu hoặc đăng nhập tài khoản thành viên.'}
                     </p>
                   </div>
-                  {selectedPromo.category === 'PARTNER' && selectedPromo.code && (
+                  {selectedPromo.vouchers?.[0]?.code && (
                     <button
-                      onClick={() => handleCopy(selectedPromo.code || '')}
+                      onClick={() => handleCopy(selectedPromo.vouchers![0].code)}
                       className="cinema-btn-glass text-xs font-semibold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shrink-0"
                     >
-                      {copiedCode === selectedPromo.code ? (
+                      {copiedCode === selectedPromo.vouchers[0].code ? (
                         <>
                           <Check size={14} className="text-emerald-400" />
                           <span className="text-emerald-400 font-mono font-bold">Đã chép</span>
@@ -250,7 +250,7 @@ export default function Promotions() {
                       ) : (
                         <>
                           <Copy size={14} />
-                          <span className="font-mono font-bold text-amber-300">{selectedPromo.code}</span>
+                          <span className="font-mono font-bold text-amber-300">{selectedPromo.vouchers[0].code}</span>
                         </>
                       )}
                     </button>
