@@ -404,6 +404,7 @@ export const getBookingStats = async (req: Request, res: Response) => {
     // Top movies
     const movies = await prisma.movie.findMany({
       include: {
+        movieGenres: { include: { genre: true } },
         showtimes: {
           include: {
             tickets: true
@@ -421,7 +422,7 @@ export const getBookingStats = async (req: Request, res: Response) => {
         id: m.id,
         title: m.title,
         posterUrl: m.posterUrl,
-        genre: m.genre,
+        genre: m.movieGenres?.map(mg => mg.genre.name).join(', ') || 'Đang cập nhật',
         ticketsSold,
         estimatedRevenue: ticketsSold * 95000
       };

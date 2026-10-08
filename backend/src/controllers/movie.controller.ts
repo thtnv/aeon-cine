@@ -11,12 +11,22 @@ export const getAllMovies = async (req: Request, res: Response) => {
     }
 
     const movies = await prisma.movie.findMany({
+      include: {
+        movieGenres: { include: { genre: true } },
+        movieActors: { include: { actor: true } }
+      },
       orderBy: { createdAt: 'desc' }
     });
 
-    apiCache.set('all_movies', movies, 180);
+    const formattedMovies = movies.map(m => ({
+      ...m,
+      genre: m.movieGenres?.map(mg => mg.genre?.name).filter(Boolean).join(', ') || 'Đang cập nhật',
+      actors: m.movieActors?.map(ma => ma.characterName ? `${ma.actor?.name} (${ma.characterName})` : ma.actor?.name).filter(Boolean).join(', ') || 'Đang cập nhật'
+    }));
+
+    apiCache.set('all_movies', formattedMovies, 180);
     res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
-    res.json(movies);
+    res.json(formattedMovies);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching movies', error });
   }
@@ -25,9 +35,22 @@ export const getAllMovies = async (req: Request, res: Response) => {
 export const getMovieById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const movie = await prisma.movie.findUnique({ where: { id: id as string } });
+    const movie = await prisma.movie.findUnique({
+      where: { id: id as string },
+      include: {
+        movieGenres: { include: { genre: true } },
+        movieActors: { include: { actor: true } }
+      }
+    });
     if (!movie) return res.status(404).json({ message: 'Movie not found' });
-    res.json(movie);
+
+    const formattedMovie = {
+      ...movie,
+      genre: movie.movieGenres?.map(mg => mg.genre?.name).filter(Boolean).join(', ') || 'Đang cập nhật',
+      actors: movie.movieActors?.map(ma => ma.characterName ? `${ma.actor?.name} (${ma.characterName})` : ma.actor?.name).filter(Boolean).join(', ') || 'Đang cập nhật'
+    };
+
+    res.json(formattedMovie);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching movie', error });
   }
@@ -35,7 +58,7 @@ export const getMovieById = async (req: Request, res: Response) => {
 
 async function syncMovieGenresAndActors(movieId: string, genreString?: string, actorString?: string) {
   try {
-    if (genreString) {
+    if (genreString !== undefined) {
       await prisma.movieGenre.deleteMany({ where: { movieId } });
       const genreNames = genreString.split(',').map(g => g.trim()).filter(Boolean);
       for (const name of genreNames) {
@@ -48,16 +71,20 @@ async function syncMovieGenresAndActors(movieId: string, genreString?: string, a
         }).catch(() => {});
       }
     }
-    if (actorString) {
+    if (actorString !== undefined) {
       await prisma.movieActor.deleteMany({ where: { movieId } });
-      const actorNames = actorString.split(',').map(a => a.trim().replace(/\s*\([^)]*\)/, '')).filter(Boolean);
-      for (const name of actorNames) {
+      const actorItems = actorString.split(',').map(a => a.trim()).filter(Boolean);
+      for (const item of actorItems) {
+        const match = item.match(/^(.*?)\s*\((.*?)\)$/);
+        const name = (match ? match[1] : item).trim();
+        const characterName = match ? match[2].trim() : null;
+        
         let actor = await prisma.actor.findUnique({ where: { name } });
         if (!actor) {
           actor = await prisma.actor.create({ data: { name } });
         }
         await prisma.movieActor.create({
-          data: { movieId, actorId: actor.id }
+          data: { movieId, actorId: actor.id, characterName }
         }).catch(() => {});
       }
     }
@@ -69,14 +96,26 @@ async function syncMovieGenresAndActors(movieId: string, genreString?: string, a
 export const createMovie = async (req: Request, res: Response) => {
   try {
     const { 
-      title, description, genre, duration, trailerUrl, posterUrl, status,
-      releaseDate, ageRating, rating, votes, country, producer, director, actors 
+      title, description, duration, trailerUrl, posterUrl, status,
+      releaseDate, ageRating, rating, votes, country, producer, director,
+      genre, actors 
     } = req.body;
     
     const movie = await prisma.movie.create({
       data: { 
-        title, description, genre, duration, trailerUrl, posterUrl, status,
-        releaseDate, ageRating, rating, votes, country, producer, director, actors 
+        title, 
+        description, 
+        duration: Number(duration) || 120, 
+        trailerUrl, 
+        posterUrl, 
+        status: status || 'NOW_SHOWING',
+        releaseDate, 
+        ageRating, 
+        rating: rating !== undefined ? Number(rating) : undefined, 
+        votes: votes !== undefined ? Number(votes) : undefined, 
+        country, 
+        producer, 
+        director 
       }
     });
 
@@ -84,7 +123,11 @@ export const createMovie = async (req: Request, res: Response) => {
 
     apiCache.del('all_movies');
     apiCache.clearPattern('showtimes_');
-    res.status(201).json(movie);
+    res.status(201).json({
+      ...movie,
+      genre: genre || '',
+      actors: actors || ''
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error creating movie', error });
   }
@@ -94,25 +137,42 @@ export const updateMovie = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { 
-      title, description, genre, duration, trailerUrl, posterUrl, status,
-      releaseDate, ageRating, rating, votes, country, producer, director, actors 
+      title, description, duration, trailerUrl, posterUrl, status,
+      releaseDate, ageRating, rating, votes, country, producer, director,
+      genre, actors 
     } = req.body;
     
+    const updateData: any = {};
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (duration !== undefined) updateData.duration = Number(duration);
+    if (trailerUrl !== undefined) updateData.trailerUrl = trailerUrl;
+    if (posterUrl !== undefined) updateData.posterUrl = posterUrl;
+    if (status !== undefined) updateData.status = status;
+    if (releaseDate !== undefined) updateData.releaseDate = releaseDate;
+    if (ageRating !== undefined) updateData.ageRating = ageRating;
+    if (rating !== undefined) updateData.rating = Number(rating);
+    if (votes !== undefined) updateData.votes = Number(votes);
+    if (country !== undefined) updateData.country = country;
+    if (producer !== undefined) updateData.producer = producer;
+    if (director !== undefined) updateData.director = director;
+
     const movie = await prisma.movie.update({
       where: { id: id as string },
-      data: { 
-        title, description, genre, duration, trailerUrl, posterUrl, status,
-        releaseDate, ageRating, rating, votes, country, producer, director, actors 
-      }
+      data: updateData
     });
 
     if (genre !== undefined || actors !== undefined) {
-      await syncMovieGenresAndActors(movie.id, genre ?? movie.genre, actors ?? (movie.actors || undefined));
+      await syncMovieGenresAndActors(movie.id, genre, actors);
     }
 
     apiCache.del('all_movies');
     apiCache.clearPattern('showtimes_');
-    res.json(movie);
+    res.json({
+      ...movie,
+      genre: genre || '',
+      actors: actors || ''
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error updating movie', error });
   }

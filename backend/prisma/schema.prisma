@@ -62,7 +62,6 @@ model Movie {
   id          String       @id @default(uuid())
   title       String
   description String
-  genre       String
   duration    Int // in minutes
   trailerUrl  String?
   posterUrl   String?
@@ -74,7 +73,6 @@ model Movie {
   country     String?
   producer    String?
   director    String?
-  actors      String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   showtimes   Showtime[]

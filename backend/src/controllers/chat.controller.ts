@@ -35,18 +35,17 @@ export const handleChat = async (req: Request, res: Response) => {
     const lowerMsg = message.toLowerCase();
 
     // 1. Lấy dữ liệu cơ bản từ Database
-    const [movies, cinemas, promotions, foodCombos] = await Promise.all([
+    const [rawMovies, cinemas, promotions, foodCombos] = await Promise.all([
       prisma.movie.findMany({
         select: {
           id: true,
           title: true,
           status: true,
-          genre: true,
           duration: true,
           ageRating: true,
           director: true,
-          actors: true,
-          description: true
+          description: true,
+          movieGenres: { select: { genre: { select: { name: true } } } }
         }
       }),
       prisma.cinema.findMany({
@@ -61,6 +60,11 @@ export const handleChat = async (req: Request, res: Response) => {
         select: { name: true, price: true, description: true }
       })
     ]);
+
+    const movies = rawMovies.map(m => ({
+      ...m,
+      genre: m.movieGenres?.map(mg => mg.genre.name).join(', ') || 'Đang cập nhật'
+    }));
 
     // 2. Nhận diện phim được hỏi trong câu hỏi của khách
     const matchedMovies = movies.filter(m => {

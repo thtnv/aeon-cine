@@ -138,6 +138,14 @@ async function auditDb(dbName) {
     if (t === 'BaiVietTinTuc' && colNames.includes('tacGia')) {
       console.warn(`  ❌ ANOMALY: Table BaiVietTinTuc has redundant 'tacGia'!`);
     }
+
+    // Check Movie / Phim (Strict 3NF)
+    if (t === 'Movie' && (colNames.includes('genre') || colNames.includes('actors'))) {
+      console.warn(`  ❌ ANOMALY: Table Movie has redundant 'genre' or 'actors'!`);
+    }
+    if (t === 'Phim' && (colNames.includes('theLoai') || colNames.includes('dienVien'))) {
+      console.warn(`  ❌ ANOMALY: Table Phim has redundant 'theLoai' or 'dienVien'!`);
+    }
   }
 
   // 6. Check missing FKs

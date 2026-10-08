@@ -143,14 +143,13 @@ async function syncDatabases() {
     ], userRows);
     console.log(`✓ Đã đồng bộ ${userRows.length} tài khoản người dùng.\n`);
 
-    // --- 4. Movie ➔ Phim ---
+    // --- 4. Movie ➔ Phim (Strict 3NF: Tách riêng TheLoaiPhim và PhimDienVien) ---
     console.log('⏳ [4/26] Đang đồng bộ Movie ➔ Phim...');
     const movies = (await sourceClient.query('SELECT * FROM "Movie"')).rows;
     const movieRows = movies.map(m => ({
       maPhim: m.id,
       tenPhim: m.title,
       moTa: m.description,
-      theLoai: m.genre,
       thoiLuong: m.duration,
       duongDanTrailer: m.trailerUrl,
       duongDanPoster: m.posterUrl,
@@ -162,14 +161,13 @@ async function syncDatabases() {
       quocGia: m.country,
       nhaSanXuat: m.producer,
       daoDien: m.director,
-      dienVien: m.actors,
       ngayTao: m.createdAt,
       ngayCapNhat: m.updatedAt
     }));
     await batchInsert(targetClient, 'Phim', [
-      'maPhim', 'tenPhim', 'moTa', 'theLoai', 'thoiLuong', 'duongDanTrailer',
+      'maPhim', 'tenPhim', 'moTa', 'thoiLuong', 'duongDanTrailer',
       'duongDanPoster', 'trangThai', 'ngayKhoiChieu', 'phanLoaiDoTuoi', 'danhGiaTrungBinh',
-      'tongSoLuotDanhGia', 'quocGia', 'nhaSanXuat', 'daoDien', 'dienVien', 'ngayTao', 'ngayCapNhat'
+      'tongSoLuotDanhGia', 'quocGia', 'nhaSanXuat', 'daoDien', 'ngayTao', 'ngayCapNhat'
     ], movieRows);
     console.log(`✓ Đã đồng bộ ${movieRows.length} phim điện ảnh.\n`);
 
