@@ -379,9 +379,9 @@ async function syncDatabases() {
     console.log('⏳ [18/26] Đang đồng bộ Booking ➔ DonDatVe...');
     const bookings = (await sourceClient.query('SELECT * FROM "Booking"')).rows;
     const bookingRows = bookings.map(b => ({
-      maDonHang: b.id,
+      maDonDatVe: b.id,
       maNguoiDung: b.userId,
-      trangThaiDonHang: b.status,
+      trangThaiDatVe: b.status,
       maPhuongThuc: b.paymentMethodId || null,
       trangThaiThanhToan: b.paymentStatus || 'UNPAID',
       maVoucher: b.voucherId || null,
@@ -393,7 +393,7 @@ async function syncDatabases() {
       ngayCapNhat: b.updatedAt
     }));
     await batchInsert(targetClient, 'DonDatVe', [
-      'maDonHang', 'maNguoiDung', 'trangThaiDonHang', 'maPhuongThuc', 'trangThaiThanhToan',
+      'maDonDatVe', 'maNguoiDung', 'trangThaiDatVe', 'maPhuongThuc', 'trangThaiThanhToan',
       'maVoucher', 'soTienGiamGia', 'maVeDienTu', 'duongDanMaQR', 'tongTien', 'ngayTao', 'ngayCapNhat'
     ], bookingRows);
     console.log(`✓ Đã đồng bộ ${bookingRows.length} đơn đặt vé.\n`);
@@ -417,8 +417,8 @@ async function syncDatabases() {
     console.log('⏳ [20/26] Đang đồng bộ BookingDetail ➔ ChiTietDonDatVe (Hợp nhất vé xem phim 3NF)...');
     const details = (await sourceClient.query('SELECT * FROM "BookingDetail"')).rows;
     const detailRows = details.map(d => ({
-      maChiTietDonHang: d.id,
-      maDonHang: d.bookingId,
+      maChiTietDatVe: d.id,
+      maDonDatVe: d.bookingId,
       maSuatChieu: d.showtimeId,
       maGhe: d.seatId,
       maBangGia: d.ticketPriceId || null,
@@ -429,7 +429,7 @@ async function syncDatabases() {
       ngayCapNhat: d.updatedAt
     }));
     await batchInsert(targetClient, 'ChiTietDonDatVe', [
-      'maChiTietDonHang', 'maDonHang', 'maSuatChieu', 'maGhe', 'maBangGia', 'giaVe', 'maVeDienTu', 'trangThaiVe', 'ngayTao', 'ngayCapNhat'
+      'maChiTietDatVe', 'maDonDatVe', 'maSuatChieu', 'maGhe', 'maBangGia', 'giaVe', 'maVeDienTu', 'trangThaiVe', 'ngayTao', 'ngayCapNhat'
     ], detailRows);
     console.log(`✓ Đã đồng bộ ${detailRows.length} chi tiết đơn đặt vé (vé xem phim).\n`);
 
@@ -454,14 +454,14 @@ async function syncDatabases() {
     const bsList = (await sourceClient.query('SELECT * FROM "BookingService"')).rows;
     const bsRows = bsList.map(bs => ({
       maChiTietDichVu: bs.id,
-      maDonHang: bs.bookingId,
+      maDonDatVe: bs.bookingId,
       maDichVu: bs.serviceId,
       soLuong: bs.quantity,
       donGia: bs.price,
       ngayTao: bs.createdAt,
       ngayCapNhat: bs.updatedAt
     }));
-    await batchInsert(targetClient, 'ChiTietDichVuDonHang', ['maChiTietDichVu', 'maDonHang', 'maDichVu', 'soLuong', 'donGia', 'ngayTao', 'ngayCapNhat'], bsRows);
+    await batchInsert(targetClient, 'ChiTietDichVuDonHang', ['maChiTietDichVu', 'maDonDatVe', 'maDichVu', 'soLuong', 'donGia', 'ngayTao', 'ngayCapNhat'], bsRows);
     console.log(`✓ Đã đồng bộ ${bsRows.length} chi tiết dịch vụ theo đơn.\n`);
 
     // --- 23. Review ➔ DanhGiaBinhLuan ---
