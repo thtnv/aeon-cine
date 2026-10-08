@@ -137,8 +137,8 @@ export default function Blog() {
                 </div>
 
                 <div className="p-6 pt-0 border-t border-slate-100 dark:border-gray-800/50 mt-4 flex items-center justify-between">
-                  <span className="text-xs text-slate-500 dark:text-gray-400 font-bold flex items-center gap-1">
-                    <User size={13} className="text-orange-500" /> {article.author}
+                  <span className="text-xs text-slate-500 dark:text-gray-400 font-medium flex items-center gap-1.5">
+                    <Eye size={13} className="text-amber-500" /> {Number(article.views || 0).toLocaleString('vi-VN')} lượt xem
                   </span>
                   <span className="text-xs text-orange-600 dark:text-orange-400 font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                     Đọc tiếp <ChevronRight size={16} />
@@ -170,7 +170,7 @@ export default function Blog() {
             </h2>
 
             <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400 mb-8 border-b border-gray-800 pb-4 font-semibold">
-              <span className="flex items-center gap-1"><User size={14} className="text-orange-500" /> Tác giả: {selectedArticle.author}</span>
+              <span className="flex items-center gap-1"><User size={14} className="text-orange-500" /> Tác giả: {selectedArticle.author || 'Ban Biên Tập Aeon Cine'}</span>
               <span>•</span>
               <span className="flex items-center gap-1"><Calendar size={14} /> {selectedArticle.publishDate}</span>
               <span>•</span>

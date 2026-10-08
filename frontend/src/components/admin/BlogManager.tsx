@@ -22,7 +22,7 @@ export default function BlogManager() {
   const [summary, setSummary] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('Review Phim');
-  const [author, setAuthor] = useState('Aeon Cine Editor');
+  const [author, setAuthor] = useState('Ban Biên Tập Aeon Cine');
   const [publishDate, setPublishDate] = useState(new Date().toISOString().slice(0, 10));
   const [readingTime, setReadingTime] = useState('5 phút đọc');
   const [imageUrl, setImageUrl] = useState('');
@@ -47,7 +47,7 @@ export default function BlogManager() {
     setSummary('');
     setContent('');
     setCategory('Review Phim');
-    setAuthor('Aeon Cine Editor');
+    setAuthor('Ban Biên Tập Aeon Cine');
     setPublishDate(new Date().toISOString().slice(0, 10));
     setReadingTime('5 phút đọc');
     setImageUrl('');
@@ -64,7 +64,7 @@ export default function BlogManager() {
       summary,
       content,
       category,
-      author: author.trim() || 'Aeon Cine Editor',
+      author: author.trim() || 'Ban Biên Tập Aeon Cine',
       publishDate,
       readingTime: readingTime.trim() || '5 phút đọc',
       imageUrl: imageUrl.trim() || undefined,
@@ -104,7 +104,7 @@ export default function BlogManager() {
     setSummary(blog.summary || '');
     setContent(blog.content || '');
     setCategory(blog.category || 'Review Phim');
-    setAuthor(blog.author || 'Aeon Cine Editor');
+    setAuthor(blog.author || 'Ban Biên Tập Aeon Cine');
     setPublishDate(blog.publishDate || new Date().toISOString().slice(0, 10));
     setReadingTime(blog.readingTime || '5 phút đọc');
     setImageUrl(blog.imageUrl || '');

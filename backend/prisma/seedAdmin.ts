@@ -11,7 +11,7 @@ async function main() {
     update: {},
     create: {
       email: 'admin@gmail.com',
-      name: 'Super Admin',
+      name: 'Ban Biên Tập Aeon Cine',
       password: hashedPassword,
       role: 'ADMIN',
     },

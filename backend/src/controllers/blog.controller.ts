@@ -20,7 +20,7 @@ export const getBlogs = async (req: Request, res: Response) => {
 
     res.json(blogs.map(b => ({
       ...b,
-      author: b.authorUser?.name || 'Aeon Cine Editor'
+      author: b.authorUser?.name || 'Ban Biên Tập Aeon Cine'
     })));
   } catch (error) {
     console.error('Error fetching blogs:', error);
@@ -54,7 +54,7 @@ export const getBlogById = async (req: Request, res: Response) => {
 
     res.json({
       ...blog,
-      author: blog.authorUser?.name || 'Aeon Cine Editor'
+      author: blog.authorUser?.name || 'Ban Biên Tập Aeon Cine'
     });
   } catch (error) {
     console.error('Error fetching blog details:', error);
@@ -105,7 +105,7 @@ export const createBlog = async (req: Request, res: Response) => {
 
     res.status(201).json({
       ...newBlog,
-      author: newBlog.authorUser?.name || 'Aeon Cine Editor'
+      author: newBlog.authorUser?.name || 'Ban Biên Tập Aeon Cine'
     });
   } catch (error) {
     console.error('Error creating blog:', error);
