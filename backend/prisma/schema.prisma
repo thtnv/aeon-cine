@@ -83,19 +83,19 @@ model Movie {
 }
 
 model Cinema {
-  id            String         @id @default(uuid())
-  name          String
-  location      String
-  address       String?
-  city          String         @default("TP.HCM")
-  phone         String?
-  mapUrl        String?
-  directionsUrl String?
-  amenities     String[]       @default([])
-  rooms         Room[]
-  groupBookings GroupBooking[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id              String          @id @default(uuid())
+  name            String
+  location        String
+  address         String?
+  city            String          @default("TP.HCM")
+  phone           String?
+  mapUrl          String?
+  directionsUrl   String?
+  cinemaAmenities CinemaAmenity[]
+  rooms           Room[]
+  groupBookings   GroupBooking[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 }
 
 model Room {
@@ -435,4 +435,31 @@ model GroupBooking {
   @@index([cinemaId])
   @@index([status])
   @@index([createdAt])
+}
+
+// Bảng Tiện Ích Rạp Chiếu (Amenity / TienIch - Chuẩn hóa 3NF)
+model Amenity {
+  id              String          @id @default(uuid())
+  name            String          @unique
+  icon            String?
+  description     String?
+  cinemaAmenities CinemaAmenity[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@map("Amenity")
+}
+
+// Bảng Quan Hệ Cụm Rạp - Tiện Ích (CinemaAmenity / CumRapTienIch - Quan hệ Nhiều - Nhiều N-N)
+model CinemaAmenity {
+  cinemaId  String
+  cinema    Cinema   @relation(fields: [cinemaId], references: [id], onDelete: Cascade)
+  amenityId String
+  amenity   Amenity  @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([cinemaId, amenityId])
+  @@index([cinemaId])
+  @@index([amenityId])
+  @@map("CinemaAmenity")
 }

@@ -55,6 +55,8 @@ async function syncDatabases() {
     console.log('🧹 Đang làm sạch các bảng dữ liệu trong aeon_cinema_db_vi (TRUNCATE CASCADE)...');
     await targetClient.query(`
       TRUNCATE TABLE 
+        "CumRapTienIch",
+        "TienIch",
         "PhimTheLoai",
         "PhimDienVien",
         "ChiTietDonDatVe",
@@ -219,8 +221,8 @@ async function syncDatabases() {
     await batchInsert(targetClient, 'PhimDienVien', ['maPhim', 'maDienVien', 'vaiDien', 'ngayTao'], maRows);
     console.log(`✓ Đã đồng bộ ${maRows.length} quan hệ Phim - Diễn Viên.\n`);
 
-    // --- 9. Cinema ➔ CumRap ---
-    console.log('⏳ [9/26] Đang đồng bộ Cinema ➔ CumRap...');
+    // --- 9. Cinema ➔ CumRap (Strict 3NF: Tách riêng TienIch và CumRapTienIch) ---
+    console.log('⏳ [9/28] Đang đồng bộ Cinema ➔ CumRap...');
     const cinemas = (await sourceClient.query('SELECT * FROM "Cinema"')).rows;
     const cinemaRows = cinemas.map(c => ({
       maCumRap: c.id,
@@ -231,15 +233,39 @@ async function syncDatabases() {
       soDienThoai: c.phone,
       duongDanBanDo: c.mapUrl,
       duongDanChiDuong: c.directionsUrl,
-      tienIch: c.amenities || [],
       ngayTao: c.createdAt,
       ngayCapNhat: c.updatedAt
     }));
     await batchInsert(targetClient, 'CumRap', [
       'maCumRap', 'tenCumRap', 'khuVuc', 'diaChi', 'thanhPho', 'soDienThoai',
-      'duongDanBanDo', 'duongDanChiDuong', 'tienIch', 'ngayTao', 'ngayCapNhat'
+      'duongDanBanDo', 'duongDanChiDuong', 'ngayTao', 'ngayCapNhat'
     ], cinemaRows);
     console.log(`✓ Đã đồng bộ ${cinemaRows.length} cụm rạp chiếu phim.\n`);
+
+    // --- 10. Amenity ➔ TienIch ---
+    console.log('⏳ [10/28] Đang đồng bộ Amenity ➔ TienIch...');
+    const amenities = (await sourceClient.query('SELECT * FROM "Amenity"')).rows;
+    const amenityRows = amenities.map(a => ({
+      maTienIch: a.id,
+      tenTienIch: a.name,
+      bieuTuong: a.icon,
+      moTa: a.description,
+      ngayTao: a.createdAt,
+      ngayCapNhat: a.updatedAt
+    }));
+    await batchInsert(targetClient, 'TienIch', ['maTienIch', 'tenTienIch', 'bieuTuong', 'moTa', 'ngayTao', 'ngayCapNhat'], amenityRows);
+    console.log(`✓ Đã đồng bộ ${amenityRows.length} danh mục tiện ích rạp.\n`);
+
+    // --- 11. CinemaAmenity ➔ CumRapTienIch ---
+    console.log('⏳ [11/28] Đang đồng bộ CinemaAmenity ➔ CumRapTienIch...');
+    const caList = (await sourceClient.query('SELECT * FROM "CinemaAmenity"')).rows;
+    const caRows = caList.map(ca => ({
+      maCumRap: ca.cinemaId,
+      maTienIch: ca.amenityId,
+      ngayTao: ca.createdAt
+    }));
+    await batchInsert(targetClient, 'CumRapTienIch', ['maCumRap', 'maTienIch', 'ngayTao'], caRows);
+    console.log(`✓ Đã đồng bộ ${caRows.length} quan hệ Cụm Rạp - Tiện Ích.\n`);
 
     // --- 10. Room ➔ PhongChieu ---
     console.log('⏳ [10/26] Đang đồng bộ Room ➔ PhongChieu...');
@@ -547,7 +573,7 @@ async function syncDatabases() {
     // 3. ĐỐI SOÁT & KIỂM TRA SỐ LƯỢNG BẢN GHI (VERIFICATION)
     // =========================================================================
     console.log('========================================================================');
-    console.log('🔍 BẢNG ĐỐI SOÁT CHI TIẾT SỐ LƯỢNG BẢN GHI GIỮA 2 DATABASE (26 BẢNG 3NF)');
+    console.log('🔍 BẢNG ĐỐI SOÁT CHI TIẾT SỐ LƯỢNG BẢN GHI GIỮA 2 DATABASE (28 BẢNG 3NF)');
     console.log('========================================================================');
 
     const tableMappings = [
@@ -560,6 +586,8 @@ async function syncDatabases() {
       { src: 'Actor', tgt: 'DienVien', desc: 'Diễn viên điện ảnh' },
       { src: 'MovieActor', tgt: 'PhimDienVien', desc: 'Quan hệ Phim - Diễn Viên (N-N)' },
       { src: 'Cinema', tgt: 'CumRap', desc: 'Cụm rạp chiếu phim' },
+      { src: 'Amenity', tgt: 'TienIch', desc: 'Danh mục tiện ích rạp chiếu (Tách chuẩn hóa 3NF)' },
+      { src: 'CinemaAmenity', tgt: 'CumRapTienIch', desc: 'Quan hệ Cụm Rạp - Tiện Ích (N-N)' },
       { src: 'Room', tgt: 'PhongChieu', desc: 'Phòng chiếu phim' },
       { src: 'ScreenFormat', tgt: 'DinhDangChieu', desc: 'Định dạng chiếu (2D/3D/IMAX)' },
       { src: 'SeatType', tgt: 'LoaiGhe', desc: 'Loại ghế ngồi (Standard/VIP/Sweetbox)' },
@@ -592,7 +620,7 @@ async function syncDatabases() {
 
     console.log('========================================================================');
     if (allMatch) {
-      console.log('🎉 TẤT CẢ 26/26 BẢNG ĐÃ ĐƯỢC ĐỒNG BỘ CHÍNH XÁC 100% SANG aeon_cinema_db_vi!');
+      console.log('🎉 TẤT CẢ 28/28 BẢNG ĐÃ ĐƯỢC ĐỒNG BỘ CHÍNH XÁC 100% SANG aeon_cinema_db_vi!');
     } else {
       console.warn('⚠️ CÓ BẢNG BỊ LỆCH SỐ LƯỢNG DỮ LIỆU! VUI LÒNG KIỂM TRA LẠI.');
     }

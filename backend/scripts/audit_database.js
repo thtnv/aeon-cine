@@ -146,6 +146,14 @@ async function auditDb(dbName) {
     if (t === 'Phim' && (colNames.includes('theLoai') || colNames.includes('dienVien'))) {
       console.warn(`  ❌ ANOMALY: Table Phim has redundant 'theLoai' or 'dienVien'!`);
     }
+
+    // Check Cinema / CumRap (Strict 3NF - Tách Tiện Ích)
+    if (t === 'Cinema' && colNames.includes('amenities')) {
+      console.warn(`  ❌ ANOMALY: Table Cinema still has multivalued column 'amenities'!`);
+    }
+    if (t === 'CumRap' && colNames.includes('tienIch')) {
+      console.warn(`  ❌ ANOMALY: Table CumRap still has multivalued column 'tienIch'!`);
+    }
   }
 
   // 6. Check missing FKs

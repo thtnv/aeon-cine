@@ -2,6 +2,8 @@ const { Client } = require('pg');
 
 const mapping = [
   { en: 'Actor', vi: 'DienVien' },
+  { en: 'Amenity', vi: 'TienIch' },
+  { en: 'CinemaAmenity', vi: 'CumRapTienIch' },
   { en: 'Article', vi: 'BaiVietTinTuc' },
   { en: 'Booking', vi: 'DonDatVe' },
   { en: 'BookingService', vi: 'ChiTietDichVuDonHang' },

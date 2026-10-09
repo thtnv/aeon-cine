@@ -2,6 +2,32 @@ import { Request, Response } from 'express';
 import prisma from '../prismaClient';
 import { apiCache } from '../utils/cache';
 
+async function syncCinemaAmenities(cinemaId: string, amenitiesInput?: any) {
+  if (amenitiesInput === undefined) return;
+  try {
+    let names: string[] = [];
+    if (Array.isArray(amenitiesInput)) {
+      names = amenitiesInput.map((s: any) => String(s).trim()).filter(Boolean);
+    } else if (typeof amenitiesInput === 'string') {
+      names = amenitiesInput.split(',').map((s: string) => s.trim()).filter(Boolean);
+    }
+
+    await prisma.cinemaAmenity.deleteMany({ where: { cinemaId } });
+
+    for (const name of names) {
+      let amenity = await prisma.amenity.findUnique({ where: { name } });
+      if (!amenity) {
+        amenity = await prisma.amenity.create({ data: { name } });
+      }
+      await prisma.cinemaAmenity.create({
+        data: { cinemaId, amenityId: amenity.id }
+      }).catch(() => {});
+    }
+  } catch (err) {
+    console.error('Error syncing CinemaAmenity:', err);
+  }
+}
+
 export const getCinemas = async (req: Request, res: Response) => {
   try {
     const bypassCache = req.query._t || req.headers['cache-control']?.includes('no-cache');
@@ -17,16 +43,19 @@ export const getCinemas = async (req: Request, res: Response) => {
       include: {
         rooms: {
           orderBy: { name: 'asc' }
+        },
+        cinemaAmenities: {
+          include: { amenity: true }
         }
       },
       orderBy: { name: 'asc' }
     });
 
-    // Chuẩn hóa dữ liệu trả về (đảm bảo address fallback vào location và amenities luôn là mảng)
+    // Chuẩn hóa dữ liệu trả về (đảm bảo address fallback vào location và amenities tổng hợp từ bảng liên kết 3NF)
     const formatted = cinemas.map(c => ({
       ...c,
       address: c.address || c.location,
-      amenities: Array.isArray(c.amenities) ? c.amenities : []
+      amenities: c.cinemaAmenities?.map(ca => ca.amenity?.name).filter(Boolean) || []
     }));
 
     apiCache.set('all_cinemas', formatted, 60);
@@ -47,14 +76,6 @@ export const createCinema = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Tên và địa chỉ rạp là bắt buộc' });
     }
 
-    // Xử lý amenities: nếu gửi chuỗi phân tách bởi dấu phẩy thì chuyển thành mảng
-    let parsedAmenities: string[] = [];
-    if (Array.isArray(amenities)) {
-      parsedAmenities = amenities.map((s: any) => String(s).trim()).filter(Boolean);
-    } else if (typeof amenities === 'string') {
-      parsedAmenities = amenities.split(',').map(s => s.trim()).filter(Boolean);
-    }
-
     const cinema = await prisma.cinema.create({
       data: {
         name,
@@ -63,11 +84,15 @@ export const createCinema = async (req: Request, res: Response) => {
         city: city || 'TP.HCM',
         phone: phone || null,
         mapUrl: mapUrl || null,
-        directionsUrl: directionsUrl || null,
-        amenities: parsedAmenities
+        directionsUrl: directionsUrl || null
       },
       include: { rooms: true }
     });
+
+    if (amenities !== undefined) {
+      await syncCinemaAmenities(cinema.id, amenities);
+    }
+
     apiCache.del('all_cinemas');
     res.status(201).json(cinema);
   } catch (error) {
@@ -82,15 +107,6 @@ export const updateCinema = async (req: Request, res: Response) => {
     const finalAddress = address !== undefined ? address : (location !== undefined ? location : undefined);
     const finalLocation = location !== undefined ? location : (address !== undefined ? address : undefined);
 
-    let parsedAmenities: string[] | undefined = undefined;
-    if (amenities !== undefined) {
-      if (Array.isArray(amenities)) {
-        parsedAmenities = amenities.map((s: any) => String(s).trim()).filter(Boolean);
-      } else if (typeof amenities === 'string') {
-        parsedAmenities = amenities.split(',').map(s => s.trim()).filter(Boolean);
-      }
-    }
-
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
     if (finalLocation !== undefined) updateData.location = finalLocation;
@@ -99,12 +115,16 @@ export const updateCinema = async (req: Request, res: Response) => {
     if (phone !== undefined) updateData.phone = phone;
     if (mapUrl !== undefined) updateData.mapUrl = mapUrl;
     if (directionsUrl !== undefined) updateData.directionsUrl = directionsUrl;
-    if (parsedAmenities !== undefined) updateData.amenities = parsedAmenities;
 
     const cinema = await prisma.cinema.update({
       where: { id: String(id) },
       data: updateData
     });
+
+    if (amenities !== undefined) {
+      await syncCinemaAmenities(cinema.id, amenities);
+    }
+
     apiCache.del('all_cinemas');
     res.json(cinema);
   } catch (error) {
