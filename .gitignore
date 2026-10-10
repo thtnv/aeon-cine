@@ -53,4 +53,5 @@ postgres*.png
 *So Do*.jpg
 *Sơ Đồ*.jpg
 backend/scripts/generate_7_usecase_mdj.js
+backend/scripts/generate_complete_usecase_mdj.js
 backend/scripts/render_usecase_diagram.py
